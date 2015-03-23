@@ -8,14 +8,14 @@ public final class TransposedMatrix extends Matrix {
   }
 
   //----------------------------------------------------------------------------
-    
+
   @Override
   public double get(int i, int j) {
     assert (0 <= i && i < rows());
     assert (0 <= j && j < cols());
     return array()[j][i];
   }
-    
+
   @Override
   public void set(int i, int j, double value) {
     assert (0 <= i && i < rows());
@@ -29,8 +29,8 @@ public final class TransposedMatrix extends Matrix {
   public Matrix T() {
     return mat;
   }
-    
+
   //----------------------------------------------------------------------------
-    
+
   private final NonTransposedMatrix mat;
 }
