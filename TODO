@@ -1,7 +1,16 @@
 
+shared interface (VecMat) for Vector/Matrix classes
+
 LU decomposition
 general matrix inverse
 back substitution
 least squares solution
-diagonal matrix performance improvements
+
+vector performance improvements
+    constant vector
+    standard unit vector
+
+matrix performance improvements
+    diagonal matrices, identity matrix
+    lower/upper triangular matrices
 

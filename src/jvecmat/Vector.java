@@ -6,59 +6,99 @@ import java.util.Random;
  * Representation of column vectors.
  */
 public class Vector {
-
+  /**
+   * Shared object for all empty vectors.
+   */
   public static final Vector EMPTY = new Vector(new double[0]);
 
   /**
-   * @return vector which encapsulates "data" (data is not copied)
+   * Creates a vector using the provided data.
+   * An empty vector is created if <code>data</code> is <code>null</code>
+   * or has zero length.
+   *
+   * @param data elements of the vector
+   * @return vector which encapsulates <code>data</code> (not copied)
    */
   public static Vector create(double[] data) {
-    if (0 == data.length) { return EMPTY; }
+    if (data == null || data.length == 0) { return EMPTY; }
     return new Vector(data);
   }
 
   /**
+   * Creates a vector of given length having uninitialized elements.
+   * An empty vector is created if <code>length</code> is not positive.
+   *
+   * @param length number of elements
    * @return vector with size "length" and uninitialized elements
    */
   public static Vector create(int length) {
-    if (0 == length) return EMPTY;
+    if (0 >= length) return EMPTY;
     return create(new double[length]);
   }
 
   /**
-   * @return constant (column) vector of size "length" having elements "c"
+   * Creates a vector of the given <code>length</code>
+   * and initializes its elements to <code>value</code>.
+   * An empty vector is created if <code>length</code> is not positive.
+   *
+   * @param length number of elements
+   * @param value value of elements
+   * @return constant (column) vector of size <code>length</code>
+   *         having its elements set to <code>value</code>
    */
-  public static Vector constant(int length, double c) {
+  public static Vector constant(int length, double value) {
     Vector v = Vector.create(length);
-    v.setToConstant(c);
+    v.setToConstant(value);
     return v;
   }
 
   /**
-   * @return zero (column) vector of size "length"
+   * Creates a vector of the given <code>length</code>
+   * and initializes its elements to zero.
+   * An empty vector is created if <code>length</code> is not positive.
+   *
+   * @param length number of elements
+   * @return zero (column) vector of size <code>length</code>
    */
   public static Vector zero(int length) {
     return constant(length, 0.0);
   }
 
   /**
-   * @return constant (column) one vector of size "length"
+   * Creates a vector of the given <code>length</code>
+   * and initializes its elements to one.
+   * An empty vector is created if <code>length</code> is not positive.
+   *
+   * @param length number of elements
+   * @return all one (column) vector of size <code>length</code>
    */
   public static Vector one(int length) {
     return constant(length, 1.0);
   }
 
   /**
-   * @return unit (column) vector of size "length" with 1.0 at "onePos"
+   * Creates a standard unit vector of the given <code>length</code>
+   * having value one on position <code>onePosition</code> and zeros elsewhere.
+   * An empty vector is created if <code>length</code> is not positive.
+   *
+   * @param length number of elements
+   * @param onePosition position of the one value
+   * @return standard unit (column) vector of size <code>length</code>
    */
-  public static Vector unit(int length, int onePos) {
+  public static Vector unit(int length, int onePosition) {
     Vector v = zero(length);
-    v.data[onePos] = 1.0;
+    v.data[onePosition] = 1.0;
     return v;
   }
 
   /**
-   * @return random vector of which elements are drawn from U(0,1)
+   * Creates a random vector of the given <code>length</code>
+   * drawing its elements from the uniform distribution on [0,1].
+   * An empty vector is created if <code>length</code> is not positive.
+   *
+   * @param length number of elements
+   * @param rng random number generator
+   * @return uniform random vector of size <code>length</code>
    */
   public static Vector rand(int length, Random rng) {
     Vector v = Vector.create(length);
@@ -67,7 +107,13 @@ public class Vector {
   }
 
   /**
-   * @return random vector of which elements are drawn from N(0,1)
+   * Creates a random vector of the given <code>length</code>
+   * drawing its elements from the standard normal distribution.
+   * An empty vector is created if <code>length</code> is not positive.
+   *
+   * @param length number of elements
+   * @param rng random number generator
+   * @return standard normal random vector of size <code>length</code>
    */
   public static Vector randN(int length, Random rng) {
     Vector v = Vector.create(length);
@@ -78,14 +124,17 @@ public class Vector {
   //----------------------------------------------------------------------------
 
   /**
-   * Create a column vector object which encapsulates "v" (not copied).
+   * Creates a (column) vector object
+   * which encapsulates <code>data</code> (not copied).
    */
-  protected Vector(double[] v) {
-    this.data = v;
+  protected Vector(double[] data) {
+    this.data = data;
   }
 
   /**
-   * @return representation array of the vector
+   * Returns the array representation of the vector.
+   *
+   * @return array representation of the vector
    */
   public final double[] array() {
     return data;

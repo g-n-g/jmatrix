@@ -8,6 +8,8 @@ import java.util.Random;
 public abstract class Matrix {
 
   /**
+   * Creates a matrix using the provided data.
+   *
    * @return matrix which encapsulates "data" (data is not copied)
    */
   public static Matrix create(double[][] data) {
@@ -15,6 +17,8 @@ public abstract class Matrix {
   }
 
   /**
+   * Creates a matrix of given size having uninitialized elements.
+   *
    * @return matrix with size "rows" x "cols" and uninitialized elements
    */
   public static Matrix create(int rows, int cols) {
