@@ -1,0 +1,32 @@
+
+A small vector/matrix library which allows user caching of the
+results and the intermediate computations to avoid garbage collection.
+
+This is a work in progress, expect API changes...
+
+Alternatives:
+
+    Apache Commons Math / Linear Algebra
+    http://commons.apache.org/proper/commons-math/userguide/linear.html
+
+    Java Matrix Package (JAMA)
+    http://math.nist.gov/javanumerics/jama/
+
+-------------------------------------------------------------------------------
+
+Compilation:
+
+  ant
+
+Generating documentation:
+
+  ant doc
+
+Running all test cases:
+
+  ant test-all
+
+Cleaning:
+
+  ant clean
+

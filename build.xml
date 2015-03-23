@@ -1,0 +1,103 @@
+<project name="jvecmat" default="compile" basedir=".">
+  <property name="src" location="src"/>
+  <property name="bin" location="bin"/>
+  <property name="doc" location="doc"/>
+  <property name="test" location="test"/>
+
+  <!-- properties -->
+
+  <property name="junit"
+            location="/usr/share/junit-4/lib/junit.jar"/>
+  <property name="hamcrest"
+            location="/usr/share/hamcrest-core-1.3/lib/hamcrest-core.jar"/>
+
+  <presetdef name="javac">
+    <javac includeantruntime="false" />
+  </presetdef>
+
+  <tstamp>
+    <format property='build.time' pattern='yyyy-MM-dd HH:mm:ss'/>
+  </tstamp>
+  <echo>
+    Build File : ${ant.file} 
+    Run Date   : ${build.time}
+    Run by     : ${user.name}
+    Source Dir : ${src}
+    Base Dir   : ${basedir}
+    Java Home  : ${java.home}
+  </echo>
+
+  <!-- compilation targets -->
+
+  <target name="compile" description="Compile the jvecmat package.">
+    <javac srcdir="${src}/jvecmat" destdir="${bin}"/>
+  </target>
+
+  <!-- test targets -->
+
+  <target name="test-compile"
+          description="Compile the test cases."
+          depends="compile">
+    <mkdir dir="${bin}/test"/>
+    <javac srcdir="${test}/jvecmat" destdir="${bin}/test">
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${bin}"/>
+        <pathelement location="${junit}"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="test-vector"
+          description="Run vector tests."
+          depends="test-compile">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="jvecmat.VectorTests"/>
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${bin}"/>
+        <pathelement location="${bin}/test"/>
+        <pathelement location="${junit}"/>
+        <pathelement location="${hamcrest}"/>
+      </classpath>
+    </java>
+  </target>
+
+  <target name="test-matrix"
+          description="Run matrix tests."
+          depends="test-compile">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="jvecmat.MatrixTests"/>
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${bin}"/>
+        <pathelement location="${bin}/test"/>
+        <pathelement location="${junit}"/>
+        <pathelement location="${hamcrest}"/>
+      </classpath>
+    </java>
+  </target>
+
+  <target name="test-all"
+          description="Run all tests."
+          depends="test-vector,test-matrix">
+  </target>
+
+  <!-- other targets -->
+
+  <target name="doc" description="Generate API documentation.">
+    <javadoc sourcepath="${src}" destdir="${doc}"/>
+  </target>
+
+  <target name="clean" description="Delete class files.">
+    <delete dir="${bin}/jvecmat"/>
+    <delete dir="${bin}/test"/>
+    <delete includeemptydirs="true">
+      <fileset dir="${doc}" includes="*.html"/>
+      <fileset dir="${doc}" includes="*.css"/>
+      <fileset dir="${doc}" includes="package-list"/>
+      <fileset dir="${doc}/jvecmat"/>
+      <fileset dir="${doc}/resources"/>
+    </delete>
+  </target>
+</project>
