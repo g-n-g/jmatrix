@@ -29,7 +29,7 @@ public class Vector {
    * An empty vector is created if <code>length</code> is not positive.
    *
    * @param length number of elements
-   * @return vector with size "length" and uninitialized elements
+   * @return vector of size <code>length</code> having uninitialized elements
    */
   public static Vector create(int length) {
     if (0 >= length) return EMPTY;
@@ -125,7 +125,9 @@ public class Vector {
 
   /**
    * Creates a (column) vector object
-   * which encapsulates <code>data</code> (not copied).
+   * which encapsulates <code>data</code>.
+   *
+   * @param data vector data (not copied)
    */
   protected Vector(double[] data) {
     this.data = data;

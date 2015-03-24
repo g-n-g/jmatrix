@@ -10,7 +10,8 @@ public abstract class Matrix {
   /**
    * Creates a matrix using the provided data.
    *
-   * @return matrix which encapsulates "data" (data is not copied)
+   * @param data elements of the vector
+   * @return matrix which encapsulates <code>data</code> (not copied)
    */
   public static Matrix create(double[][] data) {
     return new NonTransposedMatrix(data);
@@ -19,14 +20,20 @@ public abstract class Matrix {
   /**
    * Creates a matrix of given size having uninitialized elements.
    *
-   * @return matrix with size "rows" x "cols" and uninitialized elements
+   * @param rows number of rows
+   * @param cols number of columns
+   * @return matrix with size <code>rows</code> x <code>cols</code>
+   *         having uninitialized elements
    */
   public static Matrix create(int rows, int cols) {
     return create(new double[rows][cols]);
   }
 
   /**
-   * @return matrix having "rows" rows (data is not copied)
+   * Creates a matrix by its <code>rows</code>.
+   *
+   * @param rows vectors forming the rows of the matrix
+   * @return matrix formed by <code>rows</code> (not copied)
    */
   public static Matrix createByRows(Vector[] rows) {
     double [][]d = new double[rows.length][];
@@ -35,37 +42,60 @@ public abstract class Matrix {
   }
 
   /**
-   * @return matrix having "cols" columns (data is not copied)
+   * Creates a matrix by its <code>columns</code>.
+   *
+   * @param columns vectors forming the columns of the matrix
+   * @return matrix formed by <code>columns</code> (not copied)
    */
-  public static Matrix createByCols(Vector[] cols) {
-    return createByRows(cols).T();
+  public static Matrix createByCols(Vector[] columns) {
+    return createByRows(columns).T();
   }
 
   /**
+   * Creates a matrix of size <code>rows</code> x <code>cols</code>
+   * and initializes its elements to <code>values</code>.
+   *
+   * @param rows number of rows
+   * @param cols number of columns
+   * @param value value of elements
    * @return constant matrix of size "rows" x "cols" having elements "c"
    */
-  public static Matrix constant(int rows, int cols, double c) {
-    Matrix m = create(rows,cols);
-    m.setToConstant(c);
+  public static Matrix constant(int rows, int cols, double value) {
+    Matrix m = create(rows, cols);
+    m.setToConstant(value);
     return m;
   }
 
   /**
-   * @return zero matrix of size "rows" x "cols"
+   * Creates a matrix of size <code>rows</code> x <code>cols</code>
+   * and initializes its elements to zero.
+   *
+   * @param rows number of rows
+   * @param cols number of columns
+   * @return zero matrix of size <code>rows</code> x <code>cols</code>
    */
   public static Matrix zero(int rows, int cols) {
     return constant(rows, cols, 0.0);
   }
 
   /**
-   * @return constant one matrix of size "rows" x "cols"
+   * Creates a matrix of size <code>rows</code> x <code>cols</code>
+   * and initializes its elements to zero.
+   *
+   * @param rows number of rows
+   * @param cols number of columns
+   * @return all one matrix of size <code>rows</code> x <code>cols</code>
    */
   public static Matrix one(int rows, int cols) {
     return constant(rows, cols, 1.0);
   }
 
   /**
-   * @return diagonal matrix defined by vector "v" in the diagonal
+   * Creates a square diagonal matrix
+   * using the elements of vector <code>v</code>.
+   *
+   * @param v vector forming the diagonal
+   * @return square diagonal matrix defined by vector <code>v</code>
    */
   public static Matrix diag(Vector v) {
     int n = v.length();
@@ -79,7 +109,10 @@ public abstract class Matrix {
   }
 
   /**
-   * @return identity matrix of size "dim" x "dim"
+   * Creates an identity matrix of size <code>dim</code> x <code>dim</code>.
+   *
+   * @param dim dimension
+   * @return identity matrix of size <code>dim</code> x <code>dim</code>
    */
   public static Matrix eye(int dim) {
     double[][] mat = new double[dim][dim];
@@ -91,7 +124,14 @@ public abstract class Matrix {
   }
 
   /**
-   * @return random matrix of which elements are drawn from U(0,1)
+   * Creates a random matrix of size <code>rows</code> x <code>cols</code>
+   * drawing its elements from the uniform distribution on [0,1].
+   *
+   * @param rows number of rows
+   * @param cols number of columns
+   * @param rng random number generator
+   * @return uniform random matrix
+   *         of size <code>rows</code> x <code>cols</code>
    */
   public static Matrix rand(int rows, int cols, Random rng) {
     Matrix m = Matrix.create(rows,cols);
@@ -100,7 +140,14 @@ public abstract class Matrix {
   }
 
   /**
-   * @return random matrix of which elements are drawn from N(0,1)
+   * Creates a random matrix of size <code>rows</code> x <code>cols</code>
+   * drawing its elements from the standard normal distribution.
+   *
+   * @param rows number of rows
+   * @param cols number of columns
+   * @param rng random number generator
+   * @return standard normal random matrix
+   *         of size <code>rows</code> x <code>cols</code>
    */
   public static Matrix randN(int rows, int cols, Random rng) {
     Matrix m = Matrix.create(rows,cols);
@@ -110,6 +157,14 @@ public abstract class Matrix {
 
   //----------------------------------------------------------------------------
 
+  /**
+   * Creates a matrix object of size <code>rows</code> x <code>cols</code>
+   * which encapsulates <code>data</code>.
+   *
+   * @param rows number of rows
+   * @param cols number of columns
+   * @param data matrix data (not copied)
+   */
   protected Matrix(double[][] data, int rows, int cols) {
     this.data = data;
     this.rows = rows;
