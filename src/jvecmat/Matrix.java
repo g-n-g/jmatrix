@@ -174,7 +174,9 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
 
   /**
-   * @return true if there are NaN elements in the matrix
+   * Returns <code>true</code> if the matrix has a NaN element.
+   *
+   * @return <code>true</code> if the matrix has a NaN element
    */
   public boolean hasNaN() {
     int i, j;
@@ -187,7 +189,9 @@ public abstract class Matrix {
   }
 
   /**
-   * @return true if there are Infinite elements in the matrix
+   * Returns <code>true</code> if the matrix has an infinite element.
+   *
+   * @return <code>true</code> if the matrix has an infinite element
    */
   public boolean hasInf() {
     int i, j;
@@ -200,7 +204,11 @@ public abstract class Matrix {
   }
 
   /**
-   * Replace NaN and infinite elements in the matrix by the given ones.
+   * Replaces the NaN and infinite elements of a matrix.
+   *
+   * @param nan replacement value for NaN elements
+   * @param negInf replacement value for negative infinity elements
+   * @param posInf replacement value for positive infinity elements
    */
   public void replaceNaNandInf(double nan, double negInf, double posInf) {
     int i, j;
@@ -218,10 +226,17 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
 
   /**
-   * Copy "this" matrix into "result".
-   * @return copied matrix (placed into "result")
+   * Returns a copy of the vector placed into <code>result</code>.
+   * If <code>result</code> is <code>null</code>, a new object is created.
+   *
+   * @param result appropriately sized storage for the copy
+   *               or <code>null</code>
+   * @return copy of the matrix
    */
   public Matrix copy(Matrix result) {
+    if (result == null) { return copy(); }
+    assert(result.rows() >= rows());
+    assert(result.cols() >= cols());
     int i, j;
     for (i = 0; i < rows(); ++i) {
       for (j = 0; j < cols(); ++j) {
@@ -232,15 +247,19 @@ public abstract class Matrix {
   }
 
   /**
-   * @return new matrix with copied data
+   * Returns a copy of the matrix.
+   *
+   * @return copy of the matrix
    */
   public Matrix copy() {
-    return copy(Matrix.create(rows(),cols()));
+    return copy(Matrix.create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------
 
   /**
+   * Returns the number of rows of the matrix.
+   *
    * @return number of rows of the matrix
    */
   public final int rows() {
@@ -248,6 +267,8 @@ public abstract class Matrix {
   }
 
   /**
+   * Returns the number of columns of the matrix.
+   *
    * @return number of columns of the matrix
    */
   public final int cols() {
@@ -255,27 +276,43 @@ public abstract class Matrix {
   }
 
   /**
-   * @return representation array of the matrix
+   * Returns the array representation of the matrix.
+   * The data is not copied, so any changes to the returned array
+   * will change the matrix too.
+   *
+   * @return the array representation of the matrix
    */
   public final double[][] array() {
     return data;
   }
 
   /**
-   * @return return the (i,j) element of the matrix
+   * Returns the element of the matrix at row <code>i</code>
+   * and column <code>j</code>.
+   *
+   * @param i the row index of the matrix element
+   * @param j the column index of the matrix element
+   * @return the (i,j) element of the matrix
    */
   abstract public double get(int i, int j);
 
   /**
-   * Set matrix element at ("i","j") to "value".
+   * Set the matrix element at row <code>i</code> and column <code>j</code>
+   * to <code>value</code>.
+   *
+   * @param i the row index of the matrix element
+   * @param j the column index of the matrix element
+   * @param value the new value
    */
   abstract public void set(int i, int j, double value);
 
   //----------------------------------------------------------------------------
 
   /**
-   * Set all matrix elements to "c".
-   * @return "this"
+   * Set all matrix elements to <code>c</code>.
+   *
+   * @param c the new value for all matrix elements
+   * @return <code>this</code> matrix
    */
   public Matrix setToConstant(double c) {
     int i, j;
@@ -289,7 +326,8 @@ public abstract class Matrix {
 
   /**
    * Set all matrix elements to zero.
-   * @return "this"
+   *
+   * @return <code>this</code> matrix
    */
   public Matrix setToZero() {
     return setToConstant(0.0);
@@ -297,15 +335,18 @@ public abstract class Matrix {
 
   /**
    * Set all matrix elements to one.
-   * @return "this"
+   *
+   * @return <code>this</code> matrix
    */
   public Matrix setToOne() {
     return setToConstant(1.0);
   }
 
   /**
-   * Set to the identity matrix.
-   * @return "this"
+   * Set the diagonal elements to one and all other elements to zero.
+   * If the matrix is square, this sets the identity matrix.
+   *
+   * @return <code>this</code> matrix
    */
   public Matrix setToEye() {
     int i, j;
@@ -318,8 +359,11 @@ public abstract class Matrix {
   }
 
   /**
-   * Set all matrix elements U(0,1) randomly.
-   * @return "this"
+   * Set all matrix elements randomly
+   * drawing the new values from the uniform distribution on [0,1].
+   *
+   * @param rng random number generator
+   * @return <code>this</code> matrix
    */
   public Matrix setToRand(Random rng) {
     int i, j;
@@ -332,8 +376,11 @@ public abstract class Matrix {
   }
 
   /**
-   * Set all matrix elements N(0,1) randomly.
-   * @return "this"
+   * Set all matrix elements randomly
+   * drawing the new values from the standard normal distribution.
+   *
+   * @param rng random number generator
+   * @return <code>this</code> matrix
    */
   public Matrix setToRandN(Random rng) {
     int i, j;
@@ -362,8 +409,6 @@ public abstract class Matrix {
   public Vector getDiag() {
     return getDiag(Vector.create(rows()));
   }
-
-  //----------------------------------------------------------------------------
 
   /**
    * @return i-th row of the matrix (placed into "result")
@@ -404,8 +449,6 @@ public abstract class Matrix {
     return this;
   }
 
-  //----------------------------------------------------------------------------
-
   /**
    * @return j-th column of the matrix (placed into "result")
    */
@@ -444,8 +487,6 @@ public abstract class Matrix {
     for (int i = 0; i < m.rows(); ++i) { set(i, j, m.get(i, j)); }
     return this;
   }
-
-  //----------------------------------------------------------------------------
 
   /**
    * Get the sub-matrix having rows iF-iT and columns jF-jT.

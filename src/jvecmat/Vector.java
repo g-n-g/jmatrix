@@ -145,7 +145,9 @@ public class Vector {
   //----------------------------------------------------------------------------
 
   /**
-   * @return true if there are NaN elements in the vector
+   * Returns <code>true</code> if the vector has a NaN element.
+   *
+   * @return <code>true</code> if the vector has a NaN element
    */
   public final boolean hasNaN() {
     for (int i = 0; i < length(); ++i) {
@@ -155,7 +157,9 @@ public class Vector {
   }
 
   /**
-   * @return true if there are Infinite elements in the vector
+   * Returns <code>true</code> if the vector has an infinite element.
+   *
+   * @return <code>true</code> if the vector has an infinite element
    */
   public final boolean hasInf() {
     for (int i = 0; i < length(); ++i) {
@@ -165,7 +169,11 @@ public class Vector {
   }
 
   /**
-   * Replace the nan and infinite values in a vector by the given ones.
+   * Replaces the NaN and infinite elements of a vector.
+   *
+   * @param nan replacement value for NaN elements
+   * @param negInf replacement value for negative infinity elements
+   * @param posInf replacement value for positive infinity elements
    */
   public final void replaceNaNandInf(double nan, double negInf, double posInf) {
     double e;
@@ -180,16 +188,24 @@ public class Vector {
   //----------------------------------------------------------------------------
 
   /**
-   * Copy "this" vector into "result".
-   * @return copied vector (placed in "result")
+   * Returns a copy of the vector placed into <code>result</code>.
+   * If <code>result</code> is <code>null</code>, a new object is created.
+   *
+   * @param result appropriately sized storage for the copy
+   *               or <code>null</code>
+   * @return copy of the vector
    */
   public Vector copy(Vector result) {
+    if (result == null) { return copy(); }
+    assert(result.length() >= length());
     for (int i = 0; i < length(); ++i) { result.set(i, get(i)); }
     return result;
   }
 
   /**
-   * @return new vector object with copied data
+   * Returns a copy of the vector.
+   *
+   * @return copy of the vector
    */
   public Vector copy() {
     return copy(Vector.create(length()));
@@ -198,14 +214,19 @@ public class Vector {
   //----------------------------------------------------------------------------
 
   /**
-   * @return number of elements in the vector
+   * Returns the number of elements of the vector.
+   *
+   * @return length of the vector
    */
   public final int length() {
     return data.length;
   }
 
   /**
-   * @return vector element at "index"
+   * Returns the vector element at the specified <code>index</code>.
+   *
+   * @param index the index of the vector element
+   * @return the vector element at <code>index</code>
    */
   public final double get(int index) {
     assert (0 <= index && index < length());
@@ -213,11 +234,70 @@ public class Vector {
   }
 
   /**
-   * Set vector element at "index" to "value".
+   * Set the vector element at the specified <code>index</code>
+   * to <code>value</code>.
+   *
+   * @param index the index of the vector element
+   * @param value the new value
    */
   public final void set(int index, double value) {
     assert (0 <= index && index < length());
     data[index] = value;
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Set all vector elements to <code>c</code>.
+   *
+   * @param c the new value for all vector elements
+   * @return <code>this</code> vector
+   */
+  public Vector setToConstant(double c) {
+    for (int i = 0; i < length(); ++i) { set(i, c); }
+    return this;
+  }
+
+  /**
+   * Set all vector elements to zero.
+   *
+   * @return <code>this</code> vector
+   */
+  public Vector setToZero() {
+    return setToConstant(0.0);
+  }
+
+  /**
+   * Set all vector elements to one.
+   *
+   * @return <code>this</code> vector
+   */
+  public Vector setToOne() {
+    return setToConstant(1.0);
+  }
+
+  /**
+   * Set all vector elements randomly
+   * drawing the new values from the uniform distribution on [0,1].
+   *
+   * @param rng random number generator
+   * @return <code>this</code> vector
+   */
+  public Vector setToRand(Random rng) {
+    for (int i = 0; i < length(); ++i) { set(i, rng.nextDouble()); }
+    return this;
+  }
+
+  /**
+   * Set all vector elements randomly
+   * drawing the new values from the standard normal distribution.
+   *
+   * @param rng random number generator
+   * @return <code>this</code> vector
+   */
+  public Vector setToRandN(Random rng) {
+    for (int i = 0; i < length(); ++i) { set(i, rng.nextGaussian()); }
+    return this;
   }
 
   //----------------------------------------------------------------------------
@@ -239,51 +319,6 @@ public class Vector {
   public final Vector getVec(int from, int to) {
     if (from > to) { return EMPTY; }
     return getVec(from, Vector.create(Math.max(0, to-from+1)));
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Set all vector elements to "c".
-   * @return "this"
-   */
-  public Vector setToConstant(double c) {
-    for (int i = 0; i < length(); ++i) { set(i, c); }
-    return this;
-  }
-
-  /**
-   * Set all vector elements to zero.
-   * @return "this"
-   */
-  public Vector setToZero() {
-    return setToConstant(0.0);
-  }
-
-  /**
-   * Set all vector elements to one.
-   * @return "this"
-   */
-  public Vector setToOne() {
-    return setToConstant(1.0);
-  }
-
-  /**
-   * Set all vector elements U(0,1) randomly.
-   * @return "this"
-   */
-  public Vector setToRand(Random rng) {
-    for (int i = 0; i < length(); ++i) { set(i, rng.nextDouble()); }
-    return this;
-  }
-
-  /**
-   * Set all vector elements N(0,1) randomly.
-   * @return "this"
-   */
-  public Vector setToRandN(Random rng) {
-    for (int i = 0; i < length(); ++i) { set(i, rng.nextGaussian()); }
-    return this;
   }
 
   //----------------------------------------------------------------------------
