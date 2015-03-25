@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Representation of column vectors.
  */
-public class Vector {
+public class Vector implements VecMat {
   /**
    * Shared object for all empty vectors.
    */
@@ -144,11 +144,7 @@ public class Vector {
 
   //----------------------------------------------------------------------------
 
-  /**
-   * Returns <code>true</code> if the vector has a NaN element.
-   *
-   * @return <code>true</code> if the vector has a NaN element
-   */
+  @Override
   public final boolean hasNaN() {
     for (int i = 0; i < length(); ++i) {
       if (Double.isNaN(get(i))) { return true; }
@@ -156,11 +152,7 @@ public class Vector {
     return false;
   }
 
-  /**
-   * Returns <code>true</code> if the vector has an infinite element.
-   *
-   * @return <code>true</code> if the vector has an infinite element
-   */
+  @Override
   public final boolean hasInf() {
     for (int i = 0; i < length(); ++i) {
       if (Double.isInfinite(get(i))) { return true; }
@@ -168,13 +160,7 @@ public class Vector {
     return false;
   }
 
-  /**
-   * Replaces the NaN and infinite elements of a vector.
-   *
-   * @param nan replacement value for NaN elements
-   * @param negInf replacement value for negative infinity elements
-   * @param posInf replacement value for positive infinity elements
-   */
+  @Override
   public final void replaceNaNandInf(double nan, double negInf, double posInf) {
     double e;
     for (int i = 0; i < length(); ++i) {
@@ -202,11 +188,7 @@ public class Vector {
     return result;
   }
 
-  /**
-   * Returns a copy of the vector.
-   *
-   * @return copy of the vector
-   */
+  @Override
   public Vector copy() {
     return copy(Vector.create(length()));
   }
@@ -247,54 +229,29 @@ public class Vector {
 
   //----------------------------------------------------------------------------
 
-  /**
-   * Set all vector elements to <code>c</code>.
-   *
-   * @param c the new value for all vector elements
-   * @return <code>this</code> vector
-   */
+  @Override
   public Vector setToConstant(double c) {
     for (int i = 0; i < length(); ++i) { set(i, c); }
     return this;
   }
 
-  /**
-   * Set all vector elements to zero.
-   *
-   * @return <code>this</code> vector
-   */
+  @Override
   public Vector setToZero() {
     return setToConstant(0.0);
   }
 
-  /**
-   * Set all vector elements to one.
-   *
-   * @return <code>this</code> vector
-   */
+  @Override
   public Vector setToOne() {
     return setToConstant(1.0);
   }
 
-  /**
-   * Set all vector elements randomly
-   * drawing the new values from the uniform distribution on [0,1].
-   *
-   * @param rng random number generator
-   * @return <code>this</code> vector
-   */
+  @Override
   public Vector setToRand(Random rng) {
     for (int i = 0; i < length(); ++i) { set(i, rng.nextDouble()); }
     return this;
   }
 
-  /**
-   * Set all vector elements randomly
-   * drawing the new values from the standard normal distribution.
-   *
-   * @param rng random number generator
-   * @return <code>this</code> vector
-   */
+  @Override
   public Vector setToRandN(Random rng) {
     for (int i = 0; i < length(); ++i) { set(i, rng.nextGaussian()); }
     return this;

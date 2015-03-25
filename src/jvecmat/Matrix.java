@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Abstract matrix representation.
  */
-public abstract class Matrix {
+public abstract class Matrix implements VecMat {
 
   /**
    * Creates a matrix using the provided data.
@@ -173,11 +173,7 @@ public abstract class Matrix {
 
   //----------------------------------------------------------------------------
 
-  /**
-   * Returns <code>true</code> if the matrix has a NaN element.
-   *
-   * @return <code>true</code> if the matrix has a NaN element
-   */
+  @Override
   public boolean hasNaN() {
     int i, j;
     for (i = 0; i < rows(); ++i) {
@@ -188,11 +184,7 @@ public abstract class Matrix {
     return false;
   }
 
-  /**
-   * Returns <code>true</code> if the matrix has an infinite element.
-   *
-   * @return <code>true</code> if the matrix has an infinite element
-   */
+  @Override
   public boolean hasInf() {
     int i, j;
     for (i = 0; i < rows(); ++i) {
@@ -203,13 +195,7 @@ public abstract class Matrix {
     return false;
   }
 
-  /**
-   * Replaces the NaN and infinite elements of a matrix.
-   *
-   * @param nan replacement value for NaN elements
-   * @param negInf replacement value for negative infinity elements
-   * @param posInf replacement value for positive infinity elements
-   */
+  @Override
   public void replaceNaNandInf(double nan, double negInf, double posInf) {
     int i, j;
     double e;
@@ -246,11 +232,7 @@ public abstract class Matrix {
     return result;
   }
 
-  /**
-   * Returns a copy of the matrix.
-   *
-   * @return copy of the matrix
-   */
+  @Override
   public Matrix copy() {
     return copy(Matrix.create(rows(), cols()));
   }
@@ -308,12 +290,7 @@ public abstract class Matrix {
 
   //----------------------------------------------------------------------------
 
-  /**
-   * Set all matrix elements to <code>c</code>.
-   *
-   * @param c the new value for all matrix elements
-   * @return <code>this</code> matrix
-   */
+  @Override
   public Matrix setToConstant(double c) {
     int i, j;
     for (i = 0; i < rows(); ++i) {
@@ -324,20 +301,12 @@ public abstract class Matrix {
     return this;
   }
 
-  /**
-   * Set all matrix elements to zero.
-   *
-   * @return <code>this</code> matrix
-   */
+  @Override
   public Matrix setToZero() {
     return setToConstant(0.0);
   }
 
-  /**
-   * Set all matrix elements to one.
-   *
-   * @return <code>this</code> matrix
-   */
+  @Override
   public Matrix setToOne() {
     return setToConstant(1.0);
   }
@@ -358,13 +327,7 @@ public abstract class Matrix {
     return this;
   }
 
-  /**
-   * Set all matrix elements randomly
-   * drawing the new values from the uniform distribution on [0,1].
-   *
-   * @param rng random number generator
-   * @return <code>this</code> matrix
-   */
+  @Override
   public Matrix setToRand(Random rng) {
     int i, j;
     for (i = 0; i < rows(); ++i) {
@@ -375,13 +338,7 @@ public abstract class Matrix {
     return this;
   }
 
-  /**
-   * Set all matrix elements randomly
-   * drawing the new values from the standard normal distribution.
-   *
-   * @param rng random number generator
-   * @return <code>this</code> matrix
-   */
+  @Override
   public Matrix setToRandN(Random rng) {
     int i, j;
     for (i = 0; i < rows(); ++i) {
