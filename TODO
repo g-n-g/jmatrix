@@ -1,5 +1,4 @@
 
-shared interface (VecMat) for Vector/Matrix classes
 NonTransposedMatrix -> DenseMatrix
 TransposedMatrix -> TDenseMatrix
 
