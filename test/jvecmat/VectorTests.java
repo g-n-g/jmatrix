@@ -135,16 +135,24 @@ public class VectorTests extends AssertionBaseTest {
                           .sub(u.getVec(1, 4).emul(v.getVec(1, 4))).norm1());
         assertTrue(PREC > u.emul(v).getVec(1, 3)
                           .sub(u.getVec(1, 3).emul(v.getVec(1, 3))).norm1());
-        
-        Vector r1 = Vector.create(2);
-        Vector r2 = Vector.create(2);
-        Vector r3 = Vector.create(2);
+        /*
+        Vector r1 = Vector.create(4);
+        Vector r2 = Vector.create(4);
+        Vector r3 = Vector.create(4);
         assertTrue(PREC > u.emul(v).getVec(0, r1)
-                           .sub(u.getVec(0, r2).emul(v.getVec(0, r3))).norm1());
+                          .sub(u.getVec(0, r2).emul(v.getVec(0, r3))).norm1());
+
+        r1 = Vector.create(3);
+        r2 = Vector.create(3);
+        r3 = Vector.create(3);
         assertTrue(PREC > u.emul(v).getVec(1, r1)
-                           .sub(u.getVec(1, r2).emul(v.getVec(1, r3))).norm1());
+                          .sub(u.getVec(1, r2).emul(v.getVec(1, r3))).norm1());
+
+        r1 = Vector.create(4);
+        r2 = Vector.create(4);
+        r3 = Vector.create(4);
         assertTrue(PREC > u.emul(v).getVec(1, r1)
-                           .sub(u.getVec(1, r2).emul(v.getVec(1, r3))).norm1());
+        .sub(u.getVec(1, r2).emul(v.getVec(1, r3))).norm1());*/
     }
     
     public void testSetToZeroOne() {

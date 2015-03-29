@@ -146,85 +146,81 @@ public class MatrixTests extends AssertionBaseTest {
         I.setToEye();
         assertTrue(PREC > Matrix.eye(4).sub(I).norm1());
     }
-    
+
+    // TODO: getDiag tests with non-square matrices
     public void testTransposeAndSomeGetSet() {
         Vector v1 = new Vector(new double[]{1.0, 2.0, 3.0});
         Vector v2 = new Vector(new double[]{4.5, 5.5, 6.5});
         Vector v3 = new Vector(new double[]{6.1, 2.2, -5.1});
         Vector v4 = new Vector(new double[]{2.9, -1.1, 0.3});
-        
+
         Matrix m1 = Matrix.createByRows(new Vector[]{v1, v2, v3, v4});
         assertEquals(4, m1.rows());
         assertEquals(v1.length(), m1.cols());
-        
+
         Matrix m2 = Matrix.createByCols(new Vector[]{v1, v2, v3, v4});
         assertEquals(v1.length(), m2.rows());
         assertEquals(4, m2.cols());
-        
+
         assertTrue(PREC > m1.sub(m2.T()).norm1());
         assertTrue(PREC > m2.sub(m1.T()).norm1());
-        
+
         assertTrue(PREC > m1.getRow(3).sub(v4).norm2());
         assertTrue(PREC > m2.getCol(3).sub(v4).norm2());
-        
+
         Matrix m3 = m1.getMat(2, 3, 1, 2);
         Matrix m4 = m2.getMat(1, 2, 2, 3);
         assertTrue(PREC > m3.sub(m4.T()).normf());
-        
+
         assertTrue(PREC > v1.sub(Matrix.createByCols(new Vector[]{v1, v1, v1})
                                        .getDiag()).normI());
-        
+
         Matrix A = Matrix.rand(7, 7, RNG);
         Matrix B = Matrix.rand(7, 7, RNG);
         
         assertEquals(A.mul(B).get(2, 5),
                      A.getRow(2).iprod(B.getCol(5)),
                      PREC);
-        
+
         Vector row = Vector.create(7);
         Vector col = Vector.create(7);
         assertEquals(A.mul(B).get(2, 5),
                      A.getRow(2, row).iprod(B.getCol(5, col)),
                      PREC);
-        
+
         Matrix AB = Matrix.constant(10, 10, Double.NaN);
-        AB.setMat(2, 2, A.mul(B));
+        AB.setMat(2, 8, 2, 8, A.mul(B));
+
         assertTrue(PREC > A.getMat(0, 0, 0, 6).mul(B.getMat(0, 6, 2, 3))
                            .sub(AB.getMat(2, 2, 4, 5)).normf());
         assertTrue(PREC > A.getMat(4, 6, 0, 6).mul(B.getMat(0, 6, 2, 3))
                            .sub(AB.getMat(6, 8, 4, 5)).normf());
         assertTrue(PREC > A.getMat(1, 2, 0, 6).mul(B.getMat(0, 6, 2, 3))
                            .sub(AB.getMat(3, 4, 4, 5)).normf());
-        
-        Matrix As = Matrix.create(2, 7);
-        Matrix Bs = Matrix.create(7, 3);
-        Matrix ABs = Matrix.create(2, 3);
-        assertTrue(PREC > A.getMat(1, 0, As).mul(B.getMat(0, 2, Bs))
-                           .sub(AB.getMat(3, 4, ABs)).normf());
     }
-    
+
     public void testMatrixVectorProduct() {
         final int n = 5, m = 8;
         Vector v1 = Vector.one(m);
         Vector v2 = Vector.unit(m, m/2);
         Matrix m1 = Matrix.one(n, m);
         Matrix m2 = Matrix.eye(m);
-        
+
         assertTrue(PREC > v1.sub(m2.mul(v1)).norm1());
         assertTrue(PREC > Vector.one(n).sub(m1.mul(v2)).norm1());
-        
+
         for (int i = 0; i < m; ++i) v2.set(i, i+1);
         double sum = m * (m+1) / 2.0;
         assertTrue(PREC > Vector.one(n).mul(sum).sub(m1.mul(v2)).norm1());
         assertTrue(PREC > v2.sub(m2.mul(v2)).normI());
         assertTrue(PREC < v2.sub(Matrix.one(m, m).mul(v2)).normI());
-        
+
         assertTrue(PREC > v2.emul(v2).sub(Matrix.diag(v2).mul(v2)).norm2());
-        
+
         assertTrue(PREC > m1.mul(v1.add(v2)).sub(m1.mul(v1).add(m1.mul(v2)))
                             .norm1());
     }
-    
+
     public void testMatrixDiagProduct() {
         final int n = 3, m = 4;
         Matrix m1 = Matrix.one(n, m);

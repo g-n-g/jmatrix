@@ -8,21 +8,21 @@ import java.util.Random;
 public interface VecMat {
 
   /**
-   * Returns <code>true</code> if the vector/matrix has a NaN element.
+   * Returns <code>true</code> if there is a NaN element.
    *
-   * @return <code>true</code> if the vector/matrix has a NaN element
+   * @return <code>true</code> if there is a NaN element
    */
   boolean hasNaN();
 
   /**
-   * Returns <code>true</code> if the vector/matrix has an infinite element.
+   * Returns <code>true</code> if there is an infinite element.
    *
-   * @return <code>true</code> if the vector/matrix has an infinite element
+   * @return <code>true</code> if there is an infinite element
    */
   boolean hasInf();
 
   /**
-   * Replaces the NaN and infinite elements of a vector/matrix.
+   * Replaces the NaN and infinite elements by the specified values.
    *
    * @param nan replacement value for NaN elements
    * @param negInf replacement value for negative infinity elements
@@ -33,51 +33,51 @@ public interface VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Returns a new copy of the vector/matrix.
+   * Returns a new copy.
    *
-   * @return copy of the vector/matrix
+   * @return a copy of the object
    */
   VecMat copy();
 
   //----------------------------------------------------------------------------
 
   /**
-   * Set all vector/matrix elements to <code>c</code>.
+   * Sets all elements to <code>c</code>.
    *
-   * @param c the new value for all vector/matrix elements
-   * @return <code>this</code> vector/matrix
+   * @param c the new value for all elements
+   * @return <code>this</code> object
    */
   VecMat setToConstant(double c);
 
   /**
-   * Set all vector/matrix elements to zero.
+   * Sets all elements to zero.
    *
-   * @return <code>this</code> vector/matrix
+   * @return <code>this</code> object
    */
   VecMat setToZero();
 
   /**
-   * Set all vector/matrix elements to one.
+   * Sets all elements to one.
    *
-   * @return <code>this</code> vector/matrix
+   * @return <code>this</code> object
    */
   VecMat setToOne();
 
   /**
-   * Set all vector/matrix elements randomly
+   * Sets all elements randomly
    * drawing the new values from the uniform distribution on [0,1].
    *
    * @param rng random number generator
-   * @return <code>this</code> vector/matrix
+   * @return <code>this</code> object
    */
   VecMat setToRand(Random rng);
 
   /**
-   * Set all vector elements randomly
+   * Sets all elements randomly
    * drawing the new values from the standard normal distribution.
    *
    * @param rng random number generator
-   * @return <code>this</code> vector
+   * @return <code>this</code> object
    */
   VecMat setToRandN(Random rng);
 }

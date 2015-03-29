@@ -220,9 +220,9 @@ public abstract class Matrix implements VecMat {
    * @return copy of the matrix
    */
   public Matrix copy(Matrix result) {
-    if (result == null) { return copy(); }
-    assert(result.rows() >= rows());
-    assert(result.cols() >= cols());
+    if (result == null) { result = Matrix.create(rows(), cols()); }
+    assert(result.rows() == rows());
+    assert(result.cols() == cols());
     int i, j;
     for (i = 0; i < rows(); ++i) {
       for (j = 0; j < cols(); ++j) {
@@ -234,7 +234,7 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public Matrix copy() {
-    return copy(Matrix.create(rows(), cols()));
+    return copy(null);
   }
 
   //----------------------------------------------------------------------------
@@ -352,107 +352,163 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return diagonal elements of a squared matrix (placed into "result")
+   * Returns the diagonal elements as a vector.
+   * A new vector is created if <code>result</code> is <code>null</code>.
+   * Otherwise, the length of <code>result</code> has to match the number
+   * of diagonal elements (the minimum of the number of rows and columns).
+   *
+   * @param result storage of the result or <code>null</code>
+   * @return vector of the diagonal elements
    */
   public Vector getDiag(Vector result) {
-    assert (rows() == cols());
-    for (int i = 0; i < rows(); ++i) { result.set(i, get(i,i)); }
+    int n = Math.min(rows(), cols());
+    if (result == null) { result = Vector.create(n); }
+    assert(result.length() == n);
+    for (int i = 0; i < n; ++i) { result.set(i, get(i,i)); }
     return result;
   }
 
   /**
-   * @return diagonal elements of a squared matrix (placed into a new vector)
+   * Returns the diagonal elements in a new vector.
+   *
+   * @return vector of the diagonal elements
    */
   public Vector getDiag() {
-    return getDiag(Vector.create(rows()));
+    return getDiag(null);
   }
 
   /**
-   * @return i-th row of the matrix (placed into "result")
+   * Returns the <code>i</code>-th row as a vector.
+   * A new vector is created if <code>result</code> is <code>null</code>.
+   * Otherwise, the length of <code>result</code> has to match the number
+   * of columns.
+   *
+   * @param i row index
+   * @param result storage of the result or <code>null</code>
+   * @return vector of the <code>i</code>-th row
    */
   public Vector getRow(int i, Vector result) {
     assert (0 <= i && i <= rows());
+    if (result == null) { result = Vector.create(cols()); }
     assert (result.length() == cols());
     for (int j = 0; j < cols(); ++j) { result.set(j, get(i,j)); }
     return result;
   }
 
   /**
-   * @return i-th row of the matrix (placed into a new vector)
+   * Returns the <code>i</code>-th row in a new vector.
+   *
+   * @param i row index
+   * @return vector of the <code>i</code>-th row
    */
   public Vector getRow(int i) {
-    return getRow(i, Vector.create(cols()));
+    return getRow(i, null);
   }
 
   /**
-   * Set "this"[i:0][i:v.length-1] from "v".
-   * @return "this"
+   * Sets the <code>i</code>-th row to <code>v</code>.
+   *
+   * @param i row index
+   * @param v new row elements
+   * @return <code>this</code> matrix
    */
   public Matrix setRow(int i, Vector v) {
     assert (0 <= i && i <= rows());
-    assert (cols() == v.length());
+    assert (v != null && cols() == v.length());
     for (int j = 0; j < v.length(); ++j) { set(i, j, v.get(j)); }
     return this;
   }
 
   /**
-   * Set "this"[i:0][i:m.cols-1] from "m".
-   * @return "this"
+   * Sets the <code>i</code>-th row to the <code>i</code>-th row
+   * of matrix <code>m</code>.
+   *
+   * @param i row index
+   * @param m matrix containing the new row elements
+   * @return <code>this</code> matrix
    */
   public Matrix setRow(int i, Matrix m) {
     assert (0 <= i && i <= rows());
-    assert (cols() == m.cols());
+    assert (m != null && cols() == m.cols());
     for (int j = 0; j < m.cols(); ++j) { set(i, j, m.get(i, j)); }
     return this;
   }
 
   /**
-   * @return j-th column of the matrix (placed into "result")
+   * Returns the <code>j</code>-th column as a vector.
+   * A new vector is created if <code>result</code> is <code>null</code>.
+   * Otherwise, the length of <code>result</code> has to match the number
+   * of rows.
+   *
+   * @param j column index
+   * @param result storage of the result or <code>null</code>
+   * @return vector of the <code>j</code>-th column
    */
   public Vector getCol(int j, Vector result) {
     assert (0 <= j && j <= cols());
+    if (result == null) { result = Vector.create(rows()); }
     assert (result.length() == rows());
     for (int i = 0; i < rows(); ++i) { result.set(i, get(i,j)); }
     return result;
   }
 
   /**
-   * @return j-th column of the matrix (placed into a new vector)
+   * Returns the <code>j</code>-th column in a new vector.
+   *
+   * @param j column index
+   * @return vector of the <code>j</code>-th column
    */
   public Vector getCol(int j) {
-    return getCol(j, Vector.create(rows()));
+    return getCol(j, null);
   }
 
   /**
-   * Set "this"[0:j][v.length-1:j] from "v".
-   * @return "this"
+   * Sets the <code>j</code>-th column to <code>v</code>.
+   *
+   * @param j column index
+   * @param v new column elements
+   * @return <code>this</code> matrix
    */
   public Matrix setCol(int j, Vector v) {
     assert (0 <= j && j <= cols());
-    assert (rows() == v.length());
+    assert (v != null && rows() == v.length());
     for (int i = 0; i < v.length(); ++i) { set(i, j, v.get(i)); }
     return this;
   }
 
   /**
-   * Set "this"[0:j][m.rows-1:j] from "m".
-   * @return "this"
+   * Sets the <code>j</code>-th column to the <code>j</code>-th row
+   * of matrix <code>m</code>.
+   *
+   * @param j column index
+   * @param m matrix containing the new column elements
+   * @return <code>this</code> matrix
    */
   public Matrix setCol(int j, Matrix m) {
     assert (0 <= j && j <= cols());
-    assert (rows() == m.rows());
+    assert (m != null && rows() == m.rows());
     for (int i = 0; i < m.rows(); ++i) { set(i, j, m.get(i, j)); }
     return this;
   }
 
   /**
-   * Get the sub-matrix having rows iF-iT and columns jF-jT.
-   * Both interval end-points are inclusive.
-   * @return [iF:iT][jF:jT] sub-matrix (placed into "result")
+   * Returns the submatrix having rows from <code>iF</code> to <code>iT</code>
+   * and columns from <code>jF</code> to <code>jT</code> (all inclusive).
+   * A new matrix is created if <code>result</code> is <code>null</code>.
+   * Otherwise, the size of <code>result</code> has to match the submatrix.
+   *
+   * @param iF index of the first row
+   * @param iT index of the last row
+   * @param jF index of the first column
+   * @param jT index of the last column
+   * @param result storage of the result or <code>null</code>
+   * @return submatrix formed by rows from <code>iF</code> to <code>iT</code>
+   *                   and columns from <code>jF</code> to <code>jT</code>
    */
   public Matrix getMat(int iF, int iT, int jF, int jT, Matrix result) {
     assert (0 <= iF && iF <= iT && iT < rows());
     assert (0 <= jF && jF <= jT && jT < cols());
+    if (result == null) { result = create(iT-iF+1, jT-jF+1); }
     assert (result.rows() == iT-iF+1);
     assert (result.cols() == jT-jF+1);
     int i, j, ir, jr;
@@ -465,42 +521,40 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Get the sub-matrix having rows iF-iT and columns jF-jT.
-   * Both interval end-points are inclusive.
-   * @return [iF:iT][jF:jT] sub-matrix (placed into a new matrix)
+   * Returns the submatrix having rows from <code>iF</code> to <code>iT</code>
+   * and columns from <code>jF</code> to <code>jT</code> (all inclusive).
+   *
+   * @param iF index of the first row
+   * @param iT index of the last row
+   * @param jF index of the first column
+   * @param jT index of the last column
+   * @return submatrix formed by rows from <code>iF</code> to <code>iT</code>
+   *                   and columns from <code>jF</code> to <code>jT</code>
    */
   public Matrix getMat(int iF, int iT, int jF, int jT) {
-    return getMat(iF, iT, jF, jT, create(iT-iF+1,jT-jF+1));
+    return getMat(iF, iT, jF, jT, null);
   }
 
   /**
-   * Get the sub-matrix having rows iF-(iF+result.rows-1)
-   * and columns jF-(jF+result.cols-1).
-   * Both interval end-points are inclusive.
-   * @return [iF:iF+result.rows-1][jF:jF+result.cols-1] sub-matrix
-   *         (placed into "result")
+   * Sets the region specified by rows from <code>iF</code> to <code>iT</code>
+   * and columns from <code>jF</code> to <code>jT</code> (all inclusive)
+   * using matrix <code>m</code>.
+   * Matrix <code>m</code> has to be the same size as the specified region.
+   *
+   * @param iF index of the first row
+   * @param iT index of the last row
+   * @param jF index of the first column
+   * @param jT index of the last column
+   * @param m matrix containing the new elements
+   * @return <code>this</code> matrix
    */
-  public Matrix getMat(int iF, int jF, Matrix result) {
-    assert (0 <= iF && iF + result.rows() <= rows());
-    assert (0 <= jF && jF + result.cols() <= cols());
-    for (int i = 0; i < result.rows(); ++i) {
-      for (int j = 0; j < result.cols(); ++j) {
-        result.set(i, j, get(iF+i, jF+j));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Set "this"[iFrom:iFrom+m.rows-1][jFrom:jFrom+m.cols-1] from "m".
-   * @return "this"
-   */
-  public Matrix setMat(int iF, int jF, Matrix m) {
-    assert (0 <= iF && iF+m.rows() <= rows());
-    assert (0 <= jF && jF+m.cols() <= cols());
-    for (int i = 0; i < m.rows(); ++i) {
-      for (int j = 0; j < m.cols(); ++j) {
-        set(iF+i, jF+j, m.get(i, j));
+  public Matrix setMat(int iF, int iT, int jF, int jT, Matrix m) {
+    assert (0 <= iF && iF <= iT && iT < rows());
+    assert (0 <= jF && jF <= jT && jT < cols());
+    assert (m != null && m.rows() == iT-iF+1 && m.cols() == jT-jF+1);
+    for (int i = 0, ii = iF; ii <= iT; ++i, ++ii) {
+      for (int j = 0, jj = jF; jj <= jT; ++j, ++jj) {
+        set(ii, jj, m.get(i, j));
       }
     }
     return this;

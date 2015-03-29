@@ -182,15 +182,15 @@ public class Vector implements VecMat {
    * @return copy of the vector
    */
   public Vector copy(Vector result) {
-    if (result == null) { return copy(); }
-    assert(result.length() >= length());
+    if (result == null) { result = Vector.create(length()); }
+    assert(result.length() == length());
     for (int i = 0; i < length(); ++i) { result.set(i, get(i)); }
     return result;
   }
 
   @Override
   public Vector copy() {
-    return copy(Vector.create(length()));
+    return copy(null);
   }
 
   //----------------------------------------------------------------------------
@@ -260,22 +260,73 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return "this"[from:from+result.length-1] (placed into "result")
+   * Returns the elements between <code>from</code> and <code>to</code>
+   * (both inclusive) in <code>result</code>.
+   * An empty vector is returned if <code>from</code> is larger than
+   * <code>to</code> (regardless how <code>result</code> is set).
+   * If <code>result</code> is <code>null</code> a new vector is created.
+   * Otherwise, the length of <code>result</code> has to be equal to
+   * <code>to-from+1</code>.
+   * So <code>getVec(0,length()-1,result)</code> is the same as
+   * <code>copy(result)</code>.
+   *
+   * @param from index of the first element
+   * @param to index of the last element
+   * @param result storage of the result or <code>null</code> (new vector)
+   * @return elements between <code>from</code> and <code>to</code>
+   *         (both inclusive)
    */
-  public final Vector getVec(int from, Vector result) {
+  public final Vector getVec(int from, int to, Vector result) {
     assert (0 <= from && from < length());
-    for (int k1 = from, k2 = 0; k2 < result.length(); ++k1, ++k2) {
+    assert (0 <= to && to < length());
+    if (from > to) { return EMPTY; }
+    if (result == null) { result = Vector.create(to-from+1); }
+    assert(result.length() == to-from+1);
+    for (int k1 = from, k2 = 0; k1 <= to; ++k1, ++k2) {
       result.set(k2, get(k1));
     }
     return result;
   }
 
   /**
-   * @return "this"[i:j] (placed into a new vector)
+   * Returns the elements between <code>from</code> and <code>to</code>
+   * (both inclusive).
+   * So <code>getVec(0,length()-1)</code> is the same as <code>copy()</code>.
+   * An empty vector is returned if <code>from</code> is larger than
+   * <code>to</code>.
+   *
+   * @param from index of the first element
+   * @param to index of the last element
+   * @return elements between <code>from</code> and <code>to</code>
+   *         (both inclusive)
    */
   public final Vector getVec(int from, int to) {
-    if (from > to) { return EMPTY; }
-    return getVec(from, Vector.create(Math.max(0, to-from+1)));
+    return getVec(from, to, null);
+  }
+
+  /**
+   * Returns the elements starting by <code>from</code> (inclusive).
+   * If <code>result</code> is <code>null</code>, all elements until the end are
+   * placed into a new vector. Otherwise, the vector elements are placed into
+   * <code>result</code>, which has to have the same length as <code>this</code>
+   * vector.
+   *
+   * @param from index of the first element
+   * @param result storage of the result or <code>null</code> (new vector)
+   * @return elements starting by <code>from</code>
+   */
+  public final Vector getVec(int from, Vector result) {
+    return getVec(from, length()-1, result);
+  }
+
+  /**
+   * Returns the elements starting by <code>from</code> (inclusive).
+   *
+   * @param from index of the first element
+   * @return elements starting by <code>from</code>
+   */
+  public final Vector getVec(int from) {
+    return getVec(from, null);
   }
 
   //----------------------------------------------------------------------------
