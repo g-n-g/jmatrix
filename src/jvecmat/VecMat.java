@@ -80,4 +80,52 @@ public interface VecMat {
    * @return <code>this</code> object
    */
   VecMat setToRandN(Random rng);
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Entrywise absolute value operation.
+   *
+   * @return entrywise absolute value
+   */
+  VecMat abs();
+
+  /**
+   * Sets <code>this</code> to its entrywise absolute value.
+   *
+   * @return <code>this</code> object
+   */
+  VecMat absL();
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Entrywise sign operation with zero replacement.
+   *
+   * @param zeroReplacement value replacing 0.0 values
+   * @return entrywise sign value
+   */
+  VecMat sign(double zeroReplacement);
+
+  /**
+   * Entrywise sign operation.
+   *
+   * @return entrywise sign value
+   */
+  VecMat sign();
+
+  /**
+   * Sets <code>this</code> to its entrywise sign value with zero replacement.
+   *
+   * @param zeroReplacement value replacing 0.0 values
+   * @return <code>this</code> object
+   */
+  VecMat signL(double zeroReplacement);
+
+  /**
+   * Sets <code>this</code> to its entrywise sign value.
+   *
+   * @return <code>this</code> object
+   */
+  VecMat signL();
 }

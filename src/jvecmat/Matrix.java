@@ -563,10 +563,13 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Entrywise absolute value.
-   * @return |this| (placed into "result")
+   * Entrywise absolute value operation placed into <code>result</code>.
+   *
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return entrywise absolute value
    */
   public Matrix abs(Matrix result) {
+    assert (result != null);
     assert (result.rows() == rows());
     assert (result.cols() == cols());
     int i, j;
@@ -578,53 +581,49 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  /**
-   * Entrywise absolute value.
-   * @return |this| (placed into a new matrix)
-   */
+  @Override
   public Matrix abs() {
-    return abs(create(rows(),cols()));
+    return abs(create(rows(), cols()));
   }
 
-  /**
-   * Entrywise absolute value.
-   * @return |this| (placed into "this")
-   */
+  @Override
   public Matrix absL() {
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
-        if (0.0 > get(i,j)) { set(i, j, -get(i,j)); }
-      }
-    }
-    return this;
+    return abs(this);
   }
 
   //----------------------------------------------------------------------------
 
   /**
-   * Entrywise sign operation with zero replacement.
-   * @return sign(this) (placed into "result")
+   * Entrywise sign operation with zero replacement
+   * placed into <code>result</code>.
+   *
+   * @param zeroReplacement value replacing 0.0 values
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return entrywise sign value
    */
   public Matrix sign(double zeroReplacement, Matrix result) {
+    assert (result != null);
     assert (result.rows() == rows());
     assert (result.cols() == cols());
     int i, j;
-    double e;
+    double value;
     for (i = 0; i < rows(); ++i) {
       for (j = 0; j < cols(); ++j) {
-        e = get(i,j);
-        result.set(i, j, (0.0 == e) ? zeroReplacement : Math.signum(e));
+        value = get(i,j);
+        result.set(i, j, (0.0 == value) ? zeroReplacement : Math.signum(value));
       }
     }
     return result;
   }
 
   /**
-   * Entrywise sign operation.
-   * @return sign(this) (placed into "result")
+   * Entrywise sign operation placed into <code>result</code>.
+   *
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return entrywise sign value
    */
   public Matrix sign(Matrix result) {
+    assert (result != null);
     assert (result.rows() == rows());
     assert (result.cols() == cols());
     int i, j;
@@ -636,34 +635,22 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  /**
-   * Entrywise sign operation with zero replacement.
-   * @return sign(this) (placed into a new matrix)
-   */
+  @Override
   public Matrix sign(double zeroReplacement) {
-    return sign(zeroReplacement, create(rows(),cols()));
+    return sign(zeroReplacement, create(rows(), cols()));
   }
 
-  /**
-   * Entrywise sign operation.
-   * @return sign(this) (placed into a new matrix)
-   */
+  @Override
   public Matrix sign() {
-    return sign(create(rows(),cols()));
+    return sign(create(rows(), cols()));
   }
 
-  /**
-   * Entrywise sign operation with zero replacement.
-   * @return sign(this) (placed into "this")
-   */
+  @Override
   public Matrix signL(double zeroReplacement) {
     return sign(zeroReplacement, this);
   }
 
-  /**
-   * Entrywise sign operation.
-   * @return sign(this) (placed into "this")
-   */
+  @Override
   public Matrix signL() {
     return sign(this);
   }
@@ -1161,8 +1148,8 @@ public abstract class Matrix implements VecMat {
    * @return {Q R} (placed into new matrices)
    */
   public Matrix[] QR() {
-    Matrix Q = Matrix.create(rows(), rows());
-    Matrix R = Matrix.create(rows(), cols());
+    Matrix Q = create(rows(), rows());
+    Matrix R = create(rows(), cols());
     return QR(new Matrix[]{Q, R}, Vector.create(rows()));
   }
 

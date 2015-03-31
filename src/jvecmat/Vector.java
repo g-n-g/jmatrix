@@ -47,7 +47,7 @@ public class Vector implements VecMat {
    *         having its elements set to <code>value</code>
    */
   public static Vector constant(int length, double value) {
-    Vector v = Vector.create(length);
+    Vector v = create(length);
     v.setToConstant(value);
     return v;
   }
@@ -101,7 +101,7 @@ public class Vector implements VecMat {
    * @return uniform random vector of size <code>length</code>
    */
   public static Vector rand(int length, Random rng) {
-    Vector v = Vector.create(length);
+    Vector v = create(length);
     v.setToRand(rng);
     return v;
   }
@@ -116,7 +116,7 @@ public class Vector implements VecMat {
    * @return standard normal random vector of size <code>length</code>
    */
   public static Vector randN(int length, Random rng) {
-    Vector v = Vector.create(length);
+    Vector v = create(length);
     v.setToRandN(rng);
     return v;
   }
@@ -182,7 +182,7 @@ public class Vector implements VecMat {
    * @return copy of the vector
    */
   public Vector copy(Vector result) {
-    if (result == null) { result = Vector.create(length()); }
+    if (result == null) { result = create(length()); }
     assert(result.length() == length());
     for (int i = 0; i < length(); ++i) { result.set(i, get(i)); }
     return result;
@@ -280,7 +280,7 @@ public class Vector implements VecMat {
     assert (0 <= from && from < length());
     assert (0 <= to && to < length());
     if (from > to) { return EMPTY; }
-    if (result == null) { result = Vector.create(to-from+1); }
+    if (result == null) { result = create(to-from+1); }
     assert(result.length() == to-from+1);
     for (int k1 = from, k2 = 0; k1 <= to; ++k1, ++k2) {
       result.set(k2, get(k1));
@@ -332,8 +332,10 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Normalize (1-norm) the vector if it is not the zero vector.
-   * @return (1-norm) normalized "this"
+   * Normalize the vector with respect to the 1-norm.
+   * The zero vector is left unchanged.
+   *
+   * @return (1-norm) normalized <code>this</code>
    */
   public Vector normalize1() {
     double norm1 = norm1();
@@ -342,8 +344,10 @@ public class Vector implements VecMat {
   }
 
   /**
-   * Normalize (2-norm) the vector if it is not the zero vector.
-   * @return (2-norm) normalized "this"
+   * Normalize the vector with respect to the 2-norm.
+   * The zero vector is left unchanged.
+   *
+   * @return (2-norm) normalized <code>this</code>
    */
   public Vector normalize2() {
     double norm2 = norm2();
@@ -352,8 +356,10 @@ public class Vector implements VecMat {
   }
 
   /**
-   * Normalize (inf-norm) the vector if it is not the zero vector.
-   * @return (inf-norm) normalized "this"
+   * Normalize the vector with respect to the inf-norm.
+   * The zero vector is left unchanged.
+   *
+   * @return (inf-norm) normalized <code>this</code>
    */
   public Vector normalizeI() {
     double normI = normI();
@@ -364,59 +370,56 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Entrywise absolute value.
-   * @return |this| (placed into "result")
+   * Entrywise absolute value operation placed into <code>result</code>.
+   *
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return entrywise absolute value
    */
-  public <T extends Vector> T abs(T result) {
-    assert (result.length() == length());
+  public Vector abs(Vector result) {
+    assert (result != null && result.length() == length());
     for (int i = 0; i < length(); ++i) {
       result.set(i, Math.abs(get(i)));
     }
     return result;
   }
 
-  /**
-   * Entrywise absolute value.
-   * @return |this| (placed into a new vector)
-   */
+  @Override
   public Vector abs() {
     return abs(create(length()));
   }
 
-  /**
-   * Entry absolute value.
-   * @return |this| (placed into "this")
-   */
+  @Override
   public Vector absL() {
-    for (int i = 0; i < length(); ++i) {
-      if (0.0 > get(i)) { set(i, -get(i)); }
-    }
-    return this;
+    return abs(this);
   }
 
   //----------------------------------------------------------------------------
 
-  protected final double sign(double value, double zeroReplacement) {
-    return (0.0 == value) ? zeroReplacement : Math.signum(value);
-  }
-
   /**
-   * Entrywise sign operation with zero replacement.
-   * @return sign(this) (placed into "result")
+   * Entrywise sign operation with zero replacement
+   * placed into <code>result</code>.
+   * 
+   * @param zeroReplacement value replacing 0.0 values
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return entrywise sign value
    */
-  public <T extends Vector> T sign(double zeroReplacement, T result) {
-    assert (result.length() == length());
+  public Vector sign(double zeroReplacement, Vector result) {
+    assert (result != null && result.length() == length());
+    double value;
     for (int i = 0; i < length(); ++i) {
-      result.set(i, sign(get(i), zeroReplacement));
+      value = get(i);
+      result.set(i, (0.0 == value) ? zeroReplacement : Math.signum(value));
     }
     return result;
   }
 
   /**
-   * Entrywise sign operation.
-   * @return sign(this) (placed into "result")
+   * Entrywise sign operation placed into <code>result</code>.
+   * 
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return entrywise sign value
    */
-  public <T extends Vector> T sign(T result) {
+  public Vector sign(Vector result) {
     assert (result.length() == length());
     for (int i = 0; i < length(); ++i) {
       result.set(i, Math.signum(get(i)));
@@ -424,34 +427,22 @@ public class Vector implements VecMat {
     return result;
   }
 
-  /**
-   * Entrywise sign operation with zero replacement.
-   * @return sign(this) (placed into a new vector)
-   */
+  @Override
   public Vector sign(double zeroReplacement) {
     return sign(zeroReplacement, create(length()));
   }
 
-  /**
-   * Entrywise sign operation.
-   * @return sign(this) (placed into a new vector)
-   */
+  @Override
   public Vector sign() {
     return sign(create(length()));
   }
 
-  /**
-   * Entrywise sign operation with zero replacement.
-   * @return sign(this) (placed into "this")
-   */
+  @Override
   public Vector signL(double zeroReplacement) {
     return sign(zeroReplacement, this);
   }
 
-  /**
-   * Entrywise sign operation.
-   * @return sign(this) (placed into "this")
-   */
+  @Override
   public Vector signL() {
     return sign(this);
   }
@@ -499,7 +490,7 @@ public class Vector implements VecMat {
    * @return this + v (placed into a new vector)
    */
   public Vector add(Vector v) {
-    return add(v, Vector.create(length()));
+    return add(v, create(length()));
   }
 
   /**
@@ -531,7 +522,7 @@ public class Vector implements VecMat {
    * @return this + c * Vector.one (placed into a new vector)
    */
   public Vector add(double c) {
-    return add(c, Vector.create(length()));
+    return add(c, create(length()));
   }
 
   /**
@@ -559,7 +550,7 @@ public class Vector implements VecMat {
    * @return this - v (placed into a new vector)
    */
   public Vector sub(Vector v) {
-    return sub(v, Vector.create(length()));
+    return sub(v, create(length()));
   }
 
   /**
@@ -614,7 +605,7 @@ public class Vector implements VecMat {
    * @return this * c (placed into a new vector)
    */
   public Vector mul(double c) {
-    return mul(c, Vector.create(length()));
+    return mul(c, create(length()));
   }
 
   /**
@@ -637,7 +628,7 @@ public class Vector implements VecMat {
    * @return this / c (placed into a new vector)
    */
   public Vector div(double c) {
-    return div(c, Vector.create(length()));
+    return div(c, create(length()));
   }
 
   /**
@@ -704,7 +695,7 @@ public class Vector implements VecMat {
    * @return this .* v (placed into a new vector)
    */
   public Vector emul(Vector v) {
-    return emul(v, Vector.create(length()));
+    return emul(v, create(length()));
   }
 
   /**
@@ -754,7 +745,7 @@ public class Vector implements VecMat {
    * @return (this^T * m)^T (placed into a new vector)
    */
   public Vector mul(Matrix m) {
-    return mul(m, Vector.create(m.cols()));
+    return mul(m, create(m.cols()));
   }
 
   //----------------------------------------------------------------------------
@@ -862,7 +853,7 @@ public class Vector implements VecMat {
    * @return 1 ./ this (placed into a new vector)
    */
   public Vector reciproc() {
-    return reciproc(Vector.create(length()));
+    return reciproc(create(length()));
   }
 
   /**
