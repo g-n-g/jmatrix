@@ -563,18 +563,15 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Entrywise absolute value operation placed into <code>result</code>.
+   * Entrywise absolute value (in <code>result</code>).
    *
    * @param result storage of the result (should not be <code>null</code>)
    * @return entrywise absolute value
    */
   public Matrix abs(Matrix result) {
-    assert (result != null);
-    assert (result.rows() == rows());
-    assert (result.cols() == cols());
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
         result.set(i, j, Math.abs(get(i,j)));
       }
     }
@@ -594,22 +591,17 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Entrywise sign operation with zero replacement
-   * placed into <code>result</code>.
+   * Entrywise sign operation with zero replacement (in <code>result</code>).
    *
    * @param zeroReplacement value replacing 0.0 values
    * @param result storage of the result (should not be <code>null</code>)
    * @return entrywise sign value
    */
   public Matrix sign(double zeroReplacement, Matrix result) {
-    assert (result != null);
-    assert (result.rows() == rows());
-    assert (result.cols() == cols());
-    int i, j;
-    double value;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
-        value = get(i,j);
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
+        double value = get(i,j);
         result.set(i, j, (0.0 == value) ? zeroReplacement : Math.signum(value));
       }
     }
@@ -617,7 +609,7 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Entrywise sign operation placed into <code>result</code>.
+   * Entrywise sign operation (in <code>result</code>).
    *
    * @param result storage of the result (should not be <code>null</code>)
    * @return entrywise sign value
@@ -626,9 +618,8 @@ public abstract class Matrix implements VecMat {
     assert (result != null);
     assert (result.rows() == rows());
     assert (result.cols() == cols());
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
         result.set(i, j, Math.signum(get(i,j)));
       }
     }
@@ -658,30 +649,29 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return -this (placed into "result")
+   * Entrywise negation (in <code>result</code>).
+   *
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the negated matrix
    */
   public Matrix neg(Matrix result) {
+    assert (result != null);
     assert (result.rows() == rows());
     assert (result.cols() == cols());
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
         result.set(i, j, -get(i,j));
       }
     }
     return result;
   }
 
-  /**
-   * @return -this (placed into a new matrix)
-   */
+  @Override
   public Matrix neg() {
     return neg(create(rows(),cols()));
   }
 
-  /**
-   * @return -this (placed into "this")
-   */
+  @Override
   public Matrix negL() {
     return neg(this);
   }
@@ -689,13 +679,17 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return this + m (placed into "result")
+   * Matrix-matrix addition (in <code>result</code>).
+   * Adds matrix <code>m</code> to <code>this</code> matrix.
+   *
+   * @param m matrix to add (should not be <code>null</code>)
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the sum of
+   *         <code>this</code> and <code>m</code>
    */
   public Matrix add(Matrix m, Matrix result) {
-    assert (rows() == m.rows());
-    assert (cols() == m.cols());
-    assert (result.rows() == rows());
-    assert (result.cols() == cols());
+    assert (m != null && rows() == m.rows() && cols() == m.cols());
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
     for (int i = 0; i < rows(); ++i) {
       for (int j = 0; j < cols(); ++j) {
         result.set(i, j, get(i,j) + m.get(i,j));
@@ -705,21 +699,35 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * @return this + m (placed into a new matrix)
+   * Matrix-matrix addition (in new matrix).
+   * Adds matrix <code>m</code> to <code>this</code> matrix in a new matrix.
+   *
+   * @param m matrix to add (should not be <code>null</code>)
+   * @return the sum of <code>this</code> and <code>m</code> in a new matrix
    */
   public Matrix add(Matrix m) {
-    return add(m, create(rows(),cols()));
+    return add(m, create(rows(), cols()));
   }
 
   /**
-   * @return this + m (placed into "this")
+   * Matrix-matrix addition (in left-place).
+   * Adds matrix <code>m</code> to <code>this</code> matrix
+   * in <code>this</code> matrix.
+   *
+   * @param m matrix to add (should not be <code>null</code>)
+   * @return <code>this</code> matrix
    */
   public Matrix addL(Matrix m) {
     return add(m, this);
   }
 
   /**
-   * @return this + m (placed into "m")
+   * Matrix-matrix addition (in right-place).
+   * Adds matrix <code>m</code> to <code>this</code> matrix
+   * in <code>m</code> matrix.
+   *
+   * @param m matrix to add (should not be <code>null</code>)
+   * @return <code>m</code> matrix
    */
   public Matrix addR(Matrix m) {
     return add(m, m);
@@ -728,13 +736,17 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return this - m (placed into "result")
+   * Matrix-matrix subtraction (in <code>result</code>).
+   * Subtracts matrix <code>m</code> from <code>this</code> matrix.
+   *
+   * @param m matrix to subtract (should not be <code>null</code>)
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the difference of
+   *         <code>this</code> and <code>m</code>
    */
   public Matrix sub(Matrix m, Matrix result) {
-    assert (rows() == m.rows());
-    assert (cols() == m.cols());
-    assert (result.rows() == rows());
-    assert (result.cols() == cols());
+    assert (m != null && rows() == m.rows() && cols() == m.cols());
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
     for (int i = 0; i < rows(); ++i) {
       for (int j = 0; j < cols(); ++j) {
         result.set(i, j, get(i,j) - m.get(i,j));
@@ -744,21 +756,37 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * @return this - m (placed into a new matrix)
+   * Matrix-matrix subtraction (in new matrix).
+   * Subtracts matrix <code>m</code> from <code>this</code> matrix
+   * in a new matrix.
+   *
+   * @param m matrix to subtract (should not be <code>null</code>)
+   * @return the difference of <code>this</code> and <code>m</code>
+   *         in a new matrix
    */
   public Matrix sub(Matrix m) {
     return sub(m, create(rows(),cols()));
   }
 
   /**
-   * @return this - m (placed into "this")
+   * Matrix-matrix subtraction (in left-place).
+   * Subtracts matrix <code>m</code> from <code>this</code> matrix
+   * in <code>this</code> matrix.
+   *
+   * @param m matrix to subtract (should not be <code>null</code>)
+   * @return <code>this</code> matrix
    */
   public Matrix subL(Matrix m) {
     return sub(m, this);
   }
 
   /**
-   * @return this - m (placed into "m")
+   * Matrix-matrix subtraction (in right-place).
+   * Subtracts matrix <code>m</code> from <code>this</code> matrix
+   * in <code>m</code> matrix.
+   *
+   * @param m matrix to subtract (should not be <code>null</code>)
+   * @return <code>m</code> matrix
    */
   public Matrix subR(Matrix m) {
     return sub(m, m);
@@ -767,11 +795,41 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return this * c (placed into "result")
+   * Matrix-constant division (in <code>result</code>). Divides all elements of
+   * <code>this</code> matrix by constant <code>c</code>.
+   *
+   * @param c constant to divide with
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the values of
+   *         <code>this</code> divided by <code>c</code>
+   */
+  public Matrix div(double c, Matrix result) {
+    return mul(1.0 / c, result);
+  }
+
+  @Override
+  public Matrix div(double c) {
+    return div(c, create(rows(),cols()));
+  }
+
+  @Override
+  public Matrix divL(double c) {
+    return div(c, this);
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Matrix-constant multiplication (in <code>result</code>). Multiplies all
+   * elements of <code>this</code> matrix by constant <code>c</code>.
+   *
+   * @param c constant to multiply with
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the values of
+   *         <code>this</code> multiplied by <code>c</code>
    */
   public Matrix mul(double c, Matrix result) {
-    assert (result.rows() == rows());
-    assert (result.cols() == cols());
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
     for (int i = 0; i < rows(); ++i) {
       for (int j = 0; j < cols(); ++j) {
         result.set(i, j, c * get(i,j));
@@ -780,41 +838,130 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  /**
-   * @return this * c (placed into a new matrix)
-   */
+  @Override
   public Matrix mul(double c) {
     return mul(c, create(rows(),cols()));
   }
 
-  /**
-   * @return this * c (placed into "this")
-   */
+  @Override
   public Matrix mulL(double c) {
     return mul(c, this);
   }
 
-  //----------------------------------------------------------------------------
-
   /**
-   * @return this / c (placed into "result")
+   * Matrix-vector multiplication (in <code>result</code>).
+   *
+   * @param v vector to multiply with on the right
+   * @param result storage of the result
+   *               (should not be <code>null</code>
+   *                and equal to <code>v</code>)
+   * @return <code>this</code> matrix multiplied
+   *         by vector <code>v</code> from the right side
    */
-  public Matrix div(double c, Matrix result) {
-    return mul(1.0 / c, result);
+  public Vector mul(Vector v, Vector result) {
+    assert (v != null && v.length() == cols());
+    assert (result != null && result != v && result.length() == rows());
+    double vj = v.get(0); // j = 0
+    for (int i = 0; i < rows(); ++i) { // initialize "result"
+      result.set(i, vj * get(i,0));
+    }
+    for (int j = 1; j < cols(); ++j) {
+      vj = v.get(j);
+      for (int i = 0; i < rows(); ++i) {
+        result.set(i, result.get(i) + vj * get(i,j));
+      }
+    }
+    return result;
   }
 
   /**
-   * @return this / c (placed into a new matrix)
+   * Matrix-vector multiplication (in new vector).
+   *
+   * @param v vector to multiply with on the right
+   * @return <code>this</code> matrix multiplied
+   *         by vector <code>v</code> from the right side
    */
-  public Matrix div(double c) {
-    return div(c, create(rows(),cols()));
+  public Vector mul(Vector v) {
+    return mul(v, Vector.create(rows()));
   }
 
   /**
-   * @return this / c (placed into "this")
+   * Matrix multiplication (in <code>result</code>) from the right
+   * with a diagonal matrix represented by vector <code>v</code>.
+   *
+   * @param v vector representing the multiplier diagonal matrix
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having <code>this</code> matrix multiplied by
+   *         <code>diag(v)</code> from the right
    */
-  public Matrix divL(double c) {
-    return div(c, this);
+  public Matrix mulD(Vector v, Matrix result) {
+    assert (v != null && v.length() == cols());
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    for (int j = 0; j < cols(); ++j) {
+      double d = v.get(j);
+      for (int i = 0; i < rows(); ++i)
+        result.set(i, j, get(i,j) * d);
+    }
+    return result;
+  }
+
+  /**
+   * Matrix multiplication (in new matrix) from the right
+   * with a diagonal matrix represented by vector <code>v</code>.
+   *
+   * @param v vector representing the multiplier diagonal matrix
+   * @return <code>result</code> having <code>this</code> matrix multiplied by
+   *         <code>diag(v)</code> from the right
+   */
+  public Matrix mulD(Vector v) {
+    return mulD(v, create(rows(), cols()));
+  }
+
+  /**
+   * Matrix-matrix multiplication (in <code>result</code>).
+   *
+   * @param m matrix multiplier from the right
+   * @param result storage of the result
+   *        (should not be <code>null</code>
+   *         and equal to <code>this</code> or <code>m</code>)
+   * @return <code>result</code> having <code>this</code> matrix multiplied
+   *         by matrix <code>m</code> from the right
+   */
+  public Matrix mul(Matrix m, Matrix result) {
+    assert (m != null && m.rows() == cols());
+    assert (result != null && result != this && result != m);
+    assert (result.rows() == rows() && result.cols() == m.cols());
+    final int cols = m.cols();
+    if (cols <= rows()) {
+      double tik;
+      for (int i = 0; i < rows(); ++i) {
+        tik = get(i,0); // k = 0
+        for (int j = 0; j < cols; ++j) { // initialize "result[i:*]"
+          result.set(i, j, tik * m.get(0,j));
+        }
+        for (int k = 1; k < cols(); ++k) {
+          tik = get(i,k);
+          for (int j = 0; j < cols; ++j) {
+            result.set(i, j, result.get(i,j) + tik * m.get(k,j));
+          }
+        }
+      }
+    }
+    else {
+      m.T().mul(T(), result.T());
+    }
+    return result;
+  }
+
+  /**
+   * Matrix-matrix multiplication (in new matrix).
+   *
+   * @param m matrix multiplier from the right
+   * @return <code>result</code> having <code>this</code> matrix multiplied
+   *         by matrix <code>m</code> from the right
+   */
+  public Matrix mul(Matrix m) {
+    return mul(m, create(rows(), m.cols()));
   }
 
   //----------------------------------------------------------------------------
@@ -844,105 +991,6 @@ public abstract class Matrix implements VecMat {
    */
   public Matrix modL(double m) {
     return mod(m, this);
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Matrix-vector product.
-   * The "result" parameter has to be different from "v".
-   * @return this * v (placed into "result")
-   */
-  public Vector mul(Vector v, Vector result) {
-    assert (cols() == v.length());
-    assert (result != v);
-    assert (result.length() == rows());
-    int i, j;
-    double vj = v.get(0); // j = 0
-    for (i = 0; i < rows(); ++i) { // initialize "result"
-      result.set(i, vj * get(i,0));
-    }
-    for (j = 1; j < cols(); ++j) {
-      vj = v.get(j);
-      for (i = 0; i < rows(); ++i) {
-        result.set(i, result.get(i) + vj * get(i,j));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector product.
-   * @return this * v (placed into a new vector)
-   */
-  public Vector mul(Vector v) {
-    return mul(v, Vector.create(rows()));
-  }
-
-  /**
-   * Matrix product with a diagonal matrix represented by "v".
-   * @return this * diag(v) (placed into "result")
-   */
-  public Matrix mulD(Vector v, Matrix result) {
-    assert (cols() == v.length());
-    assert (result.rows() == rows());
-    assert (result.cols() == cols());
-    int i, j;
-    double d;
-    for (j = 0; j < cols(); ++j) {
-      d = v.get(j);
-      for (i = 0; i < rows(); ++i)
-        result.set(i, j, get(i,j) * d);
-    }
-    return result;
-  }
-
-  /**
-   * Matrix product with a diagonal matrix represented by "v".
-   * @return this * diag(v) (placed into a new matrix)
-   */
-  public Matrix mulD(Vector v) {
-    return mulD(v, create(rows(),cols()));
-  }
-
-  /**
-   * Matrix product.
-   * The "result" parameter has to be different from "this" and "m".
-   * @return this * m (placed into "result")
-   */
-  public Matrix mul(Matrix m, Matrix result) {
-    assert (cols() == m.rows());
-    assert (result != this);
-    assert (result != m);
-    assert (result.rows() == rows());
-    assert (result.cols() == m.cols());
-    int i, j, k;
-    final int cols = m.cols();
-    if (cols <= rows()) {
-      double tik;
-      for (i = 0; i < rows(); ++i) {
-        tik = get(i,0); // k = 0
-        for (j = 0; j < cols; ++j) { // initialize "result[i:*]"
-          result.set(i, j, tik * m.get(0,j));
-        }
-        for (k = 1; k < cols(); ++k) {
-          tik = get(i,k);
-          for (j = 0; j < cols; ++j) {
-            result.set(i, j, result.get(i,j) + tik * m.get(k,j));
-          }
-        }
-      }
-    }
-    else { m.T().mul(T(), result.T()); }
-    return result;
-  }
-
-  /**
-   * Matrix product.
-   * @return this * m (placed into a new matrix)
-   */
-  public Matrix mul(Matrix m) {
-    return mul(m, create(rows(),m.cols()));
   }
 
   //----------------------------------------------------------------------------

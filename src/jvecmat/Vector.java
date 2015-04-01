@@ -373,7 +373,7 @@ public class Vector implements VecMat {
    * Entrywise absolute value operation placed into <code>result</code>.
    *
    * @param result storage of the result (should not be <code>null</code>)
-   * @return entrywise absolute value
+   * @return <code>result</code> having the absolute values
    */
   public Vector abs(Vector result) {
     assert (result != null && result.length() == length());
@@ -401,7 +401,7 @@ public class Vector implements VecMat {
    * 
    * @param zeroReplacement value replacing 0.0 values
    * @param result storage of the result (should not be <code>null</code>)
-   * @return entrywise sign value
+   * @return <code>result</code> having the sign and zero replacement values
    */
   public Vector sign(double zeroReplacement, Vector result) {
     assert (result != null && result.length() == length());
@@ -417,10 +417,10 @@ public class Vector implements VecMat {
    * Entrywise sign operation placed into <code>result</code>.
    * 
    * @param result storage of the result (should not be <code>null</code>)
-   * @return entrywise sign value
+   * @return <code>result</code> having the sign values
    */
   public Vector sign(Vector result) {
-    assert (result.length() == length());
+    assert (result != null && result.length() == length());
     for (int i = 0; i < length(); ++i) {
       result.set(i, Math.signum(get(i)));
     }
@@ -450,24 +450,23 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return -this (placed into "result")
+   * Entrywise negation placed into <code>result</code>.
+   *
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the negated vector
    */
-  public <T extends Vector> T neg(T result) {
-    assert (result.length() == length());
+  public Vector neg(Vector result) {
+    assert (result != null && result.length() == length());
     for (int i = 0; i < length(); ++i) { result.set(i, -get(i)); }
     return result;
   }
 
-  /**
-   * @return -this (placed into a new vector)
-   */
+  @Override
   public Vector neg() {
     return neg(create(length()));
   }
 
-  /**
-   * @return -this (placed into "this")
-   */
+  @Override
   public Vector negL() {
     return neg(this);
   }
@@ -475,11 +474,18 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return this + v (placed into "result")
+   * Vector-vector addition (in <code>result</code>).
+   * Adds vector <code>v</code> to <code>this</code> vector
+   * in <code>result</code>.
+   *
+   * @param v vector to add (should not be <code>null</code>)
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the sum of
+   *         <code>this</code> and <code>v</code>
    */
-  public <T extends Vector> T add(Vector v, T result) {
-    assert (length() == v.length());
-    assert (result.length() == length());
+  public Vector add(Vector v, Vector result) {
+    assert (v != null && v.length() == length());
+    assert (result != null && result.length() == length());
     for (int i = 0; i < length(); ++i) {
       result.set(i, get(i) + v.get(i));
     }
@@ -487,46 +493,75 @@ public class Vector implements VecMat {
   }
 
   /**
-   * @return this + v (placed into a new vector)
+   * Vector-vector addition (in new vector).
+   * Adds vector <code>v</code> to <code>this</code> vector in a new vector.
+   *
+   * @param v vector to add (should not be <code>null</code>)
+   * @return the sum of <code>this</code> and <code>v</code> in a new vector
    */
   public Vector add(Vector v) {
     return add(v, create(length()));
   }
 
   /**
-   * @return this + v (placed into "this")
+   * Vector-vector addition (in left-place).
+   * Adds vector <code>v</code> to <code>this</code> vector
+   * in <code>this</code> vector.
+   *
+   * @param v vector to add (should not be <code>null</code>)
+   * @return <code>this</code> vector
    */
   public Vector addL(Vector v) {
     return add(v, this);
   }
 
   /**
-   * @return this + v (placed into "v")
+   * Vector-vector addition (in right-place).
+   * Adds vector <code>v</code> to <code>this</code> vector
+   * in <code>v</code> vector.
+   *
+   * @param v vector to add (should not be <code>null</code>)
+   * @return <code>v</code> vector
    */
-  public <T extends Vector> T addR(T v) {
+  public Vector addR(Vector v) {
     return add(v, v);
   }
 
-  //----------------------------------------------------------------------------
-
   /**
-   * @return this + c * Vector.one (placed into "result")
+   * Vector-constant addition (in <code>result</code>).
+   * Adds constant <code>c</code> to all elements of <code>this</code> vector
+   * in <code>result</code>.
+   *
+   * @param c constant to add
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the shifted values of
+   *         <code>this</code> by <code>c</code>
    */
-  public <T extends Vector> T add(double c, T result) {
-    assert (result.length() == length());
+  public Vector add(double c, Vector result) {
+    assert (result != null && result.length() == length());
     for (int i = 0; i < length(); ++i) { result.set(i, get(i) + c); }
     return result;
   }
 
   /**
-   * @return this + c * Vector.one (placed into a new vector)
+   * Vector-constant addition (in new vector).
+   * Adds constant <code>c</code> to all elements of <code>this</code> vector
+   * in a new vector.
+   *
+   * @param c constant to add
+   * @return the shifted values of <code>this</code> by <code>c</code>
    */
   public Vector add(double c) {
     return add(c, create(length()));
   }
 
   /**
-   * @return this + c * Vector.one (placed into "this")
+   * Vector-constant addition (in place).
+   * Adds constant <code>c</code> to all elements of <code>this</code> vector.
+   *
+   * @param c constant to add
+   * @return <code>this</code> vector with its elements being shifted
+   *         by <code>c</code>
    */
   public Vector addL(double c) {
     return add(c, this);
@@ -535,11 +570,18 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return this - v (placed into "result")
+   * Vector-vector subtraction (in <code>result</code>).
+   * Subtracts vector <code>v</code> from <code>this</code> vector
+   * in <code>result</code>.
+   *
+   * @param v vector to subtract (should not be <code>null</code>)
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the difference of
+   *         <code>this</code> and <code>v</code>
    */
-  public <T extends Vector> T sub(Vector v, T result) {
-    assert (length() == v.length());
-    assert (result.length() == length());
+  public Vector sub(Vector v, Vector result) {
+    assert (v != null && v.length() == length());
+    assert (result != null && result.length() == length());
     for (int i = 0; i < length(); ++i) {
       result.set(i, get(i) - v.get(i));
     }
@@ -547,44 +589,76 @@ public class Vector implements VecMat {
   }
 
   /**
-   * @return this - v (placed into a new vector)
+   * Vector-vector subtraction (in new vector).
+   * Subtracts vector <code>v</code> from <code>this</code> vector
+   * in a new vector.
+   *
+   * @param v vector to subtract (should not be <code>null</code>)
+   * @return the difference of <code>this</code> and <code>v</code>
+   *         in a new vector
    */
   public Vector sub(Vector v) {
     return sub(v, create(length()));
   }
 
   /**
-   * @return this - v (placed into "this")
+   * Vector-vector subtraction (in left-place).
+   * Subtracts vector <code>v</code> from <code>this</code> vector
+   * in <code>this</code> vector.
+   *
+   * @param v vector to subtract (should not be <code>null</code>)
+   * @return <code>this</code> vector
    */
   public Vector subL(Vector v) {
     return sub(v, this);
   }
 
   /**
-   * @return this - v (placed into "v")
+   * Vector-vector subtraction (in right-place).
+   * Subtracts vector <code>v</code> from <code>this</code> vector
+   * in <code>v</code> vector.
+   *
+   * @param v vector to subtract (should not be <code>null</code>)
+   * @return <code>v</code> vector
    */
-  public <T extends Vector> T subR(T v) {
+  public Vector subR(Vector v) {
     return sub(v, v);
   }
 
-  //----------------------------------------------------------------------------
-
   /**
-   * @return this - c * Vector.one (placed into "result")
+   * Vector-constant subtraction (in <code>result</code>).
+   * Subtracts constant <code>c</code> from all elements of <code>this</code>
+   * vector in <code>result</code>.
+   *
+   * @param c constant to subtract
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the shifted values of
+   *         <code>this</code> by <code>-c</code>
    */
-  public <T extends Vector> T sub(double c, T result) {
+  public Vector sub(double c, Vector result) {
     return add(-c, result);
   }
 
   /**
-   * @return this - c * Vector.one (placed into a new vector)
+   * Vector-constant subtraction (in new vector).
+   * Subtracts constant <code>c</code> from all elements of <code>this</code>
+   * vector in a new vector.
+   *
+   * @param c constant to subtract
+   * @return the shifted values of <code>this</code> by <code>-c</code>
    */
   public Vector sub(double c) {
     return add(-c);
   }
 
   /**
-   * @return this - c * Vector.one (placed into "this")
+   * Vector-constant subtraction (in place).
+   * Subtracts constant <code>c</code> from all elements of <code>this</code>
+   * vector.
+   *
+   * @param c constant to subtract
+   * @return <code>this</code> vector with its elements being shifted
+   *         by <code>-c</code>
    */
   public Vector subL(double c) {
     return addL(-c);
@@ -593,47 +667,24 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return this * c (placed into "result")
+   * Vector-constant division (in <code>result</code>). Divides all elements of
+   * <code>this</code> vector by constant <code>c</code>.
+   *
+   * @param c constant to divide with
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the values of
+   *         <code>this</code> divided by <code>c</code>
    */
-  public <T extends Vector> T mul(double c, T result) {
-    assert (result.length() == length());
-    for (int i = 0; i < length(); ++i) { result.set(i, c * get(i)); }
-    return result;
-  }
-
-  /**
-   * @return this * c (placed into a new vector)
-   */
-  public Vector mul(double c) {
-    return mul(c, create(length()));
-  }
-
-  /**
-   * @return this * c (placed into "this")
-   */
-  public Vector mulL(double c) {
-    return mul(c, this);
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * @return this / c (placed into "result")
-   */
-  public <T extends Vector> T div(double c, T result) {
+  public Vector div(double c, Vector result) {
     return mul(1.0 / c, result);
   }
 
-  /**
-   * @return this / c (placed into a new vector)
-   */
+  @Override
   public Vector div(double c) {
     return div(c, create(length()));
   }
 
-  /**
-   * @return this / c (placed into "this")
-   */
+  @Override
   public Vector divL(double c) {
     return div(c, this);
   }
@@ -641,10 +692,37 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
+   * Vector-constant multiplication (in <code>result</code>). Multiplies all
+   * elements of <code>this</code> vector by constant <code>c</code>.
+   *
+   * @param c constant to multiply with
+   * @param result storage of the result (should not be <code>null</code>)
+   * @return <code>result</code> having the values of
+   *         <code>this</code> multiplied by <code>c</code>
+   */
+  public Vector mul(double c, Vector result) {
+    assert (result != null && result.length() == length());
+    for (int i = 0; i < length(); ++i) { result.set(i, c * get(i)); }
+    return result;
+  }
+
+  @Override
+  public Vector mul(double c) {
+    return mul(c, create(length()));
+  }
+
+  @Override
+  public Vector mulL(double c) {
+    return mul(c, this);
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
    * @return this .% m (placed into "result")
    */
-  public <T extends Vector> T mod(double m, T result) {
-    assert (result.length() == length());
+  public Vector mod(double m, Vector result) {
+    assert (result != null && result.length() == length());
     for (int i = 0; i < length(); ++i) { result.set(i, get(i) % m); }
     return result;
   }

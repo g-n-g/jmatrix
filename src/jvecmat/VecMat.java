@@ -84,14 +84,14 @@ public interface VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Entrywise absolute value operation.
+   * Entrywise absolute value (in new object).
    *
    * @return entrywise absolute value
    */
   VecMat abs();
 
   /**
-   * Sets <code>this</code> to its entrywise absolute value.
+   * Entrywise absolute value (in place).
    *
    * @return <code>this</code> object
    */
@@ -100,7 +100,7 @@ public interface VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Entrywise sign operation with zero replacement.
+   * Entrywise sign operation with zero replacement (in new object).
    *
    * @param zeroReplacement value replacing 0.0 values
    * @return entrywise sign value
@@ -108,14 +108,14 @@ public interface VecMat {
   VecMat sign(double zeroReplacement);
 
   /**
-   * Entrywise sign operation.
+   * Entrywise sign operation (in new object).
    *
-   * @return entrywise sign value
+   * @return entrywise sign values
    */
   VecMat sign();
 
   /**
-   * Sets <code>this</code> to its entrywise sign value with zero replacement.
+   * Entrywise sign operation with zero replacement (in place).
    *
    * @param zeroReplacement value replacing 0.0 values
    * @return <code>this</code> object
@@ -123,9 +123,69 @@ public interface VecMat {
   VecMat signL(double zeroReplacement);
 
   /**
-   * Sets <code>this</code> to its entrywise sign value.
+   * Entrywise sign operation (in place).
    *
    * @return <code>this</code> object
    */
   VecMat signL();
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Entrywise negation (in new object).
+   *
+   * @return object with the negated elements
+   */
+  VecMat neg();
+
+  /**
+   * Entrywise negation (in place).
+   *
+   * @return <code>this</code> object with the negated elements
+   */
+  VecMat negL();
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Constant division (in new object). Divides all elements of
+   * <code>this</code> by constant <code>c</code>.
+   *
+   * @param c constant to divide with
+   * @return new object with values of
+   *         <code>this</code> divided by <code>c</code>
+   */
+  VecMat div(double c);
+
+  /**
+   * Constant division (in place). Divides all elements of
+   * <code>this</code> by constant <code>c</code>.
+   *
+   * @param c constant to divide with
+   * @return <code>this</code>
+   *         by its values having divided by <code>c</code>
+   */
+  VecMat divL(double c);
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Constant multipication (in new object). Multiplies all elements of
+   * <code>this</code> by constant <code>c</code>.
+   *
+   * @param c constant to divide with
+   * @return new object with values of
+   *         <code>this</code> multiplied by <code>c</code>
+   */
+  VecMat mul(double c);
+
+  /**
+   * Constant multipication (in place). Multiplies all elements of
+   * <code>this</code> by constant <code>c</code>.
+   *
+   * @param c constant to divide with
+   * @return <code>this</code>
+   *         by its values having multiplied by <code>c</code>
+   */
+  VecMat mulL(double c);
 }
