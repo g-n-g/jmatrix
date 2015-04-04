@@ -23,8 +23,8 @@ public class MatrixTests extends AssertionBaseTest {
                        new double[]{0.5, 3.0, -3.0, 2.0}
                    });
         assertTrue(PREC > Math.abs(8.5 - m.norm1()));
-        assertTrue(PREC > Math.abs(10.0 - m.normi()));
-        assertTrue(PREC > Math.abs(8.0 - m.normf()));
+        assertTrue(PREC > Math.abs(10.0 - m.normI()));
+        assertTrue(PREC > Math.abs(8.0 - m.normF()));
     }
     
     public void testNaNandInfChecks() {
@@ -63,23 +63,23 @@ public class MatrixTests extends AssertionBaseTest {
         Matrix m3 = Matrix.constant(n, m, 42.42);
         Matrix m4 = Matrix.eye(n);
         
-        assertTrue(PREC > m2.sub(m2.add(m1)).normf());
-        assertTrue(PREC > m3.sub(m2.mul(42.42)).normf());
+        assertTrue(PREC > m2.sub(m2.add(m1)).normF());
+        assertTrue(PREC > m3.sub(m2.mul(42.42)).normF());
         assertTrue(PREC > m2.sub(m3.div(42.42)).norm1());
-        assertTrue(PREC > m4.sub(m4).normi());
+        assertTrue(PREC > m4.sub(m4).normI());
         
         m2.addL(m2);
         assertTrue(PREC > m2.sub(m3.div(42.42).mul(2)).norm1());
         m2.addR(m2);
-        assertTrue(PREC > m2.sub(m3.div(42.42).mul(4)).normf());
+        assertTrue(PREC > m2.sub(m3.div(42.42).mul(4)).normF());
         m2.subL(m2.div(2));
-        assertTrue(PREC > m2.sub(m3.div(42.42).mul(2)).normi());
+        assertTrue(PREC > m2.sub(m3.div(42.42).mul(2)).normI());
         m2.mul(3).subR(m2);
         assertTrue(PREC > m2.sub(m3.div(42.42).mul(4)).norm1());
         m2.mulL(2);
-        assertTrue(PREC > m2.sub(m3.div(42.42).mul(8)).normf());
+        assertTrue(PREC > m2.sub(m3.div(42.42).mul(8)).normF());
         m2.divL(8);
-        assertTrue(PREC > m2.sub(m3.div(42.42)).normi());
+        assertTrue(PREC > m2.sub(m3.div(42.42)).normI());
     }
     
     public void testAbsAndSignAndNeg() {
@@ -170,7 +170,7 @@ public class MatrixTests extends AssertionBaseTest {
 
         Matrix m3 = m1.getMat(2, 3, 1, 2);
         Matrix m4 = m2.getMat(1, 2, 2, 3);
-        assertTrue(PREC > m3.sub(m4.T()).normf());
+        assertTrue(PREC > m3.sub(m4.T()).normF());
 
         assertTrue(PREC > v1.sub(Matrix.createByCols(new Vector[]{v1, v1, v1})
                                        .getDiag()).normI());
@@ -179,24 +179,24 @@ public class MatrixTests extends AssertionBaseTest {
         Matrix B = Matrix.rand(7, 7, RNG);
         
         assertEquals(A.mul(B).get(2, 5),
-                     A.getRow(2).iprod(B.getCol(5)),
+                     A.getRow(2).inner(B.getCol(5)),
                      PREC);
 
         Vector row = Vector.create(7);
         Vector col = Vector.create(7);
         assertEquals(A.mul(B).get(2, 5),
-                     A.getRow(2, row).iprod(B.getCol(5, col)),
+                     A.getRow(2, row).inner(B.getCol(5, col)),
                      PREC);
 
         Matrix AB = Matrix.constant(10, 10, Double.NaN);
         AB.setMat(2, 8, 2, 8, A.mul(B));
 
         assertTrue(PREC > A.getMat(0, 0, 0, 6).mul(B.getMat(0, 6, 2, 3))
-                           .sub(AB.getMat(2, 2, 4, 5)).normf());
+                           .sub(AB.getMat(2, 2, 4, 5)).normF());
         assertTrue(PREC > A.getMat(4, 6, 0, 6).mul(B.getMat(0, 6, 2, 3))
-                           .sub(AB.getMat(6, 8, 4, 5)).normf());
+                           .sub(AB.getMat(6, 8, 4, 5)).normF());
         assertTrue(PREC > A.getMat(1, 2, 0, 6).mul(B.getMat(0, 6, 2, 3))
-                           .sub(AB.getMat(3, 4, 4, 5)).normf());
+                           .sub(AB.getMat(3, 4, 4, 5)).normF());
     }
 
     public void testMatrixVectorProduct() {
@@ -245,15 +245,15 @@ public class MatrixTests extends AssertionBaseTest {
         
         m2.mulL(3); m3.mulL(5);
         
-        assertTrue(PREC > m1.mul(m3).sub(m3.T().mul(m1.T()).T()).normf());
-        assertTrue(PREC > m2.mul(m1).sub(m1.T().mul(m2.T()).T()).normf());
+        assertTrue(PREC > m1.mul(m3).sub(m3.T().mul(m1.T()).T()).normF());
+        assertTrue(PREC > m2.mul(m1).sub(m1.T().mul(m2.T()).T()).normF());
         
         Matrix m4 = Matrix.one(n, m).mul(7);
         
         assertTrue(PREC > m1.add(m4).mul(m3)
-                     .sub(m1.mul(m3).add(m4.mul(m3))).normi());
+                     .sub(m1.mul(m3).add(m4.mul(m3))).normI());
         assertTrue(PREC > m2.mul(m1.add(m4))
-                     .sub(m2.mul(m1).add(m2.mul(m4))).normi());
+                     .sub(m2.mul(m1).add(m2.mul(m4))).normI());
         
         Matrix m5 = Matrix.one(n, m).mul(-8);
         
@@ -275,10 +275,10 @@ public class MatrixTests extends AssertionBaseTest {
         assertTrue(PREC > m3.sub(m3.emul(m2)).norm1());
         
         m1.emulL(m2);
-        assertTrue(PREC > m1.sub(m2.mul(3)).normi());
+        assertTrue(PREC > m1.sub(m2.mul(3)).normI());
         
         m1.div(3).emulR(m2);
-        assertTrue(PREC > m2.sub(m1.mul(3)).normi());
+        assertTrue(PREC > m2.sub(m1.mul(3)).normI());
     }
     
     public void testTrace() {
@@ -430,11 +430,11 @@ public class MatrixTests extends AssertionBaseTest {
                    });
         Matrix I = Matrix.eye(3);
         Matrix R = m.invD();
-        assertTrue(PREC > I.sub(m.mul(R)).normf());
+        assertTrue(PREC > I.sub(m.mul(R)).normF());
         
         m.set(1, 1, 3.33);
         m.invD(R);
-        assertTrue(PREC > I.sub(m.mul(R)).normf());
+        assertTrue(PREC > I.sub(m.mul(R)).normF());
     }
     
     public void testInvertPositiveDefiniteMatrix() {
@@ -445,22 +445,22 @@ public class MatrixTests extends AssertionBaseTest {
                    });
         Matrix I = Matrix.eye(3);
         Matrix R = m.invPD();
-        assertTrue(PREC > I.sub(m.mul(R)).normf());
+        assertTrue(PREC > I.sub(m.mul(R)).normF());
 
         m.set(1, 1, 3.333);
         Matrix RL = Matrix.zero(3, 3);
         Matrix tmp = Matrix.zero(3, 3);
         Vector D = Vector.zero(3);
         m.invPD(R, RL, D, tmp);
-        assertTrue(PREC > R.sub(RL.T().mulD(D).mul(RL)).normf());
-        assertTrue(PREC > tmp.sub(RL.T().mulD(D)).normf());
-        assertTrue(PREC > I.sub(R.mul(m)).normf());
+        assertTrue(PREC > R.sub(RL.T().mulD(D).mul(RL)).normF());
+        assertTrue(PREC > tmp.sub(RL.T().mulD(D)).normF());
+        assertTrue(PREC > I.sub(R.mul(m)).normF());
         
         m.set(1, 1, 2.222);
         RL = Matrix.zero(3,3);
         m.invPD(R, RL);
-        assertTrue(PREC > R.sub(RL.T().mul(RL)).normf());
-        assertTrue(PREC > I.sub(R.mul(m)).normf());
+        assertTrue(PREC > R.sub(RL.T().mul(RL)).normF());
+        assertTrue(PREC > I.sub(R.mul(m)).normF());
     }
     
     public void testInverseSmallMatrix() {

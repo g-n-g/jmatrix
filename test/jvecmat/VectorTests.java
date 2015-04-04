@@ -222,10 +222,10 @@ public class VectorTests extends AssertionBaseTest {
         Vector v1 = Vector.one(len);
         Vector v2 = Vector.unit(len, len / 3);
         
-        assertTrue(PREC > Math.abs(len - v1.iprod(v1)));
-        assertTrue(PREC > Math.abs(1.0 - v1.iprod(v2)));
-        assertTrue(PREC > Math.abs(2.0 * len - v1.mul(2).iprod(v1)));
-        assertTrue(PREC > Math.abs(2.0 - v2.iprod(v1.mul(2))));
+        assertTrue(PREC > Math.abs(len - v1.inner(v1)));
+        assertTrue(PREC > Math.abs(1.0 - v1.inner(v2)));
+        assertTrue(PREC > Math.abs(2.0 * len - v1.mul(2).inner(v1)));
+        assertTrue(PREC > Math.abs(2.0 - v2.inner(v1.mul(2))));
     }
     
     public void testEntrywiseMultiplication() {
@@ -262,20 +262,20 @@ public class VectorTests extends AssertionBaseTest {
         Matrix m = Matrix.constant(n, n, 9);
         Vector v = Vector.constant(n, 3);
         
-        assertTrue(PREC > m.sub(v.outp(v)).norm1());
+        assertTrue(PREC > m.sub(v.outer(v)).norm1());
         
-        v.mul(2).outp(v, m);
+        v.mul(2).outer(v, m);
         assertTrue(PREC > Matrix.constant(n, n, 18).sub(m).norm1());
     }
     
     public void testQuadraticProduct() {
         Vector v = Vector.create(new double[]{1.1, 2.2, 3.3});
         Matrix m = Matrix.createByCols(new Vector[]{v, v, v});
-        assertTrue(PREC > Math.abs(v.mulQ(m) - v.mul(m).iprod(v)));
+        assertTrue(PREC > Math.abs(v.mulQ(m) - v.mul(m).inner(v)));
         
         Vector rv = Vector.rand(4, RNG);
         Matrix rm = Matrix.randN(4, 4, RNG);
-        assertTrue(PREC > Math.abs(rv.mulQ(rm) - rv.mul(rm).iprod(rv)));
+        assertTrue(PREC > Math.abs(rv.mulQ(rm) - rv.mul(rm).inner(rv)));
     }
     
     public void testMatrixDiagProduct() {

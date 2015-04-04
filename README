@@ -16,7 +16,7 @@ Alternatives:
 
 Compilation:
 
-  ant
+  ant compile
 
 Generating documentation:
 

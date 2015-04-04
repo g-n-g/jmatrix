@@ -565,7 +565,7 @@ public abstract class Matrix implements VecMat {
   /**
    * Entrywise absolute value (in <code>result</code>).
    *
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return entrywise absolute value
    */
   public Matrix abs(Matrix result) {
@@ -594,7 +594,7 @@ public abstract class Matrix implements VecMat {
    * Entrywise sign operation with zero replacement (in <code>result</code>).
    *
    * @param zeroReplacement value replacing 0.0 values
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return entrywise sign value
    */
   public Matrix sign(double zeroReplacement, Matrix result) {
@@ -611,7 +611,7 @@ public abstract class Matrix implements VecMat {
   /**
    * Entrywise sign operation (in <code>result</code>).
    *
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return entrywise sign value
    */
   public Matrix sign(Matrix result) {
@@ -651,7 +651,7 @@ public abstract class Matrix implements VecMat {
   /**
    * Entrywise negation (in <code>result</code>).
    *
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the negated matrix
    */
   public Matrix neg(Matrix result) {
@@ -682,8 +682,8 @@ public abstract class Matrix implements VecMat {
    * Matrix-matrix addition (in <code>result</code>).
    * Adds matrix <code>m</code> to <code>this</code> matrix.
    *
-   * @param m matrix to add (should not be <code>null</code>)
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param m matrix to add (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the sum of
    *         <code>this</code> and <code>m</code>
    */
@@ -702,7 +702,7 @@ public abstract class Matrix implements VecMat {
    * Matrix-matrix addition (in new matrix).
    * Adds matrix <code>m</code> to <code>this</code> matrix in a new matrix.
    *
-   * @param m matrix to add (should not be <code>null</code>)
+   * @param m matrix to add (not <code>null</code>)
    * @return the sum of <code>this</code> and <code>m</code> in a new matrix
    */
   public Matrix add(Matrix m) {
@@ -714,7 +714,7 @@ public abstract class Matrix implements VecMat {
    * Adds matrix <code>m</code> to <code>this</code> matrix
    * in <code>this</code> matrix.
    *
-   * @param m matrix to add (should not be <code>null</code>)
+   * @param m matrix to add (not <code>null</code>)
    * @return <code>this</code> matrix
    */
   public Matrix addL(Matrix m) {
@@ -726,7 +726,7 @@ public abstract class Matrix implements VecMat {
    * Adds matrix <code>m</code> to <code>this</code> matrix
    * in <code>m</code> matrix.
    *
-   * @param m matrix to add (should not be <code>null</code>)
+   * @param m matrix to add (not <code>null</code>)
    * @return <code>m</code> matrix
    */
   public Matrix addR(Matrix m) {
@@ -739,8 +739,8 @@ public abstract class Matrix implements VecMat {
    * Matrix-matrix subtraction (in <code>result</code>).
    * Subtracts matrix <code>m</code> from <code>this</code> matrix.
    *
-   * @param m matrix to subtract (should not be <code>null</code>)
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param m matrix to subtract (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the difference of
    *         <code>this</code> and <code>m</code>
    */
@@ -760,7 +760,7 @@ public abstract class Matrix implements VecMat {
    * Subtracts matrix <code>m</code> from <code>this</code> matrix
    * in a new matrix.
    *
-   * @param m matrix to subtract (should not be <code>null</code>)
+   * @param m matrix to subtract (not <code>null</code>)
    * @return the difference of <code>this</code> and <code>m</code>
    *         in a new matrix
    */
@@ -773,7 +773,7 @@ public abstract class Matrix implements VecMat {
    * Subtracts matrix <code>m</code> from <code>this</code> matrix
    * in <code>this</code> matrix.
    *
-   * @param m matrix to subtract (should not be <code>null</code>)
+   * @param m matrix to subtract (not <code>null</code>)
    * @return <code>this</code> matrix
    */
   public Matrix subL(Matrix m) {
@@ -785,7 +785,7 @@ public abstract class Matrix implements VecMat {
    * Subtracts matrix <code>m</code> from <code>this</code> matrix
    * in <code>m</code> matrix.
    *
-   * @param m matrix to subtract (should not be <code>null</code>)
+   * @param m matrix to subtract (not <code>null</code>)
    * @return <code>m</code> matrix
    */
   public Matrix subR(Matrix m) {
@@ -799,7 +799,7 @@ public abstract class Matrix implements VecMat {
    * <code>this</code> matrix by constant <code>c</code>.
    *
    * @param c constant to divide with
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the values of
    *         <code>this</code> divided by <code>c</code>
    */
@@ -824,7 +824,7 @@ public abstract class Matrix implements VecMat {
    * elements of <code>this</code> matrix by constant <code>c</code>.
    *
    * @param c constant to multiply with
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the values of
    *         <code>this</code> multiplied by <code>c</code>
    */
@@ -853,8 +853,7 @@ public abstract class Matrix implements VecMat {
    *
    * @param v vector to multiply with on the right
    * @param result storage of the result
-   *               (should not be <code>null</code>
-   *                and equal to <code>v</code>)
+   *               (not <code>null</code> and equal to <code>v</code>)
    * @return <code>this</code> matrix multiplied
    *         by vector <code>v</code> from the right side
    */
@@ -890,7 +889,7 @@ public abstract class Matrix implements VecMat {
    * with a diagonal matrix represented by vector <code>v</code>.
    *
    * @param v vector representing the multiplier diagonal matrix
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having <code>this</code> matrix multiplied by
    *         <code>diag(v)</code> from the right
    */
@@ -922,7 +921,7 @@ public abstract class Matrix implements VecMat {
    *
    * @param m matrix multiplier from the right
    * @param result storage of the result
-   *        (should not be <code>null</code>
+   *        (not <code>null</code>
    *         and equal to <code>this</code> or <code>m</code>)
    * @return <code>result</code> having <code>this</code> matrix multiplied
    *         by matrix <code>m</code> from the right
@@ -967,28 +966,30 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return this .% m (placed into "result")
+   * Entrywise (signed) remainder with respect to modulus <code>m</code>
+   * (in <code>result</code>).
+   *
+   * @param m modulus
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> having the remainders of the values of
+   *         <code>this</code> with respect to modulus <code>m</code>
    */
   public Matrix mod(double m, Matrix result) {
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
         result.set(i, j, get(i,j) % m);
       }
     }
     return result;
   }
 
-  /**
-   * @return this .% m (placed into a new matrix)
-   */
+  @Override
   public Matrix mod(double m) {
-    return mod(m, create(rows(),cols()));
+    return mod(m, create(rows(), cols()));
   }
 
-  /**
-   * @return this .% m (placed into "this")
-   */
+  @Override
   public Matrix modL(double m) {
     return mod(m, this);
   }
@@ -996,17 +997,19 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Entrywise multiplication.
-   * @return this .* m (placed into "result")
+   * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
+   * (in <code>result</code>).
+   *
+   * @param m matrix to multiply with entrywise (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> having the elements of <code>this</code>
+   *         and <code>m</code> multiplied entrywise
    */
   public Matrix emul(Matrix m, Matrix result) {
-    assert (rows() == m.rows());
-    assert (cols() == m.cols());
-    assert (result.rows() == rows());
-    assert (result.cols() == cols());
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    assert (m != null && rows() == m.rows() && cols() == m.cols());
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
         result.set(i, j, get(i,j) * m.get(i,j));
       }
     }
@@ -1014,24 +1017,36 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Entrywise multiplication.
-   * @return this .* m (placed into a new matrix)
+   * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
+   * (in new matrix).
+   *
+   * @param m matrix to multiply with entrywise (not <code>null</code>)
+   * @return new matrix having the elements of <code>this</code>
+   *         and <code>m</code> multiplied entrywise
    */
   public Matrix emul(Matrix m) {
-    return emul(m, create(rows(),cols()));
+    return emul(m, create(rows(), cols()));
   }
 
   /**
-   * Entrywise multiplication.
-   * @return this .* m (placed into "this")
+   * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
+   * (in left-place).
+   *
+   * @param m matrix to multiply with entrywise (not <code>null</code>)
+   * @return <code>this</code> having its elements
+   *         multiplied entrywise by the elements of <code>m</code>
    */
   public Matrix emulL(Matrix m) {
     return emul(m, this);
   }
 
   /**
-   * Entrywise multiplication.
-   * @return this .* m (placed into "m")
+   * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
+   * (in right-place).
+   *
+   * @param m matrix to multiply with entrywise (not <code>null</code>)
+   * @return <code>m</code> having its elements
+   *         multiplied entrywise by the elements of <code>this</code>
    */
   public Matrix emulR(Matrix m) {
     return emul(m, m);
@@ -1039,8 +1054,14 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
+  // TODO: reciproc functions
+
+  //----------------------------------------------------------------------------
+
   /**
-   * @return 1-norm, maximum absolute column sum
+   * Computes the 1-norm (maximum absolute column sum).
+   *
+   * @return 1-norm of <code>this</code> matrix
    */
   public double norm1() {
     int i, j;
@@ -1054,9 +1075,11 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * @return inf-norm, maximum absolute row sum
+   * Computes the infinity-norm (maximum absolute row sum).
+   *
+   * @return infinity-norm of <code>this</code> matrix
    */
-  public double normi() {
+  public double normI() {
     int i, j;
     double s, maxs = 0.0;
     for (i = 0; i < rows(); ++i) {
@@ -1068,14 +1091,15 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * @return Frobenius norm
+   * Computes the Frobenius norm (maximum absolute row sum).
+   *
+   * @return Frobenius norm of <code>this</code> matrix
    */
-  public double normf() {
-    int i, j;
-    double s = 0.0, v;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
-        v = get(i,j);
+  public double normF() {
+    double s = 0.0;
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
+        double v = get(i,j);
         s += v * v;
       }
     }
@@ -1085,28 +1109,32 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return trace of a square matrix
+   * Computes the trace (sum of diagonal elements).
+   *
+   * @return trace of <code>this</code> matrix
    */
   public double tr() {
-    assert (rows() == cols());
-        
     double trace = 0.0;
-    for (int i = 0; i < rows(); ++i) { trace += get(i,i); }
+    final int limit = Math.min(rows(), cols());
+    for (int i = 0; i < limit; ++i) { trace += get(i,i); }
     return trace;
   }
 
   /**
-   * @return trace of the square ("this" * A) matrix
+   * Computes the trace of the result given by <code>this</code> matrix
+   * multiplied with matrix <code>m</code> on the right.
+   *
+   * @param m matrix multiplying on the right (not <code>null</code>)
+   * @return trace of <code>this</code> times <code>m</code>
    */
-  public double trMul(Matrix A) {
-    assert (cols() == A.rows());
-    assert (rows() == A.cols());
+  public double trMul(Matrix m) {
+    assert (m != null && cols() == m.rows());
         
-    int i, j;
     double trace = 0.0;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
-        trace += get(i,j) * A.get(j,i);
+    final int limit = Math.min(rows(), m.cols());
+    for (int i = 0; i < limit; ++i) {
+      for (int j = 0; j < cols(); ++j) {
+        trace += get(i,j) * m.get(j,i);
       }
     }
     return trace;
@@ -1116,30 +1144,30 @@ public abstract class Matrix implements VecMat {
 
   /**
    * Cholesky decomposition of a (symmetric) positive-definite matrix.
-   * The provided "result" matrix is assumed to be zero on its
+   * The provided <code>result</code> matrix is assumed to be zero on its
    * upper-triangular half.
-   * The "result" parameter also has to be different from "this".
-   * @return Cholesky lower-triangular matrix (placed into "result")
+   *
+   * @param result storage of the result
+   *        (not <code>null</code> and has the same size as <code>this</code>)
+   * @return <code>result</code> holding the lower-triangular Cholesky factor
    */
   public Matrix choleskyL(Matrix result) {
     assert (rows() == cols());
-    assert (result.rows() == rows());
-    assert (result.rows() == result.cols());
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
     final int n = rows();
-    int i, j, k;
     double Ljj, Lij, v;
-    for (j = 0; j < n; ++j) {
+    for (int j = 0; j < n; ++j) {
       Ljj = get(j,j);
-      for (k = 0; k < j; ++k) {
+      for (int k = 0; k < j; ++k) {
         v = result.get(j,k);
         Ljj -= v * v;
       }
       Ljj = Math.sqrt(Ljj);
       result.set(j, j, Ljj);
             
-      for (i = j+1; i < n; ++i) {
+      for (int i = j+1; i < n; ++i) {
         Lij = get(i,j);
-        for (k = 0; k < j; ++k) {
+        for (int k = 0; k < j; ++k) {
           Lij -= result.get(i,k) * result.get(j,k);
         }
         result.set(i, j, Lij / Ljj);
@@ -1150,38 +1178,44 @@ public abstract class Matrix implements VecMat {
 
   /**
    * Cholesky decomposition of a (symmetric) positive-definite matrix.
-   * @return Cholesky lower-triangular matrix (placed into a new matrix)
+   * The provided <code>result</code> matrix is assumed to be zero on its
+   * upper-triangular half.
+   *
+   * @return the lower-triangular Cholesky factor in a new matrix
    */
   public Matrix choleskyL() {
     return choleskyL(zero(rows(), cols()));
   }
 
   /**
-   * Cholesky decomposition of a (symmetric) positive-definite matrix.
-   * Provide the result in matrix "L" and vector "D" for which 
-   * this = L * diag(D) * L.T holds. Here the diagonal elements of L are all 
-   * one. The provided L matrix has to be zero above the diagonal.
+   * LDL (Cholesky) decomposition of a (symmetric) positive-definite matrix.
+   * Returns the result in matrix <code>L</code> and vector <code>D</code>.
+   * The provided <code>L</code> matrix has to be zero above the diagonal.
+   * The diagonal elements of <code>L</code> will be set to one.
+   *
+   * @param L will be set to the lower-triangular LDL factor
+   *        (not <code>null</code> and has the same size as <code>this</code>)
+   * @param D will be set to the diagonal elements of the diagonal LDL factor
+   *        (not <code>null</code> and has the appropriate size)
    */
   public void choleskyLD(Matrix L, Vector D) {
     assert (rows() == cols());
-    assert (L.rows() == rows());
-    assert (L.rows() == L.cols());
-    assert (D.length() == rows());
+    assert (L != null && L.rows() == rows() && L.cols() == cols());
+    assert (D != null && D.length() == rows());
     final int n = rows();
-    int i, j, k;
     double Dj, Lij, v;
-    for (j = 0; j < n; ++j) {
+    for (int j = 0; j < n; ++j) {
       Dj = get(j,j);
-      for (k = 0; k < j; ++k) {
+      for (int k = 0; k < j; ++k) {
         v = L.get(j,k);
         Dj -= v * v * D.get(k);
       }
       D.set(j, Dj);
       L.set(j, j, 1.0);
             
-      for (i = j+1; i < n; ++i) {
+      for (int i = j+1; i < n; ++i) {
         Lij = get(i,j);
-        for (k = 0; k < j; ++k) {
+        for (int k = 0; k < j; ++k) {
           Lij -= L.get(i,k) * L.get(j,k) * D.get(k);
         }
         L.set(i, j, Lij / Dj);
@@ -1193,31 +1227,28 @@ public abstract class Matrix implements VecMat {
 
   /**
    * QR decomposition of an arbitrary matrix using Hauseholder transformations.
-   * @return {Q R} (placed into new matrices)
+   *
+   * @return <code>{Q,R}</code> matrices, where <code>Q</code> is the orthogonal
+   *         and <code>R</code> is the upper-triangular factor
    */
   public Matrix[] QR() {
     Matrix Q = create(rows(), rows());
     Matrix R = create(rows(), cols());
-    return QR(new Matrix[]{Q, R}, Vector.create(rows()));
+    QR(Q, R, true, Vector.create(rows()));
+    return new Matrix[]{Q, R};
   }
 
   /**
    * QR decomposition of an arbitrary matrix using Hauseholder transformations.
-   * The "tmpV" vector is a temporary storage for the computation
-   * for which tmpV.length >= min(rows-1,cols) has to hold.
-   * @return {Q R} (placed into "result")
-   */
-  public Matrix[] QR(Matrix result[], Vector tmpV) {
-    QR(result[0], result[1], true, tmpV);
-    return result;
-  }
-
-  /**
-   * QR decomposition of an arbitrary matrix using Hauseholder transformations.
-   * Only the R matrix is computed.
-   * The "tmpV" vector is a temporary storage for the computation
-   * for which tmpV.length >= min(rows-1,cols) has to hold.
-   * @return R (placed into "R")
+   * Matrix <code>R</code> is of size <code>rows()</code> x <code>cols()</code>.
+   * Vector <code>tmpV</code> is a temporary storage with length not smaller
+   * than <code>min(rows()-1, cols())</code>.
+   *
+   * @param R will be set to the upper-triangular factor
+   *          (not <code>null</code> with size <code>rows()</code> x <code>cols()</code>
+   * @param tmpV temporary vector
+   *             (not <code>null</code> with size >= <code>min(rows()-1, cols())</code>
+   * @return matrix <code>R</code>
    */
   public Matrix QR(Matrix R, Vector tmpV) {
     QR(null, R, false, tmpV);
@@ -1226,9 +1257,17 @@ public abstract class Matrix implements VecMat {
 
   /**
    * QR decomposition of an arbitrary matrix using Hauseholder transformations.
-   * Both the Q and R matrices are computed into "Q" and "R", respectively.
-   * The "tmpV" vector is a temporary storage for the computation
-   * for which tmpV.length >= min(rows-1,cols) has to hold.
+   * Matrix <code>Q</code> is square of size <code>rows()</code> and
+   * matrix <code>R</code> is of size <code>rows()</code> x <code>cols()</code>.
+   * Vector <code>tmpV</code> is a temporary storage with length not smaller
+   * than <code>min(rows()-1, cols())</code>.
+   *
+   * @param Q will be set to the orthogonal factor
+   *          (not <code>null</code> with size <code>rows()</code> x <code>rows()</code>)
+   * @param R will be set to the upper-triangular factor
+   *          (not <code>null</code> with size <code>rows()</code> x <code>cols()</code>
+   * @param tmpV temporary vector
+   *             (not <code>null</code> with size >= <code>min(rows()-1, cols())</code>
    */
   public void QR(Matrix Q, Matrix R, Vector tmpV) {
     QR(Q, R, true, tmpV);
@@ -1242,27 +1281,24 @@ public abstract class Matrix implements VecMat {
     final int t = Math.min(rows-1, cols);
     assert (t <= tmpV.length());
 
-    int i, j, k;
-    double norm, s;
-
-    copy(R);
-    for (k = 0; k < t; ++k) {
-      norm = 0.0;
-      for (i = k; i < rows; ++i) { norm = hypot(norm, R.get(i, k)); }
+    copy(R); // this -> R
+    for (int k = 0; k < t; ++k) {
+      double norm = 0.0;
+      for (int i = k; i < rows; ++i) { norm = hypot(norm, R.get(i, k)); }
 
       if (norm != 0.0) {
         if (R.get(k, k) < 0) norm = -norm;
 
-        for (i = k; i < rows; ++i) { R.set(i, k, R.get(i, k) / norm); }
+        for (int i = k; i < rows; ++i) { R.set(i, k, R.get(i, k) / norm); }
         R.set(k, k, R.get(k, k) + 1.0); // 1 <= R[k,k] <= 2
 
-        for (j = k+1; j < cols; ++j) {
-          s = 0.0;
-          for (i = k; i < rows; ++i) {
+        for (int j = k+1; j < cols; ++j) {
+          double s = 0.0;
+          for (int i = k; i < rows; ++i) {
             s += R.get(i, k) * R.get(i, j);
           }
           s = -s / R.get(k, k);
-          for (i = k; i < rows; ++i) {
+          for (int i = k; i < rows; ++i) {
             R.set(i, j, R.get(i, j) + s*R.get(i, k));
           }
         }
@@ -1272,15 +1308,15 @@ public abstract class Matrix implements VecMat {
 
     if (isComputeQ) {
       Q.setToEye();
-      for (k = t-1; k >= 0; --k) {
-        for (j = k; j < rows; ++j) {
+      for (int k = t-1; k >= 0; --k) {
+        for (int j = k; j < rows; ++j) {
           if (R.get(k, k) != 0.0) {
-            s = 0.0;
-            for (i = k; i < rows; ++i) {
+            double s = 0.0;
+            for (int i = k; i < rows; ++i) {
               s += R.get(i, k) * Q.get(i, j);
             }
             s = -s / R.get(k, k);
-            for (i = k; i < rows; ++i) {
+            for (int i = k; i < rows; ++i) {
               Q.set(i, j, Q.get(i, j) + s*R.get(i, k));
             }
           }
@@ -1288,9 +1324,9 @@ public abstract class Matrix implements VecMat {
       }
     }
 
-    for (k = 0; k < t; ++k) {
+    for (int k = 0; k < t; ++k) {
       R.set(k, k, tmpV.get(k));
-      for (i = k+1; i < rows; ++i) { R.set(i, k, 0.0); }
+      for (int i = k+1; i < rows; ++i) { R.set(i, k, 0.0); }
     }
   }
 
@@ -1312,6 +1348,8 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
+  // TODO: refactor det* into prodD (product of diagonal elements)
+
   /**
    * @return determinant of a lower/upper triangular matrix
    */
@@ -1322,6 +1360,8 @@ public abstract class Matrix implements VecMat {
     for (int i = 0; i < rows(); ++i) { det *= get(i,i); }
     return det;
   }
+
+  // TODO: unify these to a general det method
 
   /**
    * @return determinant of a 2x2 matrix
@@ -1342,6 +1382,8 @@ public abstract class Matrix implements VecMat {
   }
 
   //----------------------------------------------------------------------------
+
+  // TODO: unify these into a general inv method
 
   /**
    * @return inverse of a 2x2 matrix (placed into "result")
@@ -1510,7 +1552,11 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return transpose of the matrix
+   * Returns the matrix transpose.
+   * Data is not moved, but the get/set methods are redefined,
+   * so this operation cannot be done entirely in-place.
+   *
+   * @return transpose of the matrix (in new object)
    */
   abstract public Matrix T();
 
@@ -1519,10 +1565,9 @@ public abstract class Matrix implements VecMat {
   @Override
   public String toString() {
     String str = "[";
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
+    for (int i = 0; i < rows(); ++i) {
       if (0 != i) str += "; ";
-      for (j = 0; j < cols(); ++j) {
+      for (int j = 0; j < cols(); ++j) {
         if (0 != j) str += " ";
         str += get(i,j);
       }

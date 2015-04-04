@@ -332,47 +332,9 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Normalize the vector with respect to the 1-norm.
-   * The zero vector is left unchanged.
-   *
-   * @return (1-norm) normalized <code>this</code>
-   */
-  public Vector normalize1() {
-    double norm1 = norm1();
-    if (0.0 < norm1) { divL(norm1); }
-    return this;
-  }
-
-  /**
-   * Normalize the vector with respect to the 2-norm.
-   * The zero vector is left unchanged.
-   *
-   * @return (2-norm) normalized <code>this</code>
-   */
-  public Vector normalize2() {
-    double norm2 = norm2();
-    if (0.0 < norm2) { divL(norm2); }
-    return this;
-  }
-
-  /**
-   * Normalize the vector with respect to the inf-norm.
-   * The zero vector is left unchanged.
-   *
-   * @return (inf-norm) normalized <code>this</code>
-   */
-  public Vector normalizeI() {
-    double normI = normI();
-    if (0.0 < normI) { divL(normI); }
-    return this;
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
    * Entrywise absolute value operation placed into <code>result</code>.
    *
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the absolute values
    */
   public Vector abs(Vector result) {
@@ -400,7 +362,7 @@ public class Vector implements VecMat {
    * placed into <code>result</code>.
    * 
    * @param zeroReplacement value replacing 0.0 values
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the sign and zero replacement values
    */
   public Vector sign(double zeroReplacement, Vector result) {
@@ -416,7 +378,7 @@ public class Vector implements VecMat {
   /**
    * Entrywise sign operation placed into <code>result</code>.
    * 
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the sign values
    */
   public Vector sign(Vector result) {
@@ -452,7 +414,7 @@ public class Vector implements VecMat {
   /**
    * Entrywise negation placed into <code>result</code>.
    *
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the negated vector
    */
   public Vector neg(Vector result) {
@@ -478,8 +440,8 @@ public class Vector implements VecMat {
    * Adds vector <code>v</code> to <code>this</code> vector
    * in <code>result</code>.
    *
-   * @param v vector to add (should not be <code>null</code>)
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param v vector to add (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the sum of
    *         <code>this</code> and <code>v</code>
    */
@@ -496,7 +458,7 @@ public class Vector implements VecMat {
    * Vector-vector addition (in new vector).
    * Adds vector <code>v</code> to <code>this</code> vector in a new vector.
    *
-   * @param v vector to add (should not be <code>null</code>)
+   * @param v vector to add (not <code>null</code>)
    * @return the sum of <code>this</code> and <code>v</code> in a new vector
    */
   public Vector add(Vector v) {
@@ -508,7 +470,7 @@ public class Vector implements VecMat {
    * Adds vector <code>v</code> to <code>this</code> vector
    * in <code>this</code> vector.
    *
-   * @param v vector to add (should not be <code>null</code>)
+   * @param v vector to add (not <code>null</code>)
    * @return <code>this</code> vector
    */
   public Vector addL(Vector v) {
@@ -520,7 +482,7 @@ public class Vector implements VecMat {
    * Adds vector <code>v</code> to <code>this</code> vector
    * in <code>v</code> vector.
    *
-   * @param v vector to add (should not be <code>null</code>)
+   * @param v vector to add (not <code>null</code>)
    * @return <code>v</code> vector
    */
   public Vector addR(Vector v) {
@@ -533,7 +495,7 @@ public class Vector implements VecMat {
    * in <code>result</code>.
    *
    * @param c constant to add
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the shifted values of
    *         <code>this</code> by <code>c</code>
    */
@@ -574,8 +536,8 @@ public class Vector implements VecMat {
    * Subtracts vector <code>v</code> from <code>this</code> vector
    * in <code>result</code>.
    *
-   * @param v vector to subtract (should not be <code>null</code>)
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param v vector to subtract (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the difference of
    *         <code>this</code> and <code>v</code>
    */
@@ -593,7 +555,7 @@ public class Vector implements VecMat {
    * Subtracts vector <code>v</code> from <code>this</code> vector
    * in a new vector.
    *
-   * @param v vector to subtract (should not be <code>null</code>)
+   * @param v vector to subtract (not <code>null</code>)
    * @return the difference of <code>this</code> and <code>v</code>
    *         in a new vector
    */
@@ -606,7 +568,7 @@ public class Vector implements VecMat {
    * Subtracts vector <code>v</code> from <code>this</code> vector
    * in <code>this</code> vector.
    *
-   * @param v vector to subtract (should not be <code>null</code>)
+   * @param v vector to subtract (not <code>null</code>)
    * @return <code>this</code> vector
    */
   public Vector subL(Vector v) {
@@ -618,7 +580,7 @@ public class Vector implements VecMat {
    * Subtracts vector <code>v</code> from <code>this</code> vector
    * in <code>v</code> vector.
    *
-   * @param v vector to subtract (should not be <code>null</code>)
+   * @param v vector to subtract (not <code>null</code>)
    * @return <code>v</code> vector
    */
   public Vector subR(Vector v) {
@@ -631,7 +593,7 @@ public class Vector implements VecMat {
    * vector in <code>result</code>.
    *
    * @param c constant to subtract
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the shifted values of
    *         <code>this</code> by <code>-c</code>
    */
@@ -671,7 +633,7 @@ public class Vector implements VecMat {
    * <code>this</code> vector by constant <code>c</code>.
    *
    * @param c constant to divide with
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the values of
    *         <code>this</code> divided by <code>c</code>
    */
@@ -696,7 +658,7 @@ public class Vector implements VecMat {
    * elements of <code>this</code> vector by constant <code>c</code>.
    *
    * @param c constant to multiply with
-   * @param result storage of the result (should not be <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the values of
    *         <code>this</code> multiplied by <code>c</code>
    */
@@ -716,102 +678,27 @@ public class Vector implements VecMat {
     return mul(c, this);
   }
 
-  //----------------------------------------------------------------------------
-
   /**
-   * @return this .% m (placed into "result")
-   */
-  public Vector mod(double m, Vector result) {
-    assert (result != null && result.length() == length());
-    for (int i = 0; i < length(); ++i) { result.set(i, get(i) % m); }
-    return result;
-  }
-
-  /**
-   * @return this .% m (placed into a new vector)
-   */
-  public Vector mod(double m) {
-    return mod(m, create(length()));
-  }
-
-  /**
-   * @return this .% m (placed into "this")
-   */
-  public Vector modL(double m) {
-    return mod(m, this);
-  }
-    
-  //----------------------------------------------------------------------------
-
-  /**
-   * @return inner product (dot product), <this,v>
-   */
-  public final double iprod(Vector v) {
-    assert (length() == v.length());
-    double r = 0.0;
-    for (int i = 0; i < length(); ++i) { r += get(i) * v.get(i); }
-    return r;
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Entrywise multiplication.
-   * @return this .* v (placed into "result")
-   */
-  public <T extends Vector> T emul(Vector v, T result) {
-    assert (length() == v.length());
-    assert (result.length() == length());
-    for (int i = 0; i < length(); ++i) {
-      result.set(i, get(i) * v.get(i));
-    }
-    return result;
-  }
-
-  /**
-   * Entrywise multiplication.
-   * @return this .* v (placed into a new vector)
-   */
-  public Vector emul(Vector v) {
-    return emul(v, create(length()));
-  }
-
-  /**
-   * Entrywise multiplication.
-   * @return this .* v (placed into "this") 
-   */
-  public Vector emulL(Vector v) {
-    return emul(v, this);
-  }
-
-  /**
-   * Entrywise multiplication.
-   * @return this .* v (placed into "v")
-   */
-  public <T extends Vector> T emulR(T v) {
-    return emul(v, v);
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Vector-matrix multiplication.
-   * The "result" parameter has to be different from "this".
-   * @return (this^T * m)^T (placed into "result")
+   * Vector-matrix multiplication (in <code>result</code>).
+   * Multiplying the (transpose of the column) vector <code>this</code>
+   * by matrix <code>m</code> from the right.
+   *
+   * @param m matrix multiplier from the right (not <code>null</code>)
+   * @param result storage of the result
+   *               (not <code>null</code> and equal to <code>this</code>)
+   * @return <code>result</code> being vector <code>v</code> multiplied by
+   *         matrix <code>m</code> from the right
    */    
-  public <T extends Vector> T mul(Matrix m, T result) {
-    assert (length() == m.rows());
-    assert (result != this);
-    assert (result.length() == m.cols());
-    final int cols = m.cols();
-    int i, j;
+  public Vector mul(Matrix m, Vector result) {
+    assert (m != null && length() == m.rows());
+    assert (result != null && result != this && result.length() == m.cols());
     double vi = get(0); // i = 0
-    for (j = 0; j < cols; ++j) { // initialize "result"
+    for (int j = 0; j < m.cols(); ++j) { // initialize "result"
       result.set(j, vi * m.get(0,j));
     }
-    for (i = 1; i < length(); ++i) {
+    for (int i = 1; i < length(); ++i) {
       vi = get(i);
-      for (j = 0; j < cols; ++j) {
+      for (int j = 0; j < m.cols(); ++j) {
         result.set(j, result.get(j) + vi * m.get(i,j));
       }
     }
@@ -819,48 +706,53 @@ public class Vector implements VecMat {
   }
 
   /**
-   * Vector-matrix multiplication.
-   * @return (this^T * m)^T (placed into a new vector)
-   */
+   * Vector-matrix multiplication (in new vector).
+   * Multiplying the (transpose of the column) vector <code>this</code>
+   * by matrix <code>m</code> from the right.
+   *
+   * @param m matrix multiplier from the right (not <code>null</code>)
+   * @return new vector being the result of vector <code>v</code> multiplied by
+   *         matrix <code>m</code> from the right
+   */    
   public Vector mul(Matrix m) {
     return mul(m, create(m.cols()));
   }
 
-  //----------------------------------------------------------------------------
-
   /**
    * Quadratic vector-matrix-vector product.
-   * @return this^T * m * this
+   * Matrix <code>m</code> has to be square and its size matching the length
+   * of <code>this</code> vector.
+   *
+   * @param m matrix multiplier (not <code>null</code>)
+   * @return matrix <code>m</code> multiplied by <code>this</code> from both sides
    */
   public final double mulQ(Matrix m) {
-    assert (m.rows() == length());
-    assert (m.cols() == length());
-    int i, j;
+    assert (m != null && m.rows() == length() && m.cols() == length());
     double r = 0.0;
-    for (i = 0; i < length(); ++i) {
-      for (j = 0; j < length(); ++j) {
+    for (int i = 0; i < length(); ++i) {
+      for (int j = 0; j < length(); ++j) {
         r += get(i) * get(j) * m.get(i,j);
       }
     }
     return r;
   }
 
-  //----------------------------------------------------------------------------
-
   /**
-   * Matrix product with a diagonal matrix represented by "this".
-   * @return diag(this) * m (placed into "result")
+   * Multiplies matrix <code>m</code> from the left
+   * with a diagonal matrix represented by <code>this</code> vector
+   * (in <code>result</code>).
+   *
+   * @param m matrix multiplier (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> being matrix <code>m</code> multiplied
+   *         with a diagonal matrix represented by <code>this</code> vector
    */
   public Matrix mulD(Matrix m, Matrix result) {
-    assert (length() == m.rows());
-    assert (result.rows() == m.rows());
-    assert (result.cols() == m.cols());
-    final int cols = m.cols();
-    int i, j;
-    double d;
-    for (i = 0; i < length(); ++i) {
-      d = get(i);
-      for (j = 0; j < cols; ++j) {
+    assert (m != null && length() == m.rows());
+    assert (result != null && result.rows() == m.rows() && result.cols() == m.cols());
+    for (int i = 0; i < length(); ++i) {
+      double d = get(i);
+      for (int j = 0; j < m.cols(); ++j) {
         result.set(i, j, m.get(i,j) * d);
       }
     }
@@ -868,34 +760,76 @@ public class Vector implements VecMat {
   }
 
   /**
-   * Matrix product with a diagonal matrix represented by "this".
-   * @return diag(this) * m (placed into a new matrix)
+   * Multiplies matrix <code>m</code> from the left
+   * with a diagonal matrix represented by <code>this</code> vector
+   * (in new matrix).
+   *
+   * @param m matrix multiplier (not <code>null</code>)
+   * @return new matrix being the result of matrix <code>m</code> multiplied
+   *         with a diagonal matrix represented by <code>this</code> vector
    */
   public Matrix mulD(Matrix m) {
-    return mulD(m, Matrix.create(m.rows(),m.cols()));
-  }
-
-  /**
-   * @return determinant of the diag("this") matrix
-   */
-  public double detD() {
-    double det = 1.0;
-    for (int i = 0; i < length(); ++i) { det *= get(i); }
-    return det;
+    return mulD(m, Matrix.create(m.rows(), m.cols()));
   }
 
   //----------------------------------------------------------------------------
 
   /**
-   * Outer product of two vectors.
-   * @return this * v^T (placed into "result")
+   * Entrywise (signed) remainder with respect to modulus <code>m</code>
+   * (in <code>result</code>).
+   *
+   * @param m modulus
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> having the remainders of the values of
+   *         <code>this</code> with respect to modulus <code>m</code>
    */
-  public Matrix outp(Vector v, Matrix result) {
-    assert (result.rows() == length());
-    assert (result.cols() == v.length());
-    int i, j;
-    for (i = 0; i < length(); ++i) {
-      for (j = 0; j < v.length(); ++j) {
+  public Vector mod(double m, Vector result) {
+    assert (result != null && result.length() == length());
+    for (int i = 0; i < length(); ++i) { result.set(i, get(i) % m); }
+    return result;
+  }
+
+  @Override
+  public Vector mod(double m) {
+    return mod(m, create(length()));
+  }
+
+  @Override
+  public Vector modL(double m) {
+    return mod(m, this);
+  }
+    
+  //----------------------------------------------------------------------------
+
+  /**
+   * Inner product (dot product, scalar product) with vector <code>v</code>.
+   * The length of <code>this</code> and <code>v</code> has to be the same.
+   *
+   * @param v vector to multiply with
+   * @return inner product of <code>this</code> and vector <code>v</code>
+   */
+  public final double inner(Vector v) {
+    assert (v != null && v.length() == length());
+    double r = 0.0;
+    for (int i = 0; i < length(); ++i) { r += get(i) * v.get(i); }
+    return r;
+  }
+
+  /**
+   * Outer product with vector <code>v</code> (in <code>result</code>).
+   * The length of <code>this</code> and <code>v</code> has to be the same
+   * and <code>result</code> has to be an appropriately sized square matrix.
+   *
+   * @param v vector to multiply with (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> being the
+   *         outer product of <code>this</code> and vector <code>v</code>
+   */
+  public Matrix outer(Vector v, Matrix result) {
+    assert (result != null && result.rows() == length());
+    assert (v != null && result.cols() == v.length());
+    for (int i = 0; i < length(); ++i) {
+      for (int j = 0; j < v.length(); ++j) {
         result.set(i, j, get(i) * v.get(j));
       }
     }
@@ -903,41 +837,104 @@ public class Vector implements VecMat {
   }
 
   /**
-   * Outer product of two vectors.
-   * @return this * v^T (placed into a new matrix)
+   * Outer product with vector <code>v</code> (in new matrix).
+   * The length of <code>this</code> and <code>v</code> has to be the same.
+   *
+   * @param v vector to multiply with (not <code>null</code>)
+   * @return new square matrix being the
+   *         outer product of <code>this</code> and vector <code>v</code>
    */
-  public Matrix outp(Vector v) {
-    return outp(v, Matrix.create(length(), v.length()));
+  public Matrix outer(Vector v) {
+    return outer(v, Matrix.create(length(), v.length()));
   }
 
   //----------------------------------------------------------------------------
 
   /**
-   * Take the reciproc of all elements.
-   * It is assumed that the elements are non-zero.
-   * @return 1 ./ this (placed into "result")
+   * Entrywise multiplication (Hadamard product) by vector <code>v</code>
+   * (in <code>result</code>).
+   *
+   * @param v vector to multiply with entrywise
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> having the elements of <code>this</code>
+   *         and <code>v</code> multiplied entrywise
    */
-  public <T extends Vector> T reciproc(T result) {
-    assert (result.length() == length());
+  public Vector emul(Vector v, Vector result) {
+    assert (v != null && v.length() == length());
+    assert (result != null && result.length() == length());
+    for (int i = 0; i < length(); ++i) {
+      result.set(i, get(i) * v.get(i));
+    }
+    return result;
+  }
+
+  /**
+   * Entrywise multiplication (Hadamard product) by vector <code>v</code>
+   * (in new vector).
+   *
+   * @param v vector to multiply with entrywise (not <code>null</code>)
+   * @return new vector having the elements of <code>this</code>
+   *         and <code>v</code> multiplied entrywise
+   */
+  public Vector emul(Vector v) {
+    return emul(v, create(length()));
+  }
+
+  /**
+   * Entrywise multiplication (Hadamard product) by vector <code>v</code>
+   * (in left-place).
+   *
+   * @param v vector to multiply with entrywise (not <code>null</code>)
+   * @return <code>this</code> having its elements
+   *         multiplied entrywise by the elements of <code>v</code>
+   */
+  public Vector emulL(Vector v) {
+    return emul(v, this);
+  }
+
+  /**
+   * Entrywise multiplication (Hadamard product) by vector <code>v</code>
+   * (in right-place).
+   *
+   * @param v vector to multiply with entrywise (not <code>null</code>)
+   * @return <code>v</code> having its elements
+   *         multiplied entrywise by the elements of <code>this</code>
+   */
+  public Vector emulR(Vector v) {
+    return emul(v, v);
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Takes the reciproc of all elements (in <code>result</code>).
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> holding the elementwise reciproc vector
+   */
+  public Vector reciproc(Vector result) {
+    assert (result != null && result.length() == length());
     for (int i = 0; i < length(); ++i) {
       result.set(i, 1.0 / get(i));
     }
     return result;
   }
 
+  // TODO: move the reciproc function documentations below to VecMat
+
   /**
-   * Take the reciproc of all elements.
-   * It is assumed that the elements are non-zero.
-   * @return 1 ./ this (placed into a new vector)
+   * Takes the reciproc of all elements (in new object).
+   *
+   * @return elementwise reciproc in a new vector
    */
   public Vector reciproc() {
     return reciproc(create(length()));
   }
 
   /**
-   * Take the reciproc of all elements.
-   * It is assumed that the elements are non-zero.
-   * @return 1 ./ this (placed into "this")
+   * Takes the reciproc of all elements (in place).
+   *
+   * @return <code>this</code> vector holding the elementwise reciproc
    */
   public Vector reciprocL() {
     return reciproc(this);
@@ -946,7 +943,45 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * @return 1-norm of the vector
+   * Normalize the vector with respect to the 1-norm.
+   * The zero vector is left unchanged.
+   *
+   * @return (1-norm) normalized <code>this</code>
+   */
+  public Vector normalize1() {
+    double norm1 = norm1();
+    if (0.0 < norm1) { divL(norm1); }
+    return this;
+  }
+
+  /**
+   * Normalize the vector with respect to the 2-norm.
+   * The zero vector is left unchanged.
+   *
+   * @return (2-norm) normalized <code>this</code>
+   */
+  public Vector normalize2() {
+    double norm2 = norm2();
+    if (0.0 < norm2) { divL(norm2); }
+    return this;
+  }
+
+  /**
+   * Normalize the vector with respect to the inf-norm.
+   * The zero vector is left unchanged.
+   *
+   * @return (inf-norm) normalized <code>this</code>
+   */
+  public Vector normalizeI() {
+    double normI = normI();
+    if (0.0 < normI) { divL(normI); }
+    return this;
+  }
+
+  /**
+   * Computes the 1-norm of <code>this</code> vector.
+   *
+   * @return 1-norm of <code>this</code> vector
    */
   public double norm1() {
     double s = 0.0;
@@ -955,7 +990,9 @@ public class Vector implements VecMat {
   }
 
   /**
-   * @return 2-norm of the vector
+   * Computes the 2-norm of <code>this</code> vector.
+   *
+   * @return 2-norm of <code>this</code> vector
    */
   public double norm2() {
     double s = 0.0, v;
@@ -967,7 +1004,9 @@ public class Vector implements VecMat {
   }
 
   /**
-   * @return inf-norm of the vector
+   * Computes the infinity-norm of <code>this</code> vector.
+   *
+   * @return infinity-norm of <code>this</code> vector
    */
   public double normI() {
     double s = 0.0, v;
@@ -980,18 +1019,30 @@ public class Vector implements VecMat {
 
   //----------------------------------------------------------------------------
 
-  public String logString() {
-    String str = "";
+  /**
+   * Computes the determinant of the diagonal matrix represented by
+   * <code>this</code> vector.
+   * This is simply the product of the diagonal elements.
+   *
+   * @return determinant of the diagonal matrix represented
+   * by <code>this</code> vector
+   */
+  public double detD() {
+    double det = 1.0;
+    for (int i = 0; i < length(); ++i) { det *= get(i); }
+    return det;
+  }
+
+  //----------------------------------------------------------------------------
+
+  @Override
+  public String toString() {
+    String str = "[";
     for (int i = 0; i < length(); ++i) {
       if (i != 0) { str += " "; }
       str += get(i);
     }
-    return str;
-  }
-
-  @Override
-  public String toString() {
-    return "[" + logString() + "]";
+    return str + "]";
   }
 
   //----------------------------------------------------------------------------

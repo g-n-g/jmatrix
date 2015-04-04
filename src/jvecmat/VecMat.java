@@ -188,4 +188,26 @@ public interface VecMat {
    *         by its values having multiplied by <code>c</code>
    */
   VecMat mulL(double c);
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Entrywise (signed) remainder with respect to modulus <code>m</code>
+   * (in new object).
+   *
+   * @param m modulus
+   * @return new object with the remainders of the values of
+   *         <code>this</code> with respect to modulus <code>m</code>
+   */
+  VecMat mod(double m);
+
+  /**
+   * Entrywise (signed) remainder with respect to modulus <code>m</code>
+   * (in place).
+   *
+   * @param m modulus
+   * @return <code>this</code> by taking the remainders of its values
+   *         with respect to modulus <code>m</code>
+   */
+  VecMat modL(double m);
 }

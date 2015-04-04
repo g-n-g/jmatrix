@@ -1,4 +1,8 @@
 
+ant jar 
+rename ...L in-place methods to $..., e.g. v.mulL(4) -> v.#mul(4)
+remove ...R in-place methods
+
 NonTransposedMatrix -> DenseMatrix
 TransposedMatrix -> TDenseMatrix
 
