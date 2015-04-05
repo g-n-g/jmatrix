@@ -210,4 +210,20 @@ public interface VecMat {
    *         with respect to modulus <code>m</code>
    */
   VecMat modL(double m);
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Takes the reciproc of all elements (in new object).
+   *
+   * @return elementwise reciproc in a new object
+   */
+  VecMat reciproc();
+
+  /**
+   * Takes the reciproc of all elements (in place).
+   *
+   * @return <code>this</code> object holding the elementwise reciproc
+   */
+  VecMat reciprocL();
 }

@@ -920,22 +920,12 @@ public class Vector implements VecMat {
     return result;
   }
 
-  // TODO: move the reciproc function documentations below to VecMat
-
-  /**
-   * Takes the reciproc of all elements (in new object).
-   *
-   * @return elementwise reciproc in a new vector
-   */
+  @Override
   public Vector reciproc() {
     return reciproc(create(length()));
   }
 
-  /**
-   * Takes the reciproc of all elements (in place).
-   *
-   * @return <code>this</code> vector holding the elementwise reciproc
-   */
+  @Override
   public Vector reciprocL() {
     return reciproc(this);
   }

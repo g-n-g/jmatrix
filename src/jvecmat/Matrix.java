@@ -1054,7 +1054,31 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
-  // TODO: reciproc functions
+  /**
+   * Takes the reciproc of all elements (in <code>result</code>).
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> holding the elementwise reciproc matrix
+   */
+  public Matrix reciproc(Matrix result) {
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
+        result.set(i, j, 1.0 / get(i,j));
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public Matrix reciproc() {
+    return reciproc(create(rows(), cols()));
+  }
+
+  @Override
+  public Matrix reciprocL() {
+    return reciproc(this);
+  }
 
   //----------------------------------------------------------------------------
 
