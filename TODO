@@ -1,7 +1,5 @@
 Refactoring:
 
-ant jar 
-
 Vector: sum, prod
 Matrix: rowSum, colSum, det -> prodD
 
@@ -29,4 +27,3 @@ vector performance improvements
 matrix performance improvements
   diagonal matrices, identity matrix
   lower/upper triangular matrices
-

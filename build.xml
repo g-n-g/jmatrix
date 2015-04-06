@@ -33,6 +33,16 @@
     <javac srcdir="${src}/jvecmat" destdir="${bin}"/>
   </target>
 
+  <target name="jar" description="Make a jar file." depends="compile">
+    <jar destfile="jvecmat.jar" basedir="${bin}">
+      <exclude name=".keep"/>
+      <exclude name="**/test/**"/>
+      <manifest>
+        <attribute name="Version" value="1.0-dev"/>
+      </manifest>
+    </jar>
+  </target>
+
   <!-- test targets -->
 
   <target name="test-compile"
