@@ -68,18 +68,21 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > m2.sub(m3.div(42.42)).norm1());
     assertTrue(PREC > m4.sub(m4).normI());
 
-    m2.addL(m2);
+    m2.add(m2, m2);
     assertTrue(PREC > m2.sub(m3.div(42.42).mul(2)).norm1());
-    m2.addR(m2);
-    assertTrue(PREC > m2.sub(m3.div(42.42).mul(4)).normF());
-    m2.subL(m2.div(2));
-    assertTrue(PREC > m2.sub(m3.div(42.42).mul(2)).normI());
-    m2.mul(3).subR(m2);
-    assertTrue(PREC > m2.sub(m3.div(42.42).mul(4)).norm1());
-    m2.mulL(2);
-    assertTrue(PREC > m2.sub(m3.div(42.42).mul(8)).normF());
-    m2.divL(8);
-    assertTrue(PREC > m2.sub(m3.div(42.42)).normI());
+    m2.setToOne();
+
+    m2.sub(m2.div(2), m2);
+    assertTrue(PREC > m2.sub(m3.div(42.42).mul(0.5)).normI());
+    m2.setToOne();
+
+    m2.mul(2, m2);
+    assertTrue(PREC > m2.sub(m3.div(42.42).mul(2)).normF());
+    m2.setToOne();
+
+    m2.div(8, m2);
+    assertTrue(PREC > m2.sub(m3.div(8*42.42)).normI());
+    m2.setToOne();
   }
 
   public void testAbsAndSignAndNeg() {
@@ -87,37 +90,38 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > m.sub(m.sign().emul(m.abs())).norm1());
     assertTrue(PREC > m.neg().sub(m.neg().sign().emul(m.abs())).norm1());
 
-    m.negL();
+    m.neg(m);
     assertTrue(PREC > m.sub(m.sign().emul(m.abs())).norm1());
 
     Matrix s = Matrix.zero(4, 6);
     Matrix a = Matrix.zero(4, 6);
-    m.copy(s).signL();
-    m.copy(a).absL();
+    m.copy(s).sign(s);
+    m.copy(a).abs(m);
     assertTrue(PREC > m.sub(s.emul(a)).norm1());
 
-    s.copy(a).signL();
+    s.copy(a).sign(s);
     assertTrue(PREC > s.sub(a).norm1());
 
     s.set(2, 2, 0.0);
     a.set(2, 2, 0.0);
     assertTrue(PREC > s.sub(a).norm1());
-    s.signL(8.8);
+    s.sign(8.8, s);
     assertFalse(PREC > s.sub(a).norm1());
   }
 
   public void testMod() {
     double m = 2.3;
-    Matrix mm = Matrix.rand(5, 4, RNG).mulL(8.0);
+    Matrix mm = Matrix.rand(5, 4, RNG);
+    mm.mul(8.0, mm);
     Matrix oo = Matrix.constant(5, 4, m);
 
     assertTrue(PREC > oo.mod(m).norm1());
     assertTrue(PREC > mm.add(oo.mul(2.0)).mod(m).sub(mm.mod(m)).norm1());
 
-    mm.mulL(-1.0);
+    mm.mul(-1.0, mm);
     assertTrue(PREC > mm.add(oo.mul(-2.0)).mod(m).sub(mm.mod(m)).norm1());
 
-    oo.modL(m);
+    oo.mod(m, oo);
     assertTrue(PREC > oo.norm1());
   }
 
@@ -125,7 +129,7 @@ public class MatrixTests extends AssertionBaseTest {
     Matrix m = Matrix.rand(5, 7, RNG);
     Matrix c = m.copy();
 
-    m.addL(Matrix.randN(5, 7, RNG));
+    m.add(Matrix.randN(5, 7, RNG), m);
     assertTrue(PREC > m.sub(m).norm1());
     assertTrue(PREC < c.sub(m).norm1());
 
@@ -243,7 +247,8 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > m1.sub(m1.mul(m3)).norm1());
     assertTrue(PREC > m1.sub(m2.mul(m1)).norm1());
 
-    m2.mulL(3); m3.mulL(5);
+    m2.mul(3, m2);
+    m3.mul(5, m3);
 
     assertTrue(PREC > m1.mul(m3).sub(m3.T().mul(m1.T()).T()).normF());
     assertTrue(PREC > m2.mul(m1).sub(m1.T().mul(m2.T()).T()).normF());
@@ -274,11 +279,9 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > m3.sub(m1.emul(m3)).norm1());
     assertTrue(PREC > m3.sub(m3.emul(m2)).norm1());
 
-    m1.emulL(m2);
+    m1.emul(m2, m1);
     assertTrue(PREC > m1.sub(m2.mul(3)).normI());
-
-    m1.div(3).emulR(m2);
-    assertTrue(PREC > m2.sub(m1.mul(3)).normI());
+    m1.setToConstant(3.0);
   }
 
   public void testTrace() {
@@ -316,9 +319,9 @@ public class MatrixTests extends AssertionBaseTest {
                new double[]{1.0, 3.0, 1.0},
                new double[]{1.0, 1.0, 2.0}
                });
-    Matrix L = Matrix.zero(3, 3);
-    Vector D = Vector.zero(3);
-    m.choleskyLD(L, D);
+    Matrix LD[] = m.choleskyLD();
+    Matrix L = LD[0];
+    Vector D = LD[1].getDiag();
     assertTrue(PREC > m.sub(L.mulD(D).mul(L.T())).norm1());
   }
 
@@ -532,7 +535,7 @@ public class MatrixTests extends AssertionBaseTest {
     v.reciproc(r);
     assertTrue(PREC > o.sub(v.emul(r)).normF());
 
-    r.reciprocL();
+    r.reciproc(r);
     assertTrue(PREC > v.sub(r).normF());
   }
 

@@ -7,11 +7,21 @@ import junit.framework.TestCase;
  */
 public class AssertionBaseTest extends TestCase {
 
-    public AssertionBaseTest(String name) {
-        super(name);
-    }
+  public AssertionBaseTest(String name) {
+    super(name);
+  }
 
-    static {
-        ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
-    }
+  static {
+    ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
+  }
+
+  //----------------------------------------------------------------------------
+
+  protected void log(Vector v) {
+    System.out.println(v);
+  }
+
+  protected void log(Matrix m) {
+    System.out.println(m);
+  }
 }

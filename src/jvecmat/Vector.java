@@ -334,6 +334,10 @@ public class Vector implements VecMat {
   /**
    * Entrywise absolute value operation placed into <code>result</code>.
    *
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
    * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the absolute values
    */
@@ -350,17 +354,16 @@ public class Vector implements VecMat {
     return abs(create(length()));
   }
 
-  @Override
-  public Vector absL() {
-    return abs(this);
-  }
-
   //----------------------------------------------------------------------------
 
   /**
    * Entrywise sign operation with zero replacement
    * placed into <code>result</code>.
    * 
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
    * @param zeroReplacement value replacing 0.0 values
    * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the sign and zero replacement values
@@ -378,6 +381,10 @@ public class Vector implements VecMat {
   /**
    * Entrywise sign operation placed into <code>result</code>.
    * 
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
    * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the sign values
    */
@@ -399,20 +406,14 @@ public class Vector implements VecMat {
     return sign(create(length()));
   }
 
-  @Override
-  public Vector signL(double zeroReplacement) {
-    return sign(zeroReplacement, this);
-  }
-
-  @Override
-  public Vector signL() {
-    return sign(this);
-  }
-
   //----------------------------------------------------------------------------
 
   /**
    * Entrywise negation placed into <code>result</code>.
+   *
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
    *
    * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the negated vector
@@ -428,17 +429,18 @@ public class Vector implements VecMat {
     return neg(create(length()));
   }
 
-  @Override
-  public Vector negL() {
-    return neg(this);
-  }
-
   //----------------------------------------------------------------------------
 
   /**
    * Vector-vector addition (in <code>result</code>).
    * Adds vector <code>v</code> to <code>this</code> vector
    * in <code>result</code>.
+   *
+   * Vectors <code>v</code> and <code>result</code> have to have the same size
+   * as <code>this</code>.
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * or <code>v</code> providing in-place operation.
    *
    * @param v vector to add (not <code>null</code>)
    * @param result storage of the result (not <code>null</code>)
@@ -458,6 +460,8 @@ public class Vector implements VecMat {
    * Vector-vector addition (in new vector).
    * Adds vector <code>v</code> to <code>this</code> vector in a new vector.
    *
+   * Vector <code>v</code> has to have the same size as <code>this</code>.
+   *
    * @param v vector to add (not <code>null</code>)
    * @return the sum of <code>this</code> and <code>v</code> in a new vector
    */
@@ -466,33 +470,13 @@ public class Vector implements VecMat {
   }
 
   /**
-   * Vector-vector addition (in left-place).
-   * Adds vector <code>v</code> to <code>this</code> vector
-   * in <code>this</code> vector.
-   *
-   * @param v vector to add (not <code>null</code>)
-   * @return <code>this</code> vector
-   */
-  public Vector addL(Vector v) {
-    return add(v, this);
-  }
-
-  /**
-   * Vector-vector addition (in right-place).
-   * Adds vector <code>v</code> to <code>this</code> vector
-   * in <code>v</code> vector.
-   *
-   * @param v vector to add (not <code>null</code>)
-   * @return <code>v</code> vector
-   */
-  public Vector addR(Vector v) {
-    return add(v, v);
-  }
-
-  /**
    * Vector-constant addition (in <code>result</code>).
    * Adds constant <code>c</code> to all elements of <code>this</code> vector
    * in <code>result</code>.
+   *
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
    *
    * @param c constant to add
    * @param result storage of the result (not <code>null</code>)
@@ -517,24 +501,18 @@ public class Vector implements VecMat {
     return add(c, create(length()));
   }
 
-  /**
-   * Vector-constant addition (in place).
-   * Adds constant <code>c</code> to all elements of <code>this</code> vector.
-   *
-   * @param c constant to add
-   * @return <code>this</code> vector with its elements being shifted
-   *         by <code>c</code>
-   */
-  public Vector addL(double c) {
-    return add(c, this);
-  }
-
   //----------------------------------------------------------------------------
 
   /**
    * Vector-vector subtraction (in <code>result</code>).
    * Subtracts vector <code>v</code> from <code>this</code> vector
    * in <code>result</code>.
+   *
+   * Vectors <code>v</code> and <code>result</code> have to have the same size
+   * as <code>this</code>.
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * or <code>v</code> providing in-place operation.
    *
    * @param v vector to subtract (not <code>null</code>)
    * @param result storage of the result (not <code>null</code>)
@@ -555,6 +533,8 @@ public class Vector implements VecMat {
    * Subtracts vector <code>v</code> from <code>this</code> vector
    * in a new vector.
    *
+   * Vector <code>v</code> has to have the same size as <code>this</code>.
+   *
    * @param v vector to subtract (not <code>null</code>)
    * @return the difference of <code>this</code> and <code>v</code>
    *         in a new vector
@@ -564,33 +544,13 @@ public class Vector implements VecMat {
   }
 
   /**
-   * Vector-vector subtraction (in left-place).
-   * Subtracts vector <code>v</code> from <code>this</code> vector
-   * in <code>this</code> vector.
-   *
-   * @param v vector to subtract (not <code>null</code>)
-   * @return <code>this</code> vector
-   */
-  public Vector subL(Vector v) {
-    return sub(v, this);
-  }
-
-  /**
-   * Vector-vector subtraction (in right-place).
-   * Subtracts vector <code>v</code> from <code>this</code> vector
-   * in <code>v</code> vector.
-   *
-   * @param v vector to subtract (not <code>null</code>)
-   * @return <code>v</code> vector
-   */
-  public Vector subR(Vector v) {
-    return sub(v, v);
-  }
-
-  /**
    * Vector-constant subtraction (in <code>result</code>).
    * Subtracts constant <code>c</code> from all elements of <code>this</code>
    * vector in <code>result</code>.
+   *
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
    *
    * @param c constant to subtract
    * @param result storage of the result (not <code>null</code>)
@@ -613,24 +573,15 @@ public class Vector implements VecMat {
     return add(-c);
   }
 
-  /**
-   * Vector-constant subtraction (in place).
-   * Subtracts constant <code>c</code> from all elements of <code>this</code>
-   * vector.
-   *
-   * @param c constant to subtract
-   * @return <code>this</code> vector with its elements being shifted
-   *         by <code>-c</code>
-   */
-  public Vector subL(double c) {
-    return addL(-c);
-  }
-
   //----------------------------------------------------------------------------
 
   /**
    * Vector-constant division (in <code>result</code>). Divides all elements of
    * <code>this</code> vector by constant <code>c</code>.
+   *
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
    *
    * @param c constant to divide with
    * @param result storage of the result (not <code>null</code>)
@@ -646,16 +597,15 @@ public class Vector implements VecMat {
     return div(c, create(length()));
   }
 
-  @Override
-  public Vector divL(double c) {
-    return div(c, this);
-  }
-
   //----------------------------------------------------------------------------
 
   /**
    * Vector-constant multiplication (in <code>result</code>). Multiplies all
    * elements of <code>this</code> vector by constant <code>c</code>.
+   *
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
    *
    * @param c constant to multiply with
    * @param result storage of the result (not <code>null</code>)
@@ -673,19 +623,18 @@ public class Vector implements VecMat {
     return mul(c, create(length()));
   }
 
-  @Override
-  public Vector mulL(double c) {
-    return mul(c, this);
-  }
-
   /**
    * Vector-matrix multiplication (in <code>result</code>).
    * Multiplying the (transpose of the column) vector <code>this</code>
    * by matrix <code>m</code> from the right.
    *
+   * Matrix <code>m</code> has to have the same number of rows
+   * as the length of <code>this</code> vector. Furthermore, the length of
+   * <code>result</code> has to be equal to the column number of <code>m</code>.
+   *
    * @param m matrix multiplier from the right (not <code>null</code>)
    * @param result storage of the result
-   *               (not <code>null</code> and equal to <code>this</code>)
+   *               (not <code>null</code> and not equal to <code>this</code>)
    * @return <code>result</code> being vector <code>v</code> multiplied by
    *         matrix <code>m</code> from the right
    */    
@@ -710,6 +659,9 @@ public class Vector implements VecMat {
    * Multiplying the (transpose of the column) vector <code>this</code>
    * by matrix <code>m</code> from the right.
    *
+   * Matrix <code>m</code> has to have the same number of rows
+   * as the length of <code>this</code> vector.
+   *
    * @param m matrix multiplier from the right (not <code>null</code>)
    * @return new vector being the result of vector <code>v</code> multiplied by
    *         matrix <code>m</code> from the right
@@ -720,8 +672,9 @@ public class Vector implements VecMat {
 
   /**
    * Quadratic vector-matrix-vector product.
-   * Matrix <code>m</code> has to be square and its size matching the length
-   * of <code>this</code> vector.
+   *
+   * Matrix <code>m</code> has to be square with its row/column number
+   * equal to the length of <code>this</code> vector.
    *
    * @param m matrix multiplier (not <code>null</code>)
    * @return matrix <code>m</code> multiplied by <code>this</code> from both sides
@@ -741,6 +694,12 @@ public class Vector implements VecMat {
    * Multiplies matrix <code>m</code> from the left
    * with a diagonal matrix represented by <code>this</code> vector
    * (in <code>result</code>).
+   *
+   * Matrix <code>m</code> has to have the same number of rows as the length of
+   * <code>this</code> vector.
+   * Furthermore, <code>result</code> has to have the same size
+   * as matrix <code>m</code>. The <code>result</code> parameter can also be set
+   * to <code>m</code> providing in-place operation.
    *
    * @param m matrix multiplier (not <code>null</code>)
    * @param result storage of the result (not <code>null</code>)
@@ -764,6 +723,9 @@ public class Vector implements VecMat {
    * with a diagonal matrix represented by <code>this</code> vector
    * (in new matrix).
    *
+   * Matrix <code>m</code> has to have the same number of rows as the length of
+   * <code>this</code> vector.
+   *
    * @param m matrix multiplier (not <code>null</code>)
    * @return new matrix being the result of matrix <code>m</code> multiplied
    *         with a diagonal matrix represented by <code>this</code> vector
@@ -775,8 +737,37 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
+   * Takes the reciproc of all elements (in <code>result</code>).
+   *
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> holding the elementwise reciproc vector
+   */
+  public Vector reciproc(Vector result) {
+    assert (result != null && result.length() == length());
+    for (int i = 0; i < length(); ++i) {
+      result.set(i, 1.0 / get(i));
+    }
+    return result;
+  }
+
+  @Override
+  public Vector reciproc() {
+    return reciproc(create(length()));
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
    * Entrywise (signed) remainder with respect to modulus <code>m</code>
    * (in <code>result</code>).
+   *
+   * Vector <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
    *
    * @param m modulus
    * @param result storage of the result (not <code>null</code>)
@@ -794,15 +785,11 @@ public class Vector implements VecMat {
     return mod(m, create(length()));
   }
 
-  @Override
-  public Vector modL(double m) {
-    return mod(m, this);
-  }
-    
   //----------------------------------------------------------------------------
 
   /**
    * Inner product (dot product, scalar product) with vector <code>v</code>.
+   *
    * The length of <code>this</code> and <code>v</code> has to be the same.
    *
    * @param v vector to multiply with
@@ -817,8 +804,9 @@ public class Vector implements VecMat {
 
   /**
    * Outer product with vector <code>v</code> (in <code>result</code>).
-   * The length of <code>this</code> and <code>v</code> has to be the same
-   * and <code>result</code> has to be an appropriately sized square matrix.
+   *
+   * The row and column number of matrix <code>result</code> has to be equal to
+   * the length <code>this</code> and <code>v</code>, respectively.
    *
    * @param v vector to multiply with (not <code>null</code>)
    * @param result storage of the result (not <code>null</code>)
@@ -838,7 +826,6 @@ public class Vector implements VecMat {
 
   /**
    * Outer product with vector <code>v</code> (in new matrix).
-   * The length of <code>this</code> and <code>v</code> has to be the same.
    *
    * @param v vector to multiply with (not <code>null</code>)
    * @return new square matrix being the
@@ -854,7 +841,12 @@ public class Vector implements VecMat {
    * Entrywise multiplication (Hadamard product) by vector <code>v</code>
    * (in <code>result</code>).
    *
-   * @param v vector to multiply with entrywise
+   * Vectors <code>v</code> and <code>result</code> have to have the same size
+   * as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
+   * @param v vector to multiply with entrywise (not <code>null</code>)
    * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having the elements of <code>this</code>
    *         and <code>v</code> multiplied entrywise
@@ -872,62 +864,14 @@ public class Vector implements VecMat {
    * Entrywise multiplication (Hadamard product) by vector <code>v</code>
    * (in new vector).
    *
+   * Vector <code>v</code> has to have the same size as <code>this</code>.
+   *
    * @param v vector to multiply with entrywise (not <code>null</code>)
    * @return new vector having the elements of <code>this</code>
    *         and <code>v</code> multiplied entrywise
    */
   public Vector emul(Vector v) {
     return emul(v, create(length()));
-  }
-
-  /**
-   * Entrywise multiplication (Hadamard product) by vector <code>v</code>
-   * (in left-place).
-   *
-   * @param v vector to multiply with entrywise (not <code>null</code>)
-   * @return <code>this</code> having its elements
-   *         multiplied entrywise by the elements of <code>v</code>
-   */
-  public Vector emulL(Vector v) {
-    return emul(v, this);
-  }
-
-  /**
-   * Entrywise multiplication (Hadamard product) by vector <code>v</code>
-   * (in right-place).
-   *
-   * @param v vector to multiply with entrywise (not <code>null</code>)
-   * @return <code>v</code> having its elements
-   *         multiplied entrywise by the elements of <code>this</code>
-   */
-  public Vector emulR(Vector v) {
-    return emul(v, v);
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Takes the reciproc of all elements (in <code>result</code>).
-   *
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> holding the elementwise reciproc vector
-   */
-  public Vector reciproc(Vector result) {
-    assert (result != null && result.length() == length());
-    for (int i = 0; i < length(); ++i) {
-      result.set(i, 1.0 / get(i));
-    }
-    return result;
-  }
-
-  @Override
-  public Vector reciproc() {
-    return reciproc(create(length()));
-  }
-
-  @Override
-  public Vector reciprocL() {
-    return reciproc(this);
   }
 
   //----------------------------------------------------------------------------
@@ -940,7 +884,7 @@ public class Vector implements VecMat {
    */
   public Vector normalize1() {
     double norm1 = norm1();
-    if (0.0 < norm1) { divL(norm1); }
+    if (0.0 < norm1) { div(norm1, this); }
     return this;
   }
 
@@ -952,7 +896,7 @@ public class Vector implements VecMat {
    */
   public Vector normalize2() {
     double norm2 = norm2();
-    if (0.0 < norm2) { divL(norm2); }
+    if (0.0 < norm2) { div(norm2, this); }
     return this;
   }
 
@@ -964,7 +908,7 @@ public class Vector implements VecMat {
    */
   public Vector normalizeI() {
     double normI = normI();
-    if (0.0 < normI) { divL(normI); }
+    if (0.0 < normI) { div(normI, this); }
     return this;
   }
 
@@ -1005,22 +949,6 @@ public class Vector implements VecMat {
       if (v > s) { s = v; }
     }
     return s;
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Computes the determinant of the diagonal matrix represented by
-   * <code>this</code> vector.
-   * This is simply the product of the diagonal elements.
-   *
-   * @return determinant of the diagonal matrix represented
-   * by <code>this</code> vector
-   */
-  public double detD() {
-    double det = 1.0;
-    for (int i = 0; i < length(); ++i) { det *= get(i); }
-    return det;
   }
 
   //----------------------------------------------------------------------------

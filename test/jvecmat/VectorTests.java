@@ -65,24 +65,28 @@ public class VectorTests extends AssertionBaseTest {
     assertTrue(PREC > v2.add(-1.0).norm1());
     assertTrue(PREC > v2.sub(1.0).norm2());
 
-    v2.addL(v2);
+    v2.add(v2, v2);
     assertTrue(PREC > v2.sub(v3.div(42.42).mul(2)).norm2());
-    v2.addR(v2);
-    assertTrue(PREC > v2.sub(v3.div(42.42).mul(4)).norm2());
-    v2.subL(v2.div(2));
+    v2.setToOne();
+
+    v2.sub(v2.div(2), v2);
+    assertTrue(PREC > v2.sub(v3.div(42.42).mul(0.5)).norm2());
+    v2.setToOne();
+
+    v2.mul(2, v2);
     assertTrue(PREC > v2.sub(v3.div(42.42).mul(2)).norm2());
-    v2.mul(3).subR(v2);
-    assertTrue(PREC > v2.sub(v3.div(42.42).mul(4)).norm2());
-    v2.mulL(2);
-    assertTrue(PREC > v2.sub(v3.div(42.42).mul(8)).norm2());
-    v2.divL(8);
-    assertTrue(PREC > v2.sub(v3.div(42.42)).norm2());
+    v2.setToOne();
+
+    v2.div(8, v2);
+    assertTrue(PREC > v2.sub(v3.div(8*42.42)).norm2());
+    v2.setToOne();
 
     v2.setToConstant(-2.1);
-    v2.addL(2.1);
+    v2.add(2.1, v2);
     assertTrue(PREC > v2.normI());
-    v2.subL(-1.0);
+    v2.sub(-1.0, v2);
     assertTrue(PREC > v2.sub(Vector.one(len)).normI());
+    v2.setToOne();
   }
 
   public void testMod() {
@@ -93,10 +97,10 @@ public class VectorTests extends AssertionBaseTest {
     assertTrue(PREC > o.mod(m).norm1());
     assertTrue(PREC > v.add(o.mul(2.0)).mod(m).sub(v.mod(m)).norm1());
 
-    v.mulL(-1.0);
+    v.mul(-1.0, v);
     assertTrue(PREC > v.add(o.mul(-2.0)).mod(m).sub(v.mod(m)).norm1());
 
-    o.modL(m);
+    o.mod(m, o);
     assertTrue(PREC > o.norm1());
   }
 
@@ -104,7 +108,7 @@ public class VectorTests extends AssertionBaseTest {
     Vector v = Vector.rand(5, RNG);
     Vector c = v.copy();
 
-    v.addL(Vector.randN(5, RNG));
+    v.add(Vector.randN(5, RNG), v);
     assertTrue(PREC > v.sub(v).norm1());
     assertTrue(PREC < c.sub(v).norm1());
 
@@ -180,22 +184,22 @@ public class VectorTests extends AssertionBaseTest {
     assertTrue(PREC > v.sub(v.sign().emul(v.abs())).norm1());
     assertTrue(PREC > v.neg().sub(v.neg().sign().emul(v.abs())).norm1());
 
-    v.negL();
+    v.neg(v);
     assertTrue(PREC > v.sub(v.sign().emul(v.abs())).norm1());
 
     Vector s = Vector.zero(10);
     Vector a = Vector.zero(10);
-    v.copy(s).signL();
-    v.copy(a).absL();
+    v.copy(s).sign(s);
+    v.copy(a).abs(v);
     assertTrue(PREC > v.sub(s.emul(a)).norm1());
 
-    s.copy(a).signL();
+    s.copy(a).sign(s);
     assertTrue(PREC > s.sub(a).norm1());
 
     s.set(2, 0.0);
     a.set(2, 0.0);
     assertTrue(PREC > s.sub(a).norm1());
-    s.signL(8.8);
+    s.sign(8.8, s);
     assertFalse(PREC > s.sub(a).norm1());
   }
 
@@ -218,10 +222,9 @@ public class VectorTests extends AssertionBaseTest {
     assertTrue(PREC > v1.mul(2).sub(v1.emul(v1)).norm1());
     assertTrue(PREC > v2.mul(2).sub(v1.emul(v2)).norm2());
 
-    v1.emulL(v1.mul(2));
+    v1.emul(v1.mul(2), v1);
     assertTrue(PREC > Vector.one(len).mul(8).sub(v1).normI());
-    v1.div(2).emulR(v1);
-    assertTrue(PREC > Vector.constant(len, 32).sub(v1).norm1());
+    v1.setToConstant(2.0);
   }
 
   public void testVectorMatrixMultiplication() {
@@ -268,18 +271,9 @@ public class VectorTests extends AssertionBaseTest {
 
     Matrix m3 = v.mulD(m1);
     assertTrue(PREC > m2.sub(m3).norm1());
-        
+
     v.mulD(m3, m3);
     assertTrue(PREC > m2.emul(m2).sub(m3).norm1());
-  }
-
-  public void testDiagDet() {
-    Vector v = Vector.create(new double[]{2.0, 3.0, 5.0});
-    assertTrue(PREC > Math.abs(30.0 - v.detD()));
-    v.set(1, -3.0);
-    assertTrue(PREC > Math.abs(-30.0 - v.detD()));
-    v.set(1, 0.0);
-    assertTrue(PREC > Math.abs(v.detD()));
   }
 
   public void testReciproc() {
@@ -293,7 +287,7 @@ public class VectorTests extends AssertionBaseTest {
     v.reciproc(r);
     assertTrue(PREC > o.sub(v.emul(r)).norm2());
 
-    r.reciprocL();
+    r.reciproc(r);
     assertTrue(PREC > v.sub(r).norm2());
   }
 

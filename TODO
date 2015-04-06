@@ -1,21 +1,32 @@
+Refactoring:
 
 ant jar 
-rename ...L in-place methods to $..., e.g. v.mulL(4) -> v.#mul(4)
-remove ...R in-place methods
 
+Vector: sum, prod
+Matrix: rowSum, colSum, det -> prodD
+
+rename:
 NonTransposedMatrix -> DenseMatrix
 TransposedMatrix -> TDenseMatrix
+
+-------------------------------------------------------------------------------
+Functionality:
 
 LU decomposition
 general matrix inverse
 back substitution
 least squares solution
 
+sparse vectors/matrices
+
+-------------------------------------------------------------------------------
+Performance:
+
 vector performance improvements
-    constant vector
-    standard unit vector
+  constant vector
+  standard unit vector
 
 matrix performance improvements
-    diagonal matrices, identity matrix
-    lower/upper triangular matrices
+  diagonal matrices, identity matrix
+  lower/upper triangular matrices
 
