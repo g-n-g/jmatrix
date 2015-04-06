@@ -14,7 +14,7 @@ public abstract class Matrix implements VecMat {
    * @return matrix which encapsulates <code>data</code> (not copied)
    */
   public static Matrix create(double[][] data) {
-    return new NonTransposedMatrix(data);
+    return new DenseMatrix(data);
   }
 
   /**

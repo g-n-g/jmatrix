@@ -1,12 +1,12 @@
 package jvecmat;
 
-public final class NonTransposedMatrix extends Matrix {
+public final class DenseMatrix extends Matrix {
 
-  NonTransposedMatrix(double[][] data) {
+  DenseMatrix(double[][] data) {
     super(data,
           (data == null) ? 0 : data.length,
           (data != null && 0 < data.length) ? data[0].length : 0);
-    trMat = new TransposedMatrix(this);
+    trMat = new TDenseMatrix(this);
   }
 
   //----------------------------------------------------------------------------
@@ -34,5 +34,5 @@ public final class NonTransposedMatrix extends Matrix {
 
   //----------------------------------------------------------------------------
 
-  private final TransposedMatrix trMat;
+  private final TDenseMatrix trMat;
 }

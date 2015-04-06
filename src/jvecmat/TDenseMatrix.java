@@ -1,8 +1,8 @@
 package jvecmat;
 
-public final class TransposedMatrix extends Matrix {
+public final class TDenseMatrix extends Matrix {
 
-  TransposedMatrix(NonTransposedMatrix mat) {
+  TDenseMatrix(DenseMatrix mat) {
     super(mat.array(), mat.cols(), mat.rows());
     this.mat = mat;
   }
@@ -32,5 +32,5 @@ public final class TransposedMatrix extends Matrix {
 
   //----------------------------------------------------------------------------
 
-  private final NonTransposedMatrix mat;
+  private final DenseMatrix mat;
 }

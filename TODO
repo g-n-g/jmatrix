@@ -3,10 +3,6 @@ Refactoring:
 Vector: sum, prod
 Matrix: rowSum, colSum, det -> prodD
 
-rename:
-NonTransposedMatrix -> DenseMatrix
-TransposedMatrix -> TDenseMatrix
-
 -------------------------------------------------------------------------------
 Functionality:
 
