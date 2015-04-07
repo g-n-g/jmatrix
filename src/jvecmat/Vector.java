@@ -953,6 +953,30 @@ public class Vector implements VecMat {
 
   //----------------------------------------------------------------------------
 
+  /**
+   * Returns the sum of the vector elements.
+   *
+   * @return sum of vector elements
+   */
+  public double sum() {
+    double s = 0.0;
+    for (int i = 0; i < length(); ++i) { s += get(i); }
+    return s;
+  }
+
+  /**
+   * Returns the product of the vector elements.
+   *
+   * @return product of vector elements
+   */
+  public double prod() {
+    double p = 1.0;
+    for (int i = 0; i < length(); ++i) { p *= get(i); }
+    return p;
+  }
+
+  //----------------------------------------------------------------------------
+
   @Override
   public String toString() {
     String str = "[";

@@ -291,6 +291,16 @@ public class VectorTests extends AssertionBaseTest {
     assertTrue(PREC > v.sub(r).norm2());
   }
 
+  public void testSumProd() {
+    final int n = 7;
+    Vector v = Vector.create(new double[]{6,5,7,4,2,1,3});
+    assertTrue(PREC > Math.abs(28.0 - v.sum()));
+    assertTrue(PREC > Math.abs(5040.0 - v.prod()));
+    Vector empty = Vector.one(0);
+    assertTrue(PREC > Math.abs(0.0 - empty.sum()));
+    assertTrue(PREC > Math.abs(1.0 - empty.prod()));
+  }
+
   //---------------------------------------------------------------------------
 
   public static void main(String[] args) {

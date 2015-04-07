@@ -1,7 +1,8 @@
 Refactoring:
 
-Vector: sum, prod
-Matrix: rowSum, colSum, det -> prodD
+Instead of array, store the representation (DenseMatrix, TDenseMatrix)
+inside the class. So it makes possible to implement in-place transpose, etc...
+Make matrix representations private.
 
 -------------------------------------------------------------------------------
 Functionality:

@@ -1113,11 +1113,11 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Computes the trace (sum of diagonal elements).
+   * Returns the trace (sum of diagonal elements).
    *
    * @return trace of <code>this</code> matrix
    */
-  public double tr() {
+  public double trace() {
     double trace = 0.0;
     final int limit = Math.min(rows(), cols());
     for (int i = 0; i < limit; ++i) { trace += get(i,i); }
@@ -1125,7 +1125,7 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Computes the trace of the result given by <code>this</code> matrix
+   * Returns the trace of the result given by <code>this</code> matrix
    * multiplied with matrix <code>m</code> on the right.
    *
    * The row number of <code>m</code> has to be equal to the column number
@@ -1134,9 +1134,8 @@ public abstract class Matrix implements VecMat {
    * @param m matrix multiplying on the right (not <code>null</code>)
    * @return trace of <code>this</code> times <code>m</code>
    */
-  public double trMul(Matrix m) {
+  public double traceMul(Matrix m) {
     assert (m != null && cols() == m.rows());
-        
     double trace = 0.0;
     final int limit = Math.min(rows(), m.cols());
     for (int i = 0; i < limit; ++i) {
@@ -1145,6 +1144,76 @@ public abstract class Matrix implements VecMat {
       }
     }
     return trace;
+  }
+
+  /**
+   * Returns the product of the diagonal elements.
+   *
+   * @return product of diagonal elements
+   */
+  public double prodDiag() {
+    final int limit = Math.min(rows(), cols());
+    double prod = 1.0;
+    for (int i = 0; i < limit; ++i) { prod *= get(i,i); }
+    return prod;
+  }
+
+  /**
+   * Returns the sum of the rows (in <code>result</code>).
+   *
+   * The length of <code>result</code> has to be the column number of
+   * <code>this</code> matrix.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return sum of rows
+   */
+  public Vector rowSum(Vector result) {
+    assert (result != null && result.length() == cols());
+    result.setToZero();
+    for (int j = 0; j < cols(); ++j) {
+      double s = 0.0;
+      for (int i = 0; i < rows(); ++i) { s += get(i,j); }
+      result.set(j, s);
+    }
+    return result;
+  }
+
+  /**
+   * Returns the sum of the rows (in new vector).
+   *
+   * @return sum of rows
+   */
+  public Vector rowSum() {
+    return rowSum(Vector.create(cols()));
+  }
+
+  /**
+   * Returns the sum of the columns (in <code>result</code>).
+   *
+   * The length of <code>result</code> has to be the row number of
+   * <code>this</code> matrix.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return sum of columns
+   */
+  public Vector colSum(Vector result) {
+    assert (result != null && result.length() == rows());
+    result.setToZero();
+    for (int i = 0; i < rows(); ++i) {
+      double s = 0.0;
+      for (int j = 0; j < cols(); ++j) { s += get(i,j); }
+      result.set(i, s);
+    }
+    return result;
+  }
+
+  /**
+   * Returns the sum of the columns (in new vector).
+   *
+   * @return sum of columns
+   */
+  public Vector colSum() {
+    return colSum(Vector.create(rows()));
   }
 
   //----------------------------------------------------------------------------
@@ -1376,20 +1445,8 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
-  // TODO: refactor det* into prodD (product of diagonal elements)
-
-  /**
-   * @return determinant of a lower/upper triangular matrix
-   */
-  public double detT() {
-    if (rows() != cols()) return 0.0;
-        
-    double det = 1.0;
-    for (int i = 0; i < rows(); ++i) { det *= get(i,i); }
-    return det;
-  }
-
   // TODO: unify these to a general det method
+  // use recursive formula for n <= 5, and QR above
 
   /**
    * @return determinant of a 2x2 matrix
@@ -1438,14 +1495,6 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * @return inverse of a 2x2 matrix (placed into "this")
-   *         or null if the determinant is zero ("this" remains unchanged)
-   */
-  public Matrix inv2x2L() {
-    return inv2x2(this);
-  }
-
-  /**
    * @return inverse of a 3x3 matrix (placed into "result")
    *         or null if the determinant is zero ("result" remains unchanged)
    */
@@ -1472,14 +1521,6 @@ public abstract class Matrix implements VecMat {
    */    
   public Matrix inv3x3() {
     return inv3x3(null);
-  }
-
-  /**
-   * @return inverse of a 3x3 matrix (placed into "this")
-   *         or null if the determinant is zero ("this" remains unchanged)
-   */
-  public Matrix inv3x3L() {
-    return inv3x3(this);
   }
 
   /**
