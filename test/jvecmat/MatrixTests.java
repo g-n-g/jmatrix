@@ -343,7 +343,7 @@ public class MatrixTests extends AssertionBaseTest {
   }
 
   public void testQR() {
-    Matrix M1 = Matrix.create(new double[][]{
+    Matrix M1 = Matrix.create(new double[][]{ // size: 2x2
         new double[]{1, 2},
         new double[]{4, 1}
       });
@@ -353,7 +353,7 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > M1.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(2).sub(Q.T().mul(Q)).norm1());
 
-    Matrix M2 = Matrix.create(new double[][]{
+    Matrix M2 = Matrix.create(new double[][]{ // size: 5x5
         new double[]{17, 24,  1,  8, 15},
         new double[]{23,  5,  7, 14, 16},
         new double[]{ 4,  6, 13, 20, 22},
@@ -366,7 +366,7 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > M2.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(5).sub(Q.T().mul(Q)).norm1());
 
-    Matrix M3 = Matrix.create(new double[][]{
+    Matrix M3 = Matrix.create(new double[][]{ // size: 4x2
         new double[]{+1, +2},
         new double[]{-3, +4},
         new double[]{+5, -6},
@@ -378,7 +378,7 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > M3.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(4).sub(Q.T().mul(Q)).norm1());
 
-    Matrix M4 = Matrix.create(new double[][]{
+    Matrix M4 = Matrix.create(new double[][]{ // size: 4x2
         new double[]{+1, +2},
         new double[]{-0, +0},
         new double[]{+0, -6},
@@ -390,9 +390,9 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > M4.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(4).sub(Q.T().mul(Q)).norm1());
 
-    Matrix M5 = Matrix.create(new double[][]{
-        new double[]{0, 0},
-        new double[]{10, 20},
+    Matrix M5 = Matrix.create(new double[][]{ // size: 3x2
+        new double[]{  0,   0},
+        new double[]{ 10,  20},
         new double[]{200, 100}
       });
     Q = Matrix.create(3, 3);
@@ -401,7 +401,7 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > M5.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(3).sub(Q.T().mul(Q)).norm1());
 
-    Matrix M6 = Matrix.create(new double[][]{
+    Matrix M6 = Matrix.create(new double[][]{ // size: 3x2
         new double[]{0, 10},
         new double[]{0, 20},
         new double[]{0, 30}
@@ -412,7 +412,7 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > M6.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(3).sub(Q.T().mul(Q)).norm1());
 
-    Matrix M7 = Matrix.create(new double[][]{
+    Matrix M7 = Matrix.create(new double[][]{ // size: 3x4
         new double[]{1, 2, 3, 4},
         new double[]{2, 4, 6, 8},
         new double[]{8, 7, 6, 5}

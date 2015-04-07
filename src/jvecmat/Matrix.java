@@ -1318,8 +1318,6 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
-  // TODO: test for minimum size of tmpV
-
   /**
    * QR decomposition of an arbitrary matrix using Hauseholder transformations.
    *
@@ -1366,7 +1364,7 @@ public abstract class Matrix implements VecMat {
   public Matrix[] QR() {
     Matrix Q = create(rows(), rows());
     Matrix R = zero(rows(), cols());
-    QR(Q, R, true, Vector.create(rows()));
+    QR(Q, R, true, Vector.create(Math.min(rows()-1, cols())));
     return new Matrix[]{Q, R};
   }
 
