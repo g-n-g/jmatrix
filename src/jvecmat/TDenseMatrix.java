@@ -1,6 +1,6 @@
 package jvecmat;
 
-public final class TDenseMatrix extends Matrix {
+final class TDenseMatrix extends Matrix {
 
   TDenseMatrix(DenseMatrix mat) {
     super(mat.array(), mat.cols(), mat.rows());

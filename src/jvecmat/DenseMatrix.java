@@ -1,6 +1,6 @@
 package jvecmat;
 
-public final class DenseMatrix extends Matrix {
+final class DenseMatrix extends Matrix {
 
   DenseMatrix(double[][] data) {
     super(data,

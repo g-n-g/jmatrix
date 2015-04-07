@@ -1,8 +1,6 @@
 Refactoring:
 
-Instead of array, store the representation (DenseMatrix, TDenseMatrix)
-inside the class. So it makes possible to implement in-place transpose, etc...
-Make matrix representations private.
+See TODO comments in the files...
 
 -------------------------------------------------------------------------------
 Functionality:
@@ -24,3 +22,9 @@ vector performance improvements
 matrix performance improvements
   diagonal matrices, identity matrix
   lower/upper triangular matrices
+
+-------------------------------------------------------------------------------
+Ideas:
+
+Instead of array, store the representation (DenseMatrix, TDenseMatrix)
+inside the Matrix class and implement in-place transpose, etc...

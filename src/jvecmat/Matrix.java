@@ -1620,10 +1620,12 @@ public abstract class Matrix implements VecMat {
 
   /**
    * Returns the matrix transpose.
-   * Data is not moved, but the get/set methods are redefined,
-   * so this operation cannot be done entirely in-place.
    *
-   * @return transpose of the matrix (in new object)
+   * Data is not moved, but shared between <code>this</code> and the returned
+   * matrix object. Only the access to the data is changed by the redefinition
+   * of the get/set methods. Use <code>copy().T()</code> to avoid data sharing.
+   *
+   * @return transpose of the matrix (new object with shared data)
    */
   abstract public Matrix T();
 
