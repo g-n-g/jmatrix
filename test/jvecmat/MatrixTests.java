@@ -68,6 +68,9 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > m2.sub(m3.div(42.42)).norm1());
     assertTrue(PREC > m4.sub(m4).normI());
 
+    assertTrue(PREC > m1.add(1.0).sub(m2).normF());
+    assertTrue(PREC > m2.sub(1.0).normF());
+
     m2.add(m2, m2);
     assertTrue(PREC > m2.sub(m3.div(42.42).mul(2)).norm1());
     m2.setToOne();

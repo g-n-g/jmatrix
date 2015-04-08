@@ -709,7 +709,34 @@ public abstract class Matrix implements VecMat {
     return add(m, create(rows(), cols()));
   }
 
-  // TODO: add constant
+  /**
+   * Matrix-constant addition (in <code>result</code>).
+   * Adds constant <code>c</code> to all elements of <code>this</code> matrix.
+   *
+   * Matrix <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
+   * @param c constant to add
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> having the values of
+   *         <code>this</code> shifted by <code>c</code>
+   */
+  public Matrix add(double c, Matrix result) {
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
+        result.set(i, j, get(i,j) + c);
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public Matrix add(double c) {
+    return add(c, create(rows(), cols()));
+  }
+
   // TODO: addRow(Vector)
   // TODO: addCol(Vector)
 
@@ -753,10 +780,32 @@ public abstract class Matrix implements VecMat {
    *         in a new matrix
    */
   public Matrix sub(Matrix m) {
-    return sub(m, create(rows(),cols()));
+    return sub(m, create(rows(), cols()));
   }
 
-  // TODO: sub constant
+  /**
+   * Matrix-constant subtraction (in <code>result</code>).
+   * Subtracts constant <code>c</code> from all elements of <code>this</code>
+   * matrix.
+   *
+   * Matrix <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
+   * @param c constant to subtract
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> having the values of
+   *         <code>this</code> shifted by <code>-c</code>
+   */
+  public Matrix sub(double c, Matrix result) {
+    return add(-c, result);
+  }
+
+  @Override
+  public Matrix sub(double c) {
+    return sub(c, create(rows(), cols()));
+  }
+
   // TODO: subRow(Vector)
   // TODO: subCol(Vector)
 

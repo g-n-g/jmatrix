@@ -113,6 +113,26 @@ public interface VecMat {
   VecMat neg();
 
   /**
+   * Constant addition (in new object). Adds constant <code>c</code> to all
+   * elements of <code>this</code> object.
+   *
+   * @param c constant to add
+   * @return new object with values of
+   *         <code>this</code> shifted by <code>c</code>
+   */
+  VecMat add(double c);
+
+  /**
+   * Constant subtraction (in new object). Subtracts constant <code>c</code>
+   * from all elements of <code>this</code> object.
+   *
+   * @param c constant to subtract
+   * @return new object with values of
+   *         <code>this</code> shifted by <code>-c</code>
+   */
+  VecMat sub(double c);
+
+  /**
    * Constant division (in new object). Divides all elements of
    * <code>this</code> by constant <code>c</code>.
    *

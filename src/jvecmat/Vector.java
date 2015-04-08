@@ -489,14 +489,7 @@ public class Vector implements VecMat {
     return result;
   }
 
-  /**
-   * Vector-constant addition (in new vector).
-   * Adds constant <code>c</code> to all elements of <code>this</code> vector
-   * in a new vector.
-   *
-   * @param c constant to add
-   * @return the shifted values of <code>this</code> by <code>c</code>
-   */
+  @Override
   public Vector add(double c) {
     return add(c, create(length()));
   }
@@ -561,14 +554,7 @@ public class Vector implements VecMat {
     return add(-c, result);
   }
 
-  /**
-   * Vector-constant subtraction (in new vector).
-   * Subtracts constant <code>c</code> from all elements of <code>this</code>
-   * vector in a new vector.
-   *
-   * @param c constant to subtract
-   * @return the shifted values of <code>this</code> by <code>-c</code>
-   */
+  @Override
   public Vector sub(double c) {
     return add(-c);
   }
