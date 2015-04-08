@@ -86,6 +86,21 @@ public class MatrixTests extends AssertionBaseTest {
     m2.div(8, m2);
     assertTrue(PREC > m2.sub(m3.div(8*42.42)).normI());
     m2.setToOne();
+
+    Vector vr = Vector.one(m);
+    assertTrue(PREC > m1.addRow(vr).sub(m2).normF());
+    assertTrue(PREC > m2.subRow(vr).normF());
+
+    Vector vc = Vector.one(n);
+    assertTrue(PREC > m1.addCol(vc).sub(m2).normF());
+    assertTrue(PREC > m2.subCol(vc).normF());
+
+    vr = Vector.constant(m, 2.0);
+    vc = Vector.constant(n, 4.0);
+    assertTrue(PREC > m2.divRow(vr).sub(0.50).normF());
+    assertTrue(PREC > m2.divCol(vc).sub(0.25).normF());
+    assertTrue(PREC > m2.mulRow(vr).sub(2.0).normF());
+    assertTrue(PREC > m2.mulCol(vc).sub(4.0).normF());
   }
 
   public void testAbsAndSignAndNeg() {
