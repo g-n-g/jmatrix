@@ -88,9 +88,24 @@
     </java>
   </target>
 
+  <target name="test-permutation"
+          description="Run permutation tests."
+          depends="test-compile">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="jvecmat.PermutationTests"/>
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${bin}"/>
+        <pathelement location="${bin}/test"/>
+        <pathelement location="${junit}"/>
+        <pathelement location="${hamcrest}"/>
+      </classpath>
+    </java>
+  </target>
+
   <target name="test-all"
           description="Run all tests."
-          depends="test-vector,test-matrix">
+          depends="test-vector,test-matrix,test-permutation">
   </target>
 
   <!-- other targets -->

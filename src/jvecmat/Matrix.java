@@ -134,7 +134,7 @@ public abstract class Matrix implements VecMat {
    *         of size <code>rows</code> x <code>cols</code>
    */
   public static Matrix rand(int rows, int cols, Random rng) {
-    Matrix m = Matrix.create(rows,cols);
+    Matrix m = Matrix.create(rows, cols);
     m.setToRand(rng);
     return m;
   }
@@ -150,7 +150,7 @@ public abstract class Matrix implements VecMat {
    *         of size <code>rows</code> x <code>cols</code>
    */
   public static Matrix randN(int rows, int cols, Random rng) {
-    Matrix m = Matrix.create(rows,cols);
+    Matrix m = Matrix.create(rows, cols);
     m.setToRandN(rng);
     return m;
   }
@@ -169,6 +169,17 @@ public abstract class Matrix implements VecMat {
     this.data = data;
     this.rows = rows;
     this.cols = cols;
+  }
+
+  /**
+   * Returns the array representation of the matrix.
+   * The data is not copied, so any changes to the returned array
+   * will change the matrix too.
+   *
+   * @return the array representation of the matrix
+   */
+  public final double[][] array() {
+    return data;
   }
 
   //----------------------------------------------------------------------------
@@ -212,7 +223,7 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Returns a copy of the vector placed into <code>result</code>.
+   * Returns a copy of the matrix placed into <code>result</code>.
    * If <code>result</code> is <code>null</code>, a new object is created.
    *
    * @param result appropriately sized storage for the copy
@@ -258,17 +269,6 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Returns the array representation of the matrix.
-   * The data is not copied, so any changes to the returned array
-   * will change the matrix too.
-   *
-   * @return the array representation of the matrix
-   */
-  public final double[][] array() {
-    return data;
-  }
-
-  /**
    * Returns the element of the matrix at row <code>i</code>
    * and column <code>j</code>.
    *
@@ -292,9 +292,8 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public Matrix setToConstant(double c) {
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
         set(i, j, c);
       }
     }
@@ -318,9 +317,8 @@ public abstract class Matrix implements VecMat {
    * @return <code>this</code> matrix
    */
   public Matrix setToEye() {
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
         set(i, j, i==j ? 1.0 : 0.0);
       }
     }
@@ -329,9 +327,8 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public Matrix setToRand(Random rng) {
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
         set(i, j, rng.nextDouble());
       }
     }
@@ -340,9 +337,8 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public Matrix setToRandN(Random rng) {
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < cols(); ++j) {
         set(i, j, rng.nextGaussian());
       }
     }
@@ -1201,6 +1197,7 @@ public abstract class Matrix implements VecMat {
    *               (not <code>null</code> and not equal to <code>v</code>)
    * @return <code>this</code> matrix multiplied
    *         by vector <code>v</code> from the right side
+   * @see Vector#mul(Matrix, Vector)
    */
   public Vector mul(Vector v, Vector result) {
     assert (v != null && v.length() == cols());
@@ -1227,6 +1224,7 @@ public abstract class Matrix implements VecMat {
    * @param v vector to multiply with on the right
    * @return <code>this</code> matrix multiplied
    *         by vector <code>v</code> from the right side
+   * @see Vector#mul(Matrix)
    */
   public Vector mul(Vector v) {
     return mul(v, Vector.create(rows()));
@@ -1246,6 +1244,7 @@ public abstract class Matrix implements VecMat {
    * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> having <code>this</code> matrix multiplied by
    *         <code>diag(v)</code> from the right
+   * @see Vector#mulD(Matrix, Matrix)
    */
   public Matrix mulD(Vector v, Matrix result) {
     assert (v != null && v.length() == cols());
@@ -1268,6 +1267,7 @@ public abstract class Matrix implements VecMat {
    * @param v vector representing the multiplier diagonal matrix
    * @return <code>result</code> having <code>this</code> matrix multiplied by
    *         <code>diag(v)</code> from the right
+   * @see Vector#mulD(Matrix)
    */
   public Matrix mulD(Vector v) {
     return mulD(v, create(rows(), cols()));
@@ -1327,6 +1327,53 @@ public abstract class Matrix implements VecMat {
    */
   public Matrix mul(Matrix m) {
     return mul(m, create(rows(), m.cols()));
+  }
+
+  /**
+   * Permutes the columns of the matrix, i.e. multiplying the matrix from
+   * the right with a permutation matrix represented by <code>p</code>
+   * (in <code>result</code>).
+   *
+   * The length of permutation <code>p</code> has to be equal to the column
+   * number of <code>this</code> matrix.
+   * Furthermore, <code>result</code> has to have the same size
+   * as <code>this</code> matrix.
+   *
+   * @param p permutation (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>
+   *                                      and not equal to <code>this</code>)
+   * @return <code>result</code> having <code>this</code> matrix multiplied from
+   *         the right with a permutation matrix represented by <code>p</code>
+   * @see Permutation#mul(Matrix, Matrix)
+   */
+  public Matrix mul(Permutation p, Matrix result) {
+    assert (p != null && p.length() == cols());
+    assert (result != null && result != this &&
+            result.rows() == rows() && result.cols() == cols());
+    for (int j = 0; j < cols(); ++j) {
+      int col = p.get(j);
+      for (int i = 0; i < rows(); ++i) {
+        result.set(i, j, get(i,col));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Permutes the columns of the matrix, i.e. multiplying the matrix from
+   * the right with a permutation matrix represented by <code>p</code>
+   * (in new matrix).
+   *
+   * The length of permutation <code>p</code> has to be equal to the column
+   * number of <code>this</code> matrix.
+   *
+   * @param p permutation (not <code>null</code>)
+   * @return new matrix being equal to <code>this</code> matrix multiplied from
+   *         the right with a permutation matrix represented by <code>p</code>
+   * @see Permutation#mul(Matrix)
+   */
+  public Matrix mul(Permutation p) {
+    return mul(p, create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------

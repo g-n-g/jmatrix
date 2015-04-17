@@ -1,12 +1,23 @@
 Refactoring:
 
 See TODO comments in the files...
+Workflow warning in README.
+
+{Vector,Matrix}.horzcat/vertcat
+bsxfun (Binary Singleton Expansion Function)
+(PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}
+
+Private unchecked get_, set_, swap_ methods.
 
 -------------------------------------------------------------------------------
 Functionality:
 
-LU decomposition
+LU decomposition (A = P'*L*U)
+general determinant
+
+matrix outer product
 general matrix inverse
+singular value decomposition
 back substitution
 least squares solution
 
@@ -25,6 +36,8 @@ matrix performance improvements
 
 -------------------------------------------------------------------------------
 Ideas:
+
+Eliminating the Vector class?
 
 Instead of array, store the representation (DenseMatrix, TDenseMatrix)
 inside the Matrix class and implement in-place transpose, etc...

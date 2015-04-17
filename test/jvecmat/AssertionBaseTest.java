@@ -24,4 +24,8 @@ public class AssertionBaseTest extends TestCase {
   protected void log(Matrix m) {
     System.out.println(m);
   }
+
+  protected void log(Permutation p) {
+    System.out.println(p);
+  }
 }

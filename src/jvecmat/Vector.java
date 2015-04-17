@@ -623,6 +623,7 @@ public class Vector implements VecMat {
    *               (not <code>null</code> and not equal to <code>this</code>)
    * @return <code>result</code> being vector <code>v</code> multiplied by
    *         matrix <code>m</code> from the right
+   * @see Matrix#mul(Vector, Vector)
    */    
   public Vector mul(Matrix m, Vector result) {
     assert (m != null && length() == m.rows());
@@ -651,6 +652,7 @@ public class Vector implements VecMat {
    * @param m matrix multiplier from the right (not <code>null</code>)
    * @return new vector being the result of vector <code>v</code> multiplied by
    *         matrix <code>m</code> from the right
+   * @see Matrix#mul(Vector)
    */    
   public Vector mul(Matrix m) {
     return mul(m, create(m.cols()));
@@ -691,6 +693,7 @@ public class Vector implements VecMat {
    * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> being matrix <code>m</code> multiplied
    *         with a diagonal matrix represented by <code>this</code> vector
+   * @see Matrix#mulD(Vector, Matrix)
    */
   public Matrix mulD(Matrix m, Matrix result) {
     assert (m != null && length() == m.rows());
@@ -715,9 +718,53 @@ public class Vector implements VecMat {
    * @param m matrix multiplier (not <code>null</code>)
    * @return new matrix being the result of matrix <code>m</code> multiplied
    *         with a diagonal matrix represented by <code>this</code> vector
+   * @see Matrix#mulD(Vector)
    */
   public Matrix mulD(Matrix m) {
     return mulD(m, Matrix.create(m.rows(), m.cols()));
+  }
+
+  /**
+   * Permutes the elements of the vector, i.e. multiplying the vector
+   * (left or right) with a permutation matrix represented by <code>p</code>
+   * (in <code>result</code>).
+   *
+   * The length of permutation <code>p</code> has to be equal to the length
+   * of <code>this</code> vector.
+   * Furthermore, <code>result</code> has to have the same length
+   * as <code>this</code> vector.
+   *
+   * @param p permutation (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>
+   *                                      and not equal to <code>this</code>)
+   * @return <code>result</code>
+   *         having <code>this</code> vector permuted by <code>p</code>
+   * @see Permutation#mul(Vector, Vector)
+   */
+  public Vector mul(Permutation p, Vector result) {
+    assert (p != null && p.length() == length());
+    assert (result != null && result != this && result.length() == length());
+    for (int i = 0; i < length(); ++i) {
+      result.set(i, get(p.get(i)));
+    }
+    return result;
+  }
+
+  /**
+   * Permutes the elements of the vector, i.e. multiplying the vector
+   * (left or right) with a permutation matrix represented by <code>p</code>
+   * (in new vector).
+   *
+   * The length of permutation <code>p</code> has to be equal to the length
+   * of <code>this</code> vector.
+   *
+   * @param p permutation (not <code>null</code>)
+   * @return new vector being equal to
+   *         <code>this</code> vector permuted by <code>p</code>
+   * @see Permutation#mul(Vector)
+   */
+  public Vector mul(Permutation p) {
+    return mul(p, create(length()));
   }
 
   //----------------------------------------------------------------------------
