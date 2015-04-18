@@ -273,6 +273,9 @@ public class Permutation {
    * The new permutation represents the transpose of the permutation matrix
    * corresponding to <code>this</code> permutation.
    *
+   * Data is not shared between <code>this</code> and the returned permutation
+   * object.
+   *
    * @return inverse permutation
    */
   public Permutation T() {

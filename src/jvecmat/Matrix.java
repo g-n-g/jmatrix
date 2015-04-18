@@ -1737,56 +1737,24 @@ public abstract class Matrix implements VecMat {
   /**
    * QR decomposition of an arbitrary matrix using Hauseholder transformations.
    *
-   * Matrix <code>R</code> has to have the same size as <code>this</code>.
-   * Vector <code>tmpV</code> is a temporary storage with length not smaller
-   * than <code>min(rows()-1, cols())</code>.
-   *
-   * @param R will be set to the upper-triangular factor
-   *          (not <code>null</code> with size <code>rows()</code> x <code>cols()</code>
-   * @param tmpV temporary vector
-   *             (not <code>null</code> with size >= <code>min(rows()-1, cols())</code>
-   * @return matrix <code>R</code>
-   */
-  public Matrix QR(Matrix R, Vector tmpV) {
-    QR(null, R, false, tmpV);
-    return R;
-  }
-
-  /**
-   * QR decomposition of an arbitrary matrix using Hauseholder transformations.
-   *
-   * Matrix <code>Q</code> has to be square of size <code>rows()</code> and
-   * matrix <code>R</code> has to have the same size as <code>this</code>.
-   * Vector <code>tmpV</code> is a temporary storage with length not smaller
-   * than <code>min(rows()-1, cols())</code>.
+   * Matrix <code>Q</code> can be <code>null</code> in which case its computation
+   * is omitted. Otherwise, <code>Q</code> has to be a square matrix of size
+   * <code>rows()</code>. Matrix <code>R</code> has to have the same size as
+   * <code>this</code> and can be set to <code>this</code> providing in-place
+   * operation. Vector <code>tmpV</code> is a temporary storage with length not
+   * smaller than <code>min(rows()-1, cols())</code>.
+   * Matrices <code>Q</code> and <code>R</code> cannot be the same.
    *
    * @param Q will be set to the orthogonal factor
-   *          (not <code>null</code> with size <code>rows()</code> x <code>rows()</code>)
+   *          (<code>null</code> or with size <code>rows()</code> x <code>rows()</code>)
    * @param R will be set to the upper-triangular factor
    *          (not <code>null</code> with size <code>rows()</code> x <code>cols()</code>
    * @param tmpV temporary vector
    *             (not <code>null</code> with size >= <code>min(rows()-1, cols())</code>
    */
   public void QR(Matrix Q, Matrix R, Vector tmpV) {
-    QR(Q, R, true, tmpV);
-  }
-
-  /**
-   * QR decomposition of an arbitrary matrix using Hauseholder transformations.
-   *
-   * @return <code>{Q,R}</code> matrices, where <code>Q</code> is the orthogonal
-   *         and <code>R</code> is the upper-triangular factor
-   */
-  public Matrix[] QR() {
-    Matrix Q = create(rows(), rows());
-    Matrix R = zero(rows(), cols());
-    QR(Q, R, true, Vector.create(Math.min(rows()-1, cols())));
-    return new Matrix[]{Q, R};
-  }
-
-  private void QR(Matrix Q, Matrix R, boolean isComputeQ, Vector tmpV) {
-    assert (Q.rows() == rows() && Q.cols() == rows());
-    assert (R.rows() == rows() && R.cols() == cols());
+    assert (Q == null || (Q.rows() == rows() && Q.cols() == rows()));
+    assert (R != null && R != Q && R.rows() == rows() && R.cols() == cols());
 
     final int rows = rows(), cols = cols();
     final int t = Math.min(rows-1, cols);
@@ -1817,7 +1785,7 @@ public abstract class Matrix implements VecMat {
       tmpV.set(k, -norm);
     }
 
-    if (isComputeQ) {
+    if (Q != null) { // compute Q only if requested
       Q.setToEye();
       for (int k = t-1; k >= 0; --k) {
         for (int j = k; j < rows; ++j) {
@@ -1837,14 +1805,21 @@ public abstract class Matrix implements VecMat {
 
     for (int k = 0; k < t; ++k) {
       R.set(k, k, tmpV.get(k));
+
+      // ensure R is upper triangular
       for (int i = k+1; i < rows; ++i) { R.set(i, k, 0.0); }
     }
   }
 
-  private double hypot(double x, double y) {
-    final double absX = Math.abs(x), absY = Math.abs(y);
+  /**
+   * Computes the hypotenuse of a right triangle
+   * having legs <code>x</code> and <code>y</code>.
+   */
+  private static double hypot(double x, double y) {
+    final double absX = Math.abs(x);
+    final double absY = Math.abs(y);
 
-    double r;
+    double r = 0.0;
     if (absX > absY) {
       r = y/x;
       r = absX * Math.sqrt(1.0 + r*r);
@@ -1853,8 +1828,137 @@ public abstract class Matrix implements VecMat {
       r = x/y;
       r = absY * Math.sqrt(1.0 + r*r);
     }
-    else { r = 0.0; }
     return r;
+  }
+
+  /**
+   * QR decomposition of an arbitrary matrix using Hauseholder transformations.
+   *
+   * @return <code>{Q,R}</code> matrices, where <code>Q</code> is the orthogonal
+   *         and <code>R</code> is the upper-triangular factor
+   */
+  public Matrix[] QR() {
+    Matrix Q = create(rows(), rows());
+    Matrix R = zero(rows(), cols());
+    QR(Q, R, Vector.create(Math.min(rows()-1, cols())));
+    return new Matrix[]{Q, R};
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * P'LU decomposition of an arbitrary matrix
+   * using Doolittle's method with partial pivoting.
+   *
+   * Matrix <code>L</code> will be set to the unit lower triangular factor
+   * and matrix <code>U</code> will be set to the upper triangular factor.
+   *
+   * Matrix <code>L</code> can be set equal to <code>U</code> in which case
+   * the unit diagonal elements of <code>L</code> will not be stored.
+   * Both <code>L</code> and <code>U</code> can be set to <code>this</code>
+   * supporting in-place operation.
+   *
+   * @param L the unit lower triangular factor, might be row permuted if
+   *          <code>P</code> is set to <code>null</code> (not <code>null</code>
+   *          of size <code>rows()</code> x <code>min(rows(), cols())</code>)
+   * @param U the upper triangular factor (not <code>null</code>
+   *          of size <code>min(rows(), cols())</code> x <code>cols()</code>)
+   * @param P row permutations of <code>L</code>
+   *          (not <code>null</code> with length <code>rows()</code>)
+   * @return the number of row swaps (permutations)
+   */
+  public int LU(Matrix L, Matrix U, Permutation P) {
+    return LU(L, U, P, true);
+  }
+
+  private int LU(Matrix L, Matrix U, Permutation P, boolean isRowPivot) {
+    if (rows() > cols()) {
+      return T().LU(U.T(), L.T(), P.T(), false);
+    }
+
+    assert (L != null && L.rows() == rows() && L.cols() == rows());
+    assert (U != null && U.rows() == rows() && U.cols() == cols());
+    assert (P != null);
+
+    copy(U);
+    if (L != U) { // ensure L is unit lower triangular
+      for (int j = 0; j < rows(); ++j) {
+        L.set(j, j, 1.0);
+        for (int i = j+1; i < rows(); ++i) { L.set(i, j, 0.0); }
+      }
+    }
+    P.setToEye();
+    Matrix V = isRowPivot ? U : U.T(); // pivot matrix (sharing data with U)
+    assert(P.length() == V.rows()); // otherwise L.rows() != P.length() on 1st LU call
+
+    int nperms = 0;
+    for (int i = 0; i < rows(); ++i) {
+      // find the pivot
+      int p = i;
+      double pval = V.get(i,i);
+      for (int k = i+1; k < rows(); ++k) {
+        double val = V.get(k,i);
+        if (val > pval) {
+          p = k;
+          pval = val;
+        }
+      }
+
+      // skip the column if the pivot is zero
+      if (pval == 0.0) { continue; }
+
+      // swap rows if necessary
+      if (p != i) {
+        for (int j = 0; j < cols(); ++j) {
+          double val = V.get(i,j);
+          V.set(i, j, V.get(p,j));
+          V.set(p, j, val);
+        }
+        ++nperms;
+        P.swap(i, p);
+      }
+
+      // update below the diagonal: Lij = Aij - sum_k(Lik*Ukj)
+      for (int j = 0; j < i; ++j) {
+        double sum = U.get(i,j);
+        for (int k = 0; k < j; ++k) {
+          sum -= L.get(i,k) * U.get(k,j);
+        }
+        L.set(i, j, sum / U.get(j,j));
+      }
+
+      // update above the diagonal: Uij = Aij - sum_k(Lik*Ukj)
+      for (int j = 0; j < cols(); ++j) {
+        double sum = U.get(i,j);
+        for (int k = 0; k < i; ++k) {
+          sum -= L.get(i,k) * U.get(k,j);
+        }
+        U.set(i, j, sum);
+      }
+    }
+
+    return nperms;
+  }
+
+  /**
+   * P'LU decomposition of an arbitrary matrix
+   * using Doolittle's method with partial pivoting.
+   *
+   * Matrix <code>P</code> will be set tp a permutation matrix,
+   * matrix <code>L</code> will be set to the unit lower triangular factor
+   * and matrix <code>U</code> will be set to the upper triangular factor.
+   *
+   * @return <code>{L,U,P}</code> matrices, where <code>P</code> is a permutation
+   *         matrix, <code>L</code> is the unit lower triangular factor
+   *         and <code>U</code> is the upper triangular factor
+   */
+  public Matrix[] LU() {
+    final int n = Math.min(rows(), cols());
+    Matrix L = zero(rows(), n);
+    Matrix U = zero(n, cols());
+    Permutation P = Permutation.eye(rows());
+    LU(L, U, P);
+    return new Matrix[]{L, U, P.toMatrix()};
   }
 
   //----------------------------------------------------------------------------
@@ -2035,7 +2139,7 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   /**
-   * Returns the matrix transpose.
+   * Returns the matrix transpose (lazy operation).
    *
    * Data is not moved, but shared between <code>this</code> and the returned
    * matrix object. Only the access to the data is changed by the redefinition

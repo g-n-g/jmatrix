@@ -8,12 +8,13 @@ bsxfun (Binary Singleton Expansion Function)
 (PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}
 
 Private unchecked get_, set_, swap_ methods.
+Check positive definiteness during Cholesky factorization.
 
 -------------------------------------------------------------------------------
 Functionality:
 
-LU decomposition (A = P'*L*U)
 general determinant
+Implement tril, triu.
 
 matrix outer product
 general matrix inverse

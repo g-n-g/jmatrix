@@ -445,6 +445,56 @@ public class MatrixTests extends AssertionBaseTest {
     // System.out.println("R: " + R);
   }
 
+  public void testLU() {
+    Matrix L, U, P;
+
+    Matrix M1 = Matrix.create(new double[][]{ // size: 2x2
+        new double[]{1, 2},
+        new double[]{4, 1}
+      });
+    Matrix[] LUP = M1.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
+    assertTrue(PREC > M1.sub(P.T().mul(L).mul(U)).norm1());
+
+    Matrix M2 = Matrix.create(new double[][]{ // size: 3x3
+        new double[]{1, 0, 2},
+        new double[]{0, 0, 0}, // singular
+        new double[]{4, 0, 1}
+      });
+    LUP = M2.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
+    assertTrue(PREC > M2.sub(P.T().mul(L).mul(U)).norm1());
+
+    Matrix M3 = Matrix.create(new double[][]{ // size: 5x5
+        new double[]{17, 24,  1,  8, 15},
+        new double[]{23,  5,  7, 14, 16},
+        new double[]{ 4,  6, 13, 20, 22},
+        new double[]{10, 12, 19, 21,  3},
+        new double[]{11, 18, 25,  2,  9}
+      });
+    LUP = M3.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
+    assertTrue(PREC > M3.sub(P.T().mul(L).mul(U)).norm1());
+
+    Matrix M4 = Matrix.create(new double[][]{ // size: 3x4
+        new double[]{1, 2, 3, 4},
+        new double[]{2, 4, 6, 8},
+        new double[]{8, 7, 6, 5}
+      });
+    LUP = M4.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
+    assertTrue(PREC > M4.sub(P.T().mul(L.mul(U))).norm1());
+
+    Matrix M5 = Matrix.create(new double[][]{ // size: 4x2
+        new double[]{+1, +2},
+        new double[]{-3, +4},
+        new double[]{+5, -6},
+        new double[]{-7, -8}
+      });
+    LUP = M5.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
+    assertTrue(PREC > M5.sub(P.T().mul(L.mul(U))).norm1());
+
+    // System.out.println("L: " + L);
+    // System.out.println("U: " + U);
+    // System.out.println("P: " + P);
+  }
+
   public void testInvertLowerTriangularMatrix() {
     Matrix m = Matrix.create(new double[][]{
         new double[]{1.0, 0.0, 0.0},
