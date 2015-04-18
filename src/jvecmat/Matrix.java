@@ -225,6 +225,7 @@ public abstract class Matrix implements VecMat {
   /**
    * Returns a copy of the matrix placed into <code>result</code>.
    * If <code>result</code> is <code>null</code>, a new object is created.
+   * The operation is skipped if <code>result</code> is equal to <code>this</code>.
    *
    * @param result appropriately sized storage for the copy
    *               or <code>null</code>
@@ -234,10 +235,11 @@ public abstract class Matrix implements VecMat {
     if (result == null) { result = Matrix.create(rows(), cols()); }
     assert(result.rows() == rows());
     assert(result.cols() == cols());
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
-        result.set(i, j, get(i,j));
+    if (result != this) {
+      for (int i = 0; i < rows(); ++i) {
+        for (int j = 0; j < cols(); ++j) {
+          result.set(i, j, get(i,j));
+        }
       }
     }
     return result;

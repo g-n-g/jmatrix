@@ -134,7 +134,8 @@ public class Vector implements VecMat {
   }
 
   /**
-   * Returns the array representation of the vector.
+   * Returns the array representation of the vector. The data is not copied,
+   * so any changes to the returned array will change the vector too.
    *
    * @return array representation of the vector
    */
@@ -176,6 +177,7 @@ public class Vector implements VecMat {
   /**
    * Returns a copy of the vector placed into <code>result</code>.
    * If <code>result</code> is <code>null</code>, a new object is created.
+   * The operation is skipped if <code>result</code> is equal to <code>this</code>.
    *
    * @param result appropriately sized storage for the copy
    *               or <code>null</code>
@@ -184,7 +186,9 @@ public class Vector implements VecMat {
   public Vector copy(Vector result) {
     if (result == null) { result = create(length()); }
     assert(result.length() == length());
-    for (int i = 0; i < length(); ++i) { result.set(i, get(i)); }
+    if (result != this) {
+      for (int i = 0; i < length(); ++i) { result.set(i, get(i)); }
+    }
     return result;
   }
 
