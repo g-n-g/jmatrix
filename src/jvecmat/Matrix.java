@@ -1643,6 +1643,7 @@ public abstract class Matrix implements VecMat {
    * @param result storage of the result
    *        (not <code>null</code> and not equal to <code>this</code>)
    * @return <code>result</code> holding the lower-triangular Cholesky factor
+   * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public Matrix choleskyL(Matrix result) {
     assert (rows() == cols());
@@ -1654,6 +1655,9 @@ public abstract class Matrix implements VecMat {
       for (int k = 0; k < j; ++k) {
         v = result.get(j,k);
         Ljj -= v * v;
+      }
+      if (Ljj <= 0.0) {
+        throw new UnsupportedOperationException("Matrix has to be positive-definite.");
       }
       Ljj = Math.sqrt(Ljj);
       result.set(j, j, Ljj);
@@ -1673,6 +1677,7 @@ public abstract class Matrix implements VecMat {
    * Cholesky decomposition of a (symmetric) positive-definite matrix.
    *
    * @return the lower-triangular Cholesky factor in a new matrix
+   * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public Matrix choleskyL() {
     return choleskyL(zero(rows(), cols()));
@@ -1692,6 +1697,7 @@ public abstract class Matrix implements VecMat {
    *        (not <code>null</code> and not equal to <code>this</code>)
    * @param D will be set to the diagonal elements of the diagonal LDL factor
    *        (not <code>null</code>)
+   * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public void choleskyLD(Matrix L, Vector D) {
     assert (rows() == cols());
@@ -1704,6 +1710,9 @@ public abstract class Matrix implements VecMat {
       for (int k = 0; k < j; ++k) {
         v = L.get(j,k);
         Dj -= v * v * D.get(k);
+      }
+      if (Dj <= 0.0) {
+        throw new UnsupportedOperationException("Matrix has to be positive-definite.");
       }
       D.set(j, Dj);
       L.set(j, j, 1.0);
@@ -1722,7 +1731,8 @@ public abstract class Matrix implements VecMat {
    * LDL (Cholesky) decomposition of a (symmetric) positive-definite matrix.
    *
    * @return <code>{L,D}</code> matrices, where <code>L</code> is the
-   * lower-triangular and <code>D</code> is the diagonal factor
+   *         lower-triangular and <code>D</code> is the diagonal factor
+   * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public Matrix[] choleskyLD() {
     assert (rows() == cols());
