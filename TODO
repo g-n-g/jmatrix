@@ -7,7 +7,7 @@ Workflow warning in README.
 bsxfun (Binary Singleton Expansion Function)
 (PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}
 
-Private unchecked get_, set_, swap_ methods.
+Permutation.T() -> Permutation.inv()
 
 -------------------------------------------------------------------------------
 Functionality:

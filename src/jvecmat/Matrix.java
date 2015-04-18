@@ -1883,7 +1883,7 @@ public abstract class Matrix implements VecMat {
 
   private int LU(Matrix L, Matrix U, Permutation P, boolean isRowPivot) {
     if (rows() > cols()) {
-      return T().LU(U.T(), L.T(), P.T(), false);
+      return T().LU(U.T(), L.T(), P, false);
     }
 
     assert (L != null && L.rows() == rows() && L.cols() == rows());
@@ -1919,7 +1919,7 @@ public abstract class Matrix implements VecMat {
 
       // swap rows if necessary
       if (p != i) {
-        for (int j = 0; j < cols(); ++j) {
+        for (int j = 0; j < V.cols(); ++j) {
           double val = V.get(i,j);
           V.set(i, j, V.get(p,j));
           V.set(p, j, val);

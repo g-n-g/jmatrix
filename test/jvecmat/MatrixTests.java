@@ -441,8 +441,9 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > M7.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(3).sub(Q.T().mul(Q)).norm1());
         
-    // System.out.println("Q: " + Q);
-    // System.out.println("R: " + R);
+    // System.out.println("Q : " + Q);
+    // System.out.println("R : " + R);
+    // System.out.println("QR: " + Q.mul(R));
   }
 
   public void testLU() {
@@ -455,9 +456,9 @@ public class MatrixTests extends AssertionBaseTest {
     Matrix[] LUP = M1.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
     assertTrue(PREC > M1.sub(P.T().mul(L).mul(U)).norm1());
 
-    Matrix M2 = Matrix.create(new double[][]{ // size: 3x3
+    Matrix M2 = Matrix.create(new double[][]{ // size: 3x3, singular
         new double[]{1, 0, 2},
-        new double[]{0, 0, 0}, // singular
+        new double[]{0, 0, 0},
         new double[]{4, 0, 1}
       });
     LUP = M2.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
@@ -490,9 +491,38 @@ public class MatrixTests extends AssertionBaseTest {
     LUP = M5.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
     assertTrue(PREC > M5.sub(P.T().mul(L.mul(U))).norm1());
 
-    // System.out.println("L: " + L);
-    // System.out.println("U: " + U);
-    // System.out.println("P: " + P);
+    Matrix M6 = Matrix.create(new double[][]{ // size: 5x8, rank: 5
+        new double[]{96, 42, 20, 15,  0,  5, 50, 87},
+        new double[]{16, 19, 30,  8, 60, 28,  6, 27},
+        new double[]{28, 73, 36, 14, 78, 18, 89, 62},
+        new double[]{99, 80, 30, 53, 27,  7,  9, 28},
+        new double[]{49,  6, 31, 32, 94, 93, 14, 44}
+      });
+    LUP = M6.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
+    assertTrue(PREC > M6.sub(P.T().mul(L).mul(U)).norm1());
+
+    M6 = M6.T(); // size: 8x5
+    LUP = M6.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
+    assertTrue(PREC > M6.sub(P.T().mul(L).mul(U)).norm1());
+
+    Matrix M7 = Matrix.create(new double[][]{ // size: 5x9, rank: 3
+        new double[]{61,   88,   2, 36,  32,  73,   99, 25,  80},
+        new double[]{83,   36,  36, 98,   2,  67,   51, 46,  33},
+        new double[]{89,  168, -14, 13, -17,  92,  153, 17, 121},
+        new double[]{-6, -132,  50, 85,  19, -25, -102, 29, -88},
+        new double[]{33,    8,  18, 59,  81,  54,   45, 33,  39}
+      });
+    LUP = M7.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
+    assertTrue(PREC > M7.sub(P.T().mul(L).mul(U)).norm1());
+
+    M7 = M7.T(); // size: 9x5
+    LUP = M7.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
+    assertTrue(PREC > M7.sub(P.T().mul(L).mul(U)).norm1());
+
+    // System.out.println("L   : " + L);
+    // System.out.println("U   : " + U);
+    // System.out.println("P   : " + P);
+    // System.out.println("P'LU: " + P.T().mul(L).mul(U));
   }
 
   public void testInvertLowerTriangularMatrix() {
