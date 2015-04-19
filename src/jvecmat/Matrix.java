@@ -1832,13 +1832,17 @@ public abstract class Matrix implements VecMat {
       }
       Ljj = Math.sqrt(Ljj);
       result.set(j, j, Ljj);
+      Ljj = 1.0 / Ljj;
+      if (Double.isInfinite(Ljj)) {
+        throw new UnsupportedOperationException("Matrix has to be positive-definite.");
+      }
             
       for (int i = j+1; i < n; ++i) {
         Lij = get(i,j);
         for (int k = 0; k < j; ++k) {
           Lij -= result.get(i,k) * result.get(j,k);
         }
-        result.set(i, j, Lij / Ljj);
+        result.set(i, j, Lij * Ljj);
       }
     }
     return result;
@@ -1886,6 +1890,10 @@ public abstract class Matrix implements VecMat {
         throw new UnsupportedOperationException("Matrix has to be positive-definite.");
       }
       D.set(j, Dj);
+      Dj = 1.0 / Dj;
+      if (Double.isInfinite(Dj)) {
+        throw new UnsupportedOperationException("Matrix has to be positive-definite.");
+      }
       L.set(j, j, 1.0);
             
       for (int i = j+1; i < n; ++i) {
@@ -1893,7 +1901,7 @@ public abstract class Matrix implements VecMat {
         for (int k = 0; k < j; ++k) {
           Lij -= L.get(i,k) * L.get(j,k) * D.get(k);
         }
-        L.set(i, j, Lij / Dj);
+        L.set(i, j, Lij * Dj);
       }
     }
   }
@@ -2270,17 +2278,18 @@ public abstract class Matrix implements VecMat {
    * upper-triangular half.
    * The "result" parameter also has to be different from "this".
    * @return lower-triangular matrix inverse (placed into "result")
+   * @throws UnsupportedOperationException if matrix is singular
    */
   public Matrix invLT(Matrix result) {
-    final int n = rows();
-    int i, j, k;
-    double Rii, Rij;
-    for (i = 0; i < n; ++i) { result.set(i, i, 1.0 / get(i,i)); }
-    for (i = 0; i < n; ++i) {
-      Rii = result.get(i,i);
-      for (j = 0; j < i; ++j) {
-        Rij = 0.0;
-        for (k = 0; k < i; ++k) { Rij -= get(i,k) * result.get(k,j); }
+    for (int i = 0; i < rows(); ++i) {
+      double Rii = 1.0 / get(i,i);
+      if (Double.isInfinite(Rii)) {
+        throw new UnsupportedOperationException("Matrix is singular.");
+      }
+      result.set(i, i, Rii);
+      for (int j = 0; j < i; ++j) {
+        double Rij = 0.0;
+        for (int k = 0; k < i; ++k) { Rij -= get(i,k) * result.get(k,j); }
         result.set(i, j, Rii * Rij);
       }
     }
