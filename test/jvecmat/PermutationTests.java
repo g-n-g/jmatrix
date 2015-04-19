@@ -30,7 +30,7 @@ public class PermutationTests extends AssertionBaseTest {
     assertEquals(0.0, p.mul(v1).sub(v2).norm1());
   }
 
-  public void testPermT() {
+  public void testPermInv() {
     Vector v1 = Vector.create(new double[]{1.0, 2.0, 3.0, 4.0});
     Vector v2 = Vector.create(new double[]{3.0, 1.0, 4.0, 2.0});
 
@@ -38,7 +38,7 @@ public class PermutationTests extends AssertionBaseTest {
     assertEquals(0.0, v1.mul(p).sub(v2).norm1());
     assertEquals(0.0, p.mul(v1).sub(v2).norm1());
 
-    Permutation invp = p.T();
+    Permutation invp = p.inv();
     assertEquals(0.0, v2.mul(invp).sub(v1).norm1());
     assertEquals(0.0, invp.mul(v2).sub(v1).norm1());
   }
@@ -91,6 +91,6 @@ public class PermutationTests extends AssertionBaseTest {
     p = Permutation.create(p.array()); // check validity
 
     Matrix M = Matrix.rand(5, 3, RNG);
-    assertEquals(0.0, p.mul(p.T().mul(M)).sub(M).norm1());
+    assertEquals(0.0, p.mul(p.inv().mul(M)).sub(M).norm1());
   }
 }

@@ -7,7 +7,6 @@ Workflow warning in README.
 bsxfun (Binary Singleton Expansion Function)
 (PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}
 
-Permutation.T() -> Permutation.inv()
 zero -> createZeros, one -> createOnes, constant -> create
 create(...), NR (new row == NaN)
 

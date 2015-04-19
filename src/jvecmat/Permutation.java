@@ -269,19 +269,32 @@ public class Permutation {
   //----------------------------------------------------------------------------
 
   /**
-   * Returns the inverse of the permutation (in new permutation object).
+   * Returns the inverse of the permutation (in <code>result</code>).
    * The new permutation represents the transpose of the permutation matrix
    * corresponding to <code>this</code> permutation.
    *
-   * Data is not shared between <code>this</code> and the returned permutation
-   * object.
+   * The length of permutation <code>result</code> has to be equal to the length
+   * of <code>this</code> permutation.
    *
-   * @return inverse permutation
+   * @param result storage of the result (not <code>null</code>
+   *                                      and not equal to <code>this</code>)
+   * @return <code>result</code> holding the inverse permutation
    */
-  public Permutation T() {
-    int[] inv = new int[length()];
-    for (int i = 0; i < length(); ++i) { inv[get(i)] = i; }
-    return new Permutation(inv);
+  public Permutation inv(Permutation result) {
+    assert (result != null && result.length() == length());
+    for (int i = 0; i < length(); ++i) { result.data[get(i)] = i; }
+    return result;
+  }
+
+  /**
+   * Returns the inverse of the permutation (in new permutation).
+   * The new permutation represents the transpose of the permutation matrix
+   * corresponding to <code>this</code> permutation.
+   *
+   * @return inverse permutation in new object
+   */
+  public Permutation inv() {
+    return inv(new Permutation(new int[length()]));
   }
 
   //----------------------------------------------------------------------------
