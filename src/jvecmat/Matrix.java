@@ -375,6 +375,131 @@ public abstract class Matrix implements VecMat {
     return getDiag(null);
   }
 
+  //----------------------------------------------------------------------------
+
+  /**
+   * Returns the lower triangular part of the matrix (in <code>result</code>).
+   * This includes all elements under and on the diagonal selected by
+   * <code>offset</code>. For positive/negative values of <code>offset</code>,
+   * the selected diagonal is above/under the main diagonal, respectively.
+   * 
+   * Matrix <code>result</code> has to have the same size as <code>this</code>
+   * matrix.
+   *
+   * @param offset offset of the main diagonal
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> holding the lower triangular part
+   */
+  public Matrix getTriL(int offset, Matrix result) {
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    int jend = Math.min(offset+1, cols());
+    for (int i = 0; i < rows(); ++i) {
+      for (int j = 0; j < jend; ++j) {
+        result.set(i, j, get(i,j));
+      }
+      if (jend >= 0) {
+        for (int j = jend; j < cols(); ++j) {
+          result.set(i, j, 0.0);
+        }
+      }
+      if (jend < cols()) { ++jend; }
+    }
+    return result;
+  }
+
+  /**
+   * Returns the lower triangular part of the matrix (in new matrix).
+   * This includes all elements under and on the diagonal selected by
+   * <code>offset</code>. For positive/negative values of <code>offset</code>,
+   * the selected diagonal is above/under the main diagonal, respectively.
+   * 
+   * @param offset offset of the main diagonal
+   * @return new matrix holding the lower triangular part
+   */
+  public Matrix getTriL(int offset) {
+    return getTriL(offset, create(rows(), cols()));
+  }
+
+  /**
+   * Returns the lower triangular part of the matrix (in <code>result</code>).
+   * This includes all elements under and on the main diagonal.
+   * 
+   * Matrix <code>result</code> has to have the same size as <code>this</code>
+   * matrix.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> holding the lower triangular part
+   */
+  public Matrix getTriL(Matrix result) {
+    return getTriL(0, result);
+  }
+
+  /**
+   * Returns the lower triangular part of the matrix (in new matrix).
+   * This includes all elements under and on the main diagonal.
+   * 
+   * @return new matrix holding the lower triangular part
+   */
+  public Matrix getTriL() {
+    return getTriL(0);
+  }
+
+  /**
+   * Returns the upper triangular part of the matrix (in <code>result</code>).
+   * This includes all elements under and on the diagonal selected by
+   * <code>offset</code>. For positive/negative values of <code>offset</code>,
+   * the selected diagonal is above/under the main diagonal, respectively.
+   * 
+   * Matrix <code>result</code> has to have the same size as <code>this</code>
+   * matrix.
+   *
+   * @param offset offset of the main diagonal
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> holding the upper triangular part
+   */
+  public Matrix getTriU(int offset, Matrix result) {
+    return T().getTriL(-offset, result).T();
+  }
+
+  /**
+   * Returns the upper triangular part of the matrix (in new matrix).
+   * This includes all elements under and on the diagonal selected by
+   * <code>offset</code>. For positive/negative values of <code>offset</code>,
+   * the selected diagonal is above/under the main diagonal, respectively.
+   * 
+   * @param offset offset of the main diagonal
+   * @return new matrix holding the upper triangular part
+   */
+  public Matrix getTriU(int offset) {
+    return getTriU(offset, create(rows(), cols()));
+  }
+
+  /**
+   * Returns the upper triangular part of the matrix (in <code>result</code>).
+   * This includes all elements under and on the main diagonal.
+   * 
+   * Matrix <code>result</code> has to have the same size as <code>this</code>
+   * matrix.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> holding the upper triangular part
+   */
+  public Matrix getTriU(Matrix result) {
+    return getTriU(0, result);
+  }
+
+  /**
+   * Returns the upper triangular part of the matrix (in new matrix).
+   * This includes all elements under and on the main diagonal.
+   * 
+   * @return new matrix holding the upper triangular part
+   */
+  public Matrix getTriU() {
+    return getTriU(0);
+  }
+
+  //----------------------------------------------------------------------------
+
   /**
    * Returns the <code>i</code>-th row as a vector.
    * A new vector is created if <code>result</code> is <code>null</code>.

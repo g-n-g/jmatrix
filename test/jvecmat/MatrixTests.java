@@ -169,7 +169,6 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > Matrix.eye(4).sub(I).norm1());
   }
 
-  // TODO: getDiag tests with non-square matrices
   public void testTransposeAndSomeGetSet() {
     Vector v1 = new Vector(new double[]{1.0, 2.0, 3.0});
     Vector v2 = new Vector(new double[]{4.5, 5.5, 6.5});
@@ -194,9 +193,6 @@ public class MatrixTests extends AssertionBaseTest {
     Matrix m4 = m2.getMat(1, 2, 2, 3);
     assertTrue(PREC > m3.sub(m4.T()).normF());
 
-    assertTrue(PREC > v1.sub(Matrix.createByCols(new Vector[]{v1, v1, v1})
-                                   .getDiag()).normI());
-
     Matrix A = Matrix.rand(7, 7, RNG);
     Matrix B = Matrix.rand(7, 7, RNG);
 
@@ -219,6 +215,85 @@ public class MatrixTests extends AssertionBaseTest {
                        .sub(AB.getMat(6, 8, 4, 5)).normF());
     assertTrue(PREC > A.getMat(1, 2, 0, 6).mul(B.getMat(0, 6, 2, 3))
                        .sub(AB.getMat(3, 4, 4, 5)).normF());
+  }
+
+  public void testGetDiag() {
+    Matrix A = Matrix.create(new double[][]{
+        new double[]{1, 2, 3},
+        new double[]{4, 5, 6},
+        new double[]{7, 8, 9}
+      });
+    Vector a = Vector.create(new double[]{1, 5, 9});
+    assertEquals(0.0, A.getDiag().sub(a).normI());
+    assertEquals(0.0, A.T().getDiag().sub(a).normI());
+
+    Matrix B = Matrix.create(new double[][]{
+        new double[]{1, 2, 3, 4, 5},
+        new double[]{6, 7, 8, 9, 0}
+      });
+    Vector b = Vector.create(new double[]{1, 7});
+    assertEquals(0.0, B.getDiag().sub(b).normI());
+    assertEquals(0.0, B.T().getDiag().sub(b).normI());
+  }
+
+  public void testGetTrilLU() {
+    Matrix A = Matrix.create(new double[][]{
+        new double[]{1, 2, 3},
+        new double[]{4, 5, 6},
+        new double[]{7, 8, 9}
+      });
+
+    Matrix L1 = Matrix.create(new double[][]{
+        new double[]{1, 0, 0},
+        new double[]{4, 5, 0},
+        new double[]{7, 8, 9}
+      });
+    assertEquals(0.0, A.getTriL().sub(L1).normF());
+
+    Matrix L2 = Matrix.create(new double[][]{
+        new double[]{0, 0, 0},
+        new double[]{4, 0, 0},
+        new double[]{7, 8, 0}
+      });
+    assertEquals(0.0, A.getTriL(-1).sub(L2).normF());
+
+    Matrix L3 = Matrix.create(new double[][]{
+        new double[]{1, 2, 0},
+        new double[]{4, 5, 6},
+        new double[]{7, 8, 9}
+      });
+    assertEquals(0.0, A.getTriL(1).sub(L3).normF());
+
+    assertEquals(0.0, A.getTriL(-3).normF());
+    assertEquals(0.0, A.getTriL(-5).normF());
+    assertEquals(0.0, A.getTriL(2).sub(A).normF());
+    assertEquals(0.0, A.getTriL(5).sub(A).normF());
+
+    Matrix U1 = Matrix.create(new double[][]{
+        new double[]{1, 2, 3},
+        new double[]{0, 5, 6},
+        new double[]{0, 0, 9}
+      });
+    assertEquals(0.0, A.getTriU().sub(U1).normF());
+
+    Matrix U2 = Matrix.create(new double[][]{
+        new double[]{1, 2, 3},
+        new double[]{4, 5, 6},
+        new double[]{0, 8, 9}
+      });
+    assertEquals(0.0, A.getTriU(-1).sub(U2).normF());
+
+    Matrix U3 = Matrix.create(new double[][]{
+        new double[]{0, 2, 3},
+        new double[]{0, 0, 6},
+        new double[]{0, 0, 0}
+      });
+    assertEquals(0.0, A.getTriU(1).sub(U3).normF());
+
+    assertEquals(0.0, A.getTriU(-2).sub(A).normF());
+    assertEquals(0.0, A.getTriU(-5).sub(A).normF());
+    assertEquals(0.0, A.getTriU(3).normF());
+    assertEquals(0.0, A.getTriU(5).normF());
   }
 
   public void testMatrixVectorProduct() {
