@@ -52,9 +52,9 @@ public class VectorTests extends AssertionBaseTest {
 
   public void testBasicLinearOps() {
     final int len = 10;
-    Vector v1 = Vector.zero(len);
-    Vector v2 = Vector.one(len);
-    Vector v3 = Vector.constant(len, 42.42);
+    Vector v1 = Vector.zeros(len);
+    Vector v2 = Vector.ones(len);
+    Vector v3 = Vector.scalars(len, 42.42);
     Vector v4 = Vector.unit(len, len/2);
 
     assertTrue(PREC > v2.sub(v2.add(v1)).norm2());
@@ -67,32 +67,32 @@ public class VectorTests extends AssertionBaseTest {
 
     v2.add(v2, v2);
     assertTrue(PREC > v2.sub(v3.div(42.42).mul(2)).norm2());
-    v2.setToOne();
+    v2.setToOnes();
 
     v2.sub(v2.div(2), v2);
     assertTrue(PREC > v2.sub(v3.div(42.42).mul(0.5)).norm2());
-    v2.setToOne();
+    v2.setToOnes();
 
     v2.mul(2, v2);
     assertTrue(PREC > v2.sub(v3.div(42.42).mul(2)).norm2());
-    v2.setToOne();
+    v2.setToOnes();
 
     v2.div(8, v2);
     assertTrue(PREC > v2.sub(v3.div(8*42.42)).norm2());
-    v2.setToOne();
+    v2.setToOnes();
 
-    v2.setToConstant(-2.1);
+    v2.setToScalars(-2.1);
     v2.add(2.1, v2);
     assertTrue(PREC > v2.normI());
     v2.sub(-1.0, v2);
-    assertTrue(PREC > v2.sub(Vector.one(len)).normI());
-    v2.setToOne();
+    assertTrue(PREC > v2.sub(Vector.ones(len)).normI());
+    v2.setToOnes();
   }
 
   public void testMod() {
     double m = 2.3;
     Vector v = Vector.rand(10, RNG).mul(8.0);
-    Vector o = Vector.constant(10, m);
+    Vector o = Vector.scalars(10, m);
 
     assertTrue(PREC > o.mod(m).norm1());
     assertTrue(PREC > v.add(o.mul(2.0)).mod(m).sub(v.mod(m)).norm1());
@@ -141,16 +141,16 @@ public class VectorTests extends AssertionBaseTest {
                        .sub(u.getVec(1, 3).emul(v.getVec(1, 3))).norm1());
   }
 
-  public void testSetToZeroOne() {
-    Vector v = Vector.one(4);
-    v.setToZero();
-    assertTrue(PREC > Vector.zero(4).sub(v).norm2());
-    v.setToOne();
-    assertTrue(PREC > Vector.one(4).sub(v).norm2());
+  public void testSetToZeroOnes() {
+    Vector v = Vector.ones(4);
+    v.setToZeros();
+    assertTrue(PREC > Vector.zeros(4).sub(v).norm2());
+    v.setToOnes();
+    assertTrue(PREC > Vector.ones(4).sub(v).norm2());
   }
 
   public void testNormalize() {
-    Vector v = Vector.zero(4);
+    Vector v = Vector.zeros(4);
 
     v.normalize1();
     assertTrue(PREC > v.norm1());
@@ -161,7 +161,7 @@ public class VectorTests extends AssertionBaseTest {
     v.normalizeI();
     assertTrue(PREC > v.normI());
 
-    v.setToOne();
+    v.setToOnes();
     v.normalize1();
     assertTrue(PREC > Math.abs(1.0 - v.norm1()));
 
@@ -187,8 +187,8 @@ public class VectorTests extends AssertionBaseTest {
     v.neg(v);
     assertTrue(PREC > v.sub(v.sign().emul(v.abs())).norm1());
 
-    Vector s = Vector.zero(10);
-    Vector a = Vector.zero(10);
+    Vector s = Vector.zeros(10);
+    Vector a = Vector.zeros(10);
     v.copy(s).sign(s);
     v.copy(a).abs(v);
     assertTrue(PREC > v.sub(s.emul(a)).norm1());
@@ -205,7 +205,7 @@ public class VectorTests extends AssertionBaseTest {
 
   public void testInnerProduct() {
     final int len = 10;
-    Vector v1 = Vector.one(len);
+    Vector v1 = Vector.ones(len);
     Vector v2 = Vector.unit(len, len / 3);
 
     assertTrue(PREC > Math.abs(len - v1.inner(v1)));
@@ -216,41 +216,41 @@ public class VectorTests extends AssertionBaseTest {
 
   public void testEntrywiseMultiplication() {
     final int len = 10;
-    Vector v1 = Vector.constant(len, 2);
+    Vector v1 = Vector.scalars(len, 2);
     Vector v2 = Vector.unit(len, 2*len/3);
 
     assertTrue(PREC > v1.mul(2).sub(v1.emul(v1)).norm1());
     assertTrue(PREC > v2.mul(2).sub(v1.emul(v2)).norm2());
 
     v1.emul(v1.mul(2), v1);
-    assertTrue(PREC > Vector.one(len).mul(8).sub(v1).normI());
-    v1.setToConstant(2.0);
+    assertTrue(PREC > Vector.ones(len).mul(8).sub(v1).normI());
+    v1.setToScalars(2.0);
   }
 
   public void testVectorMatrixMultiplication() {
     final int n = 5, m = 10;
     Matrix m1 = Matrix.eye(n);
-    Matrix m2 = Matrix.one(n, m);
+    Matrix m2 = Matrix.ones(n, m);
     Vector v1 = Vector.unit(n, 3*n/5);
-    Vector v2 = Vector.constant(n, 1.42);
-    Vector v3 = Vector.one(m);
+    Vector v2 = Vector.scalars(n, 1.42);
+    Vector v3 = Vector.ones(m);
 
     assertTrue(PREC > v2.sub(v2.mul(m1)).norm1());
     assertTrue(PREC > v3.sub(v1.mul(m2)).norm1());
 
     v1.mul(m2, v3);
-    assertTrue(PREC > Vector.one(m).sub(v3).norm1());
+    assertTrue(PREC > Vector.ones(m).sub(v3).norm1());
   }
 
   public void testOuterProduct() {
     final int n = 5;
-    Matrix m = Matrix.constant(n, n, 9);
-    Vector v = Vector.constant(n, 3);
+    Matrix m = Matrix.scalars(n, n, 9);
+    Vector v = Vector.scalars(n, 3);
 
     assertTrue(PREC > m.sub(v.outer(v)).norm1());
 
     v.mul(2).outer(v, m);
-    assertTrue(PREC > Matrix.constant(n, n, 18).sub(m).norm1());
+    assertTrue(PREC > Matrix.scalars(n, n, 18).sub(m).norm1());
   }
 
   public void testQuadraticProduct() {
@@ -265,7 +265,7 @@ public class VectorTests extends AssertionBaseTest {
 
   public void testMatrixDiagProduct() {
     final int n = 3, m = 4;
-    Matrix m1 = Matrix.one(n, m);
+    Matrix m1 = Matrix.ones(n, m);
     Vector v = Vector.create(new double[]{2.0, 3.0, 5.0});
     Matrix m2 = Matrix.createByCols(new Vector[]{v, v, v, v});
 
@@ -278,9 +278,9 @@ public class VectorTests extends AssertionBaseTest {
 
   public void testReciproc() {
     final int n = 5;
-    Vector v = Vector.constant(n, 0.1);
-    Vector o = Vector.one(n);
-    Vector r = Vector.zero(n);
+    Vector v = Vector.scalars(n, 0.1);
+    Vector o = Vector.ones(n);
+    Vector r = Vector.zeros(n);
 
     assertTrue(PREC > o.sub(v.emul(v.reciproc())).norm2());
 
@@ -296,7 +296,7 @@ public class VectorTests extends AssertionBaseTest {
     Vector v = Vector.create(new double[]{6,5,7,4,2,1,3});
     assertTrue(PREC > Math.abs(28.0 - v.sum()));
     assertTrue(PREC > Math.abs(5040.0 - v.prod()));
-    Vector empty = Vector.one(0);
+    Vector empty = Vector.ones(0);
     assertTrue(PREC > Math.abs(0.0 - empty.sum()));
     assertTrue(PREC > Math.abs(1.0 - empty.prod()));
   }

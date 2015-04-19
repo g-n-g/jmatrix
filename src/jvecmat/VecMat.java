@@ -47,21 +47,21 @@ public interface VecMat {
    * @param c the new value for all elements
    * @return <code>this</code> object
    */
-  VecMat setToConstant(double c);
+  VecMat setToScalars(double c);
 
   /**
    * Sets all elements to zero.
    *
    * @return <code>this</code> object
    */
-  VecMat setToZero();
+  VecMat setToZeros();
 
   /**
    * Sets all elements to one.
    *
    * @return <code>this</code> object
    */
-  VecMat setToOne();
+  VecMat setToOnes();
 
   /**
    * Sets all elements randomly

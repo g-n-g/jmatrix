@@ -321,7 +321,7 @@ public class Permutation {
    */
   public Matrix toMatrix(Matrix result) {
     assert(result != null && result.rows() == length() && result.cols() == length());
-    result.setToZero();
+    result.setToZeros();
     for (int i = 0; i < length(); ++i) { result.set(i, get(i), 1.0); }
     return result;
   }

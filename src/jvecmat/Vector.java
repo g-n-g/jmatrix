@@ -46,9 +46,9 @@ public class Vector implements VecMat {
    * @return constant (column) vector of size <code>length</code>
    *         having its elements set to <code>value</code>
    */
-  public static Vector constant(int length, double value) {
+  public static Vector scalars(int length, double value) {
     Vector v = create(length);
-    v.setToConstant(value);
+    v.setToScalars(value);
     return v;
   }
 
@@ -60,8 +60,8 @@ public class Vector implements VecMat {
    * @param length number of elements
    * @return zero (column) vector of size <code>length</code>
    */
-  public static Vector zero(int length) {
-    return constant(length, 0.0);
+  public static Vector zeros(int length) {
+    return scalars(length, 0.0);
   }
 
   /**
@@ -72,8 +72,8 @@ public class Vector implements VecMat {
    * @param length number of elements
    * @return all one (column) vector of size <code>length</code>
    */
-  public static Vector one(int length) {
-    return constant(length, 1.0);
+  public static Vector ones(int length) {
+    return scalars(length, 1.0);
   }
 
   /**
@@ -86,7 +86,7 @@ public class Vector implements VecMat {
    * @return standard unit (column) vector of size <code>length</code>
    */
   public static Vector unit(int length, int onePosition) {
-    Vector v = zero(length);
+    Vector v = zeros(length);
     v.data[onePosition] = 1.0;
     return v;
   }
@@ -234,19 +234,19 @@ public class Vector implements VecMat {
   //----------------------------------------------------------------------------
 
   @Override
-  public Vector setToConstant(double c) {
+  public Vector setToScalars(double c) {
     for (int i = 0; i < length(); ++i) { set(i, c); }
     return this;
   }
 
   @Override
-  public Vector setToZero() {
-    return setToConstant(0.0);
+  public Vector setToZeros() {
+    return setToScalars(0.0);
   }
 
   @Override
-  public Vector setToOne() {
-    return setToConstant(1.0);
+  public Vector setToOnes() {
+    return setToScalars(1.0);
   }
 
   @Override

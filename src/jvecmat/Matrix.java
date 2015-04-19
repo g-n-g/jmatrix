@@ -8,6 +8,11 @@ import java.util.Random;
 public abstract class Matrix implements VecMat {
 
   /**
+   * New row constant for the {@link Matrix#create(double...)} constructor.
+   */
+  public final static double NR = Double.NaN;
+
+  /**
    * Creates a matrix using the provided data.
    *
    * @param data elements of the vector
@@ -30,6 +35,93 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
+   * Creates a matrix of the given <code>values</code>.
+   * New rows can be indicated by the {@link Matrix#NR} constant.
+   *
+   * The <code>values</code> should not contain any <code>Double.NaN</code> value.
+   * Empty rows are silently ignored.
+   *
+   * @param values matrix elements and {@link Matrix#NR} new row indicators
+   * @return new matrix with elements from <code>values</code>
+   * @throws IllegalArgumentException if row lengths mismatch
+   */
+  public static Matrix create(double... values) {
+    if (values.length == 0) { return create(0, 0); }
+
+    int rows = 0;
+    int cols = 0;
+    boolean isFirstNR = true;
+    for (int i = 1, iprev = 0; i <= values.length; ++i) {
+      if (i == values.length || Double.isNaN(values[i])) {
+        if (Double.isNaN(values[i-1])) { // empty row
+          ++iprev;
+        } else { // non-empty row
+          ++rows;
+          if (isFirstNR) {
+            isFirstNR = false;
+            cols = i;
+          } else if (cols != i-iprev-1) {
+            throw new IllegalArgumentException("Length mismatch of row " + rows + "!");
+          }
+          iprev = i;
+        }
+      }
+    }
+    Matrix result = create(rows, cols);
+    int i = 0;
+    int j = 0;
+    for (double value : values) {
+      if (!Double.isNaN(value)) {
+        result.set(i, j, value);
+        if (++j == cols) {
+          j = 0;
+          ++i;
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Creates a matrix of given size and sets all elements to <code>value</code>.
+   *
+   * @param rows number of rows
+   * @param cols number of columns
+   * @param value element initializer value
+   * @return matrix with size <code>rows</code> x <code>cols</code>
+   *         having elements set to <code>value</code>
+   */
+  public static Matrix scalars(int rows, int cols, double value) {
+    Matrix m = create(rows, cols);
+    m.setToScalars(value);
+    return m;
+  }
+
+  /**
+   * Creates a matrix of size <code>rows</code> x <code>cols</code>
+   * and initializes its elements to zero.
+   *
+   * @param rows number of rows
+   * @param cols number of columns
+   * @return zero matrix of size <code>rows</code> x <code>cols</code>
+   */
+  public static Matrix zeros(int rows, int cols) {
+    return scalars(rows, cols, 0.0);
+  }
+
+  /**
+   * Creates a matrix of size <code>rows</code> x <code>cols</code>
+   * and initializes its elements to zero.
+   *
+   * @param rows number of rows
+   * @param cols number of columns
+   * @return all one matrix of size <code>rows</code> x <code>cols</code>
+   */
+  public static Matrix ones(int rows, int cols) {
+    return scalars(rows, cols, 1.0);
+  }
+
+  /**
    * Creates a matrix by its <code>rows</code>.
    *
    * @param rows vectors forming the rows of the matrix
@@ -49,45 +141,6 @@ public abstract class Matrix implements VecMat {
    */
   public static Matrix createByCols(Vector[] columns) {
     return createByRows(columns).T();
-  }
-
-  /**
-   * Creates a matrix of size <code>rows</code> x <code>cols</code>
-   * and initializes its elements to <code>values</code>.
-   *
-   * @param rows number of rows
-   * @param cols number of columns
-   * @param value value of elements
-   * @return constant matrix of size "rows" x "cols" having elements "c"
-   */
-  public static Matrix constant(int rows, int cols, double value) {
-    Matrix m = create(rows, cols);
-    m.setToConstant(value);
-    return m;
-  }
-
-  /**
-   * Creates a matrix of size <code>rows</code> x <code>cols</code>
-   * and initializes its elements to zero.
-   *
-   * @param rows number of rows
-   * @param cols number of columns
-   * @return zero matrix of size <code>rows</code> x <code>cols</code>
-   */
-  public static Matrix zero(int rows, int cols) {
-    return constant(rows, cols, 0.0);
-  }
-
-  /**
-   * Creates a matrix of size <code>rows</code> x <code>cols</code>
-   * and initializes its elements to zero.
-   *
-   * @param rows number of rows
-   * @param cols number of columns
-   * @return all one matrix of size <code>rows</code> x <code>cols</code>
-   */
-  public static Matrix one(int rows, int cols) {
-    return constant(rows, cols, 1.0);
   }
 
   /**
@@ -293,7 +346,7 @@ public abstract class Matrix implements VecMat {
   //----------------------------------------------------------------------------
 
   @Override
-  public Matrix setToConstant(double c) {
+  public Matrix setToScalars(double c) {
     for (int i = 0; i < rows(); ++i) {
       for (int j = 0; j < cols(); ++j) {
         set(i, j, c);
@@ -303,13 +356,13 @@ public abstract class Matrix implements VecMat {
   }
 
   @Override
-  public Matrix setToZero() {
-    return setToConstant(0.0);
+  public Matrix setToZeros() {
+    return setToScalars(0.0);
   }
 
   @Override
-  public Matrix setToOne() {
-    return setToConstant(1.0);
+  public Matrix setToOnes() {
+    return setToScalars(1.0);
   }
 
   /**
@@ -1710,7 +1763,7 @@ public abstract class Matrix implements VecMat {
    */
   public Vector rowSum(Vector result) {
     assert (result != null && result.length() == cols());
-    result.setToZero();
+    result.setToZeros();
     for (int j = 0; j < cols(); ++j) {
       double s = 0.0;
       for (int i = 0; i < rows(); ++i) { s += get(i,j); }
@@ -1739,7 +1792,7 @@ public abstract class Matrix implements VecMat {
    */
   public Vector colSum(Vector result) {
     assert (result != null && result.length() == rows());
-    result.setToZero();
+    result.setToZeros();
     for (int i = 0; i < rows(); ++i) {
       double s = 0.0;
       for (int j = 0; j < cols(); ++j) { s += get(i,j); }
@@ -1805,7 +1858,7 @@ public abstract class Matrix implements VecMat {
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public Matrix choleskyL() {
-    return choleskyL(zero(rows(), cols()));
+    return choleskyL(zeros(rows(), cols()));
   }
 
   /**
@@ -1861,7 +1914,7 @@ public abstract class Matrix implements VecMat {
    */
   public Matrix[] choleskyLD() {
     assert (rows() == cols());
-    Matrix L = zero(rows(), rows());
+    Matrix L = zeros(rows(), rows());
     Vector D = Vector.create(rows());
     choleskyLD(L, D);
     return new Matrix[]{L, diag(D)};
@@ -1974,7 +2027,7 @@ public abstract class Matrix implements VecMat {
    */
   public Matrix[] QR() {
     Matrix Q = create(rows(), rows());
-    Matrix R = zero(rows(), cols());
+    Matrix R = zeros(rows(), cols());
     QR(Q, R, Vector.create(Math.min(rows()-1, cols())));
     return new Matrix[]{Q, R};
   }
@@ -2091,8 +2144,8 @@ public abstract class Matrix implements VecMat {
    */
   public Matrix[] LU() {
     final int n = Math.min(rows(), cols());
-    Matrix L = zero(rows(), n);
-    Matrix U = zero(n, cols());
+    Matrix L = zeros(rows(), n);
+    Matrix U = zeros(n, cols());
     Permutation P = Permutation.eye(rows());
     LU(L, U, P);
     return new Matrix[]{L, U, P.toMatrix()};
@@ -2215,7 +2268,7 @@ public abstract class Matrix implements VecMat {
    * @return diagonal matrix inverse (placed into a new matrix)
    */
   public Matrix invD() {
-    return invD(zero(rows(), cols()));
+    return invD(zeros(rows(), cols()));
   }
 
   /**
@@ -2246,7 +2299,7 @@ public abstract class Matrix implements VecMat {
    * @return lower-triangular matrix inverse (placed into a new matrix)
    */
   public Matrix invLT() {
-    return invLT(zero(rows(), cols()));
+    return invLT(zeros(rows(), cols()));
   }
 
   /**
@@ -2286,10 +2339,10 @@ public abstract class Matrix implements VecMat {
    * @return positive-definite matrix inverse (placed into a new matrix)
    */
   public Matrix invPD() {
-    return invPD(zero(rows(), cols()),
-                 zero(rows(), cols()),
-                 Vector.zero(rows()),
-                 zero(rows(), cols()));
+    return invPD(zeros(rows(), cols()),
+                 zeros(rows(), cols()),
+                 Vector.zeros(rows()),
+                 zeros(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------
