@@ -1878,6 +1878,7 @@ public abstract class Matrix implements VecMat {
    * @return the number of row swaps (permutations)
    */
   public int LU(Matrix L, Matrix U, Permutation P) {
+    assert (P != null);
     return LU(L, U, P, true);
   }
 
@@ -1888,18 +1889,11 @@ public abstract class Matrix implements VecMat {
 
     assert (L != null && L.rows() == rows() && L.cols() == rows());
     assert (U != null && U.rows() == rows() && U.cols() == cols());
-    assert (P != null);
 
     copy(U);
-    if (L != U) { // ensure L is unit lower triangular
-      for (int j = 0; j < rows(); ++j) {
-        L.set(j, j, 1.0);
-        for (int i = j+1; i < rows(); ++i) { L.set(i, j, 0.0); }
-      }
-    }
-    P.setToEye();
+    if (P != null) { P.setToEye(); }
     Matrix V = isRowPivot ? U : U.T(); // pivot matrix (sharing data with U)
-    assert(P.length() == V.rows()); // otherwise L.rows() != P.length() on 1st LU call
+    assert(P == null || P.length() == V.rows()); // (P == null) is for internal use only
 
     int nperms = 0;
     for (int i = 0; i < rows(); ++i) {
@@ -1925,7 +1919,7 @@ public abstract class Matrix implements VecMat {
           V.set(p, j, val);
         }
         ++nperms;
-        P.swap(i, p);
+        if (P != null) { P.swap(i, p); }
       }
 
       // update below the diagonal: Lij = Aij - sum_k(Lik*Ukj)
@@ -1938,12 +1932,20 @@ public abstract class Matrix implements VecMat {
       }
 
       // update above the diagonal: Uij = Aij - sum_k(Lik*Ukj)
-      for (int j = 0; j < cols(); ++j) {
+      for (int j = i; j < cols(); ++j) {
         double sum = U.get(i,j);
         for (int k = 0; k < i; ++k) {
           sum -= L.get(i,k) * U.get(k,j);
         }
         U.set(i, j, sum);
+      }
+    }
+
+    if (L != U) { // ensure U is upper triangular and L is unit lower triangular
+      for (int i = 0; i < U.rows(); ++i) {
+        for (int j = 0; j < i; ++j) { U.set(i, j, 0.0); }
+        L.set(i, i, 1.0);
+        for (int k = 0; k < i; ++k) { L.set(k, i, 0.0); }
       }
     }
 
@@ -1973,25 +1975,44 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
-  // TODO: unify these to a general det method
-  // use recursive formula for n <= 5, and QR above
-
   /**
-   * @return determinant of a 2x2 matrix
+   * Returns the determinant of a square matrix. An LU decomposition is performed
+   * for size larger than <code>3x3</code> using only the provided
+   * <code>tmpLU</code> storage, which has to have the same size as
+   * <code>this</code> matrix.
+   *
+   * @param tmpLU storage for the LU decomposition
+   *              (not <code>null</code> if size is larger than 3x3)
+   * @return determinant
    */
-  public double det2x2() {
-    assert (rows() == 2 && cols() == 2);
-    return get(0,0)*get(1,1) - get(0,1)*get(1,0);
+  public double det(Matrix tmpLU) {
+    assert (rows() == cols());
+
+    switch (rows()) {
+    case 0: return 1.0;
+    case 1: return get(0,0);
+    case 2: return get(0,0)*get(1,1) - get(0,1)*get(1,0);
+    case 3: return get(0,0) * (get(1,1)*get(2,2) - get(1,2)*get(2,1))
+                 + get(0,1) * (get(1,2)*get(2,0) - get(1,0)*get(2,2))
+                 + get(0,2) * (get(1,0)*get(2,1) - get(1,1)*get(2,0));
+    default:
+      assert (tmpLU.rows() == rows() && tmpLU.cols() == rows());
+      int nperms = LU(tmpLU, tmpLU, null, true);
+      double det = tmpLU.prodDiag();
+      if ((nperms & 1) != 0) { det = -det; }
+      return det;
+    }
   }
 
   /**
-   * @return determinant of a 3x3 matrix
+   * Returns the determinant of a square matrix. An LU decomposition is performed
+   * for size larger than <code>3x3</code>.
+   *
+   * @return determinant
    */
-  public double det3x3() {
-    assert (rows() == 3 && cols() == 3);
-    return get(0,0) * (get(1,1)*get(2,2) - get(1,2)*get(2,1))
-         + get(0,1) * (get(1,2)*get(2,0) - get(1,0)*get(2,2))
-         + get(0,2) * (get(1,0)*get(2,1) - get(1,1)*get(2,0));
+  public double det() {
+    assert (rows() == cols());
+    return det((rows() > 3) ? create(rows(), rows()) : null);
   }
 
   //----------------------------------------------------------------------------

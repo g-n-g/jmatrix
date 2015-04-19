@@ -12,7 +12,6 @@ Permutation.T() -> Permutation.inv()
 -------------------------------------------------------------------------------
 Functionality:
 
-general determinant
 Implement tril, triu.
 
 matrix outer product

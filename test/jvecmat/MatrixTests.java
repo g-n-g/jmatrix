@@ -624,9 +624,9 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > Math.abs(3.0 - m2x2.prodDiag()));
     assertTrue(PREC > Math.abs(3.0 - m2x2.T().prodDiag()));
 
-    assertTrue(PREC > Math.abs(3.0 - m2x2.det2x2()));
-    assertTrue(PREC > Math.abs(3.0 - m2x2.T().det2x2()));
-    assertTrue(PREC > Math.abs(9.0 - m2x2.mul(m2x2.T()).det2x2()));
+    assertTrue(PREC > Math.abs(3.0 - m2x2.det()));
+    assertTrue(PREC > Math.abs(3.0 - m2x2.T().det()));
+    assertTrue(PREC > Math.abs(9.0 - m2x2.mul(m2x2.T()).det()));
 
     Matrix m3x3 = Matrix.create(new double[][]{
         new double[]{1.0, 0.0, 0.0},
@@ -636,9 +636,29 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > Math.abs(18.0 - m3x3.prodDiag()));
     assertTrue(PREC > Math.abs(18.0 - m3x3.T().prodDiag()));
 
-    assertTrue(PREC > Math.abs(18.0 - m3x3.det3x3()));
-    assertTrue(PREC > Math.abs(18.0 - m3x3.T().det3x3()));
-    assertTrue(PREC > Math.abs(324.0 - m3x3.mul(m3x3.T()).det3x3()));
+    assertTrue(PREC > Math.abs(18.0 - m3x3.det()));
+    assertTrue(PREC > Math.abs(18.0 - m3x3.T().det()));
+    assertTrue(PREC > Math.abs(324.0 - m3x3.mul(m3x3.T()).det()));
+
+    Matrix m5x5 = Matrix.create(new double[][]{
+        new double[]{1.7, 2.4, 0.1, 0.8, 1.5},
+        new double[]{2.3, 0.5, 0.7, 1.4, 1.6},
+        new double[]{0.4, 0.6, 1.3, 2.0, 2.2},
+        new double[]{1.0, 1.2, 1.9, 2.1, 0.3},
+        new double[]{1.1, 1.8, 2.5, 0.2, 0.9},
+      });
+    assertTrue(PREC > Math.abs(50.7 - m5x5.det()));
+    assertTrue(PREC > Math.abs(50.7 - m5x5.T().det()));
+
+    m5x5 = Matrix.create(new double[][]{
+        new double[]{1.7, 2.4, 0.1, 0.8, 1.5},
+        new double[]{2.3, 0.5, 0.7, 1.4, 1.6},
+        new double[]{2.7, 3.6, 2.0, 2.9, 1.8},
+        new double[]{1.0, 1.2, 1.9, 2.1, 0.3},
+        new double[]{1.1, 1.8, 2.5, 0.2, 0.9},
+      });
+    assertTrue(PREC > Math.abs(0.0 - m5x5.det()));
+    assertTrue(PREC > Math.abs(0.0 - m5x5.T().det()));
   }
 
   public void testReciproc() {
