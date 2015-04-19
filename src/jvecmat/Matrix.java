@@ -68,15 +68,11 @@ public abstract class Matrix implements VecMat {
       }
     }
     Matrix result = create(rows, cols);
-    int i = 0;
-    int j = 0;
+    int i = 0, j = 0;
     for (double value : values) {
       if (!Double.isNaN(value)) {
         result.set(i, j, value);
-        if (++j == cols) {
-          j = 0;
-          ++i;
-        }
+        if (++j == cols) { j = 0; ++i; } // new row
       }
     }
     return result;
@@ -280,14 +276,11 @@ public abstract class Matrix implements VecMat {
    * If <code>result</code> is <code>null</code>, a new object is created.
    * The operation is skipped if <code>result</code> is equal to <code>this</code>.
    *
-   * @param result appropriately sized storage for the copy
-   *               or <code>null</code>
+   * @param result appropriately sized storage for the copy (not <code>null</code>)
    * @return copy of the matrix
    */
   public Matrix copy(Matrix result) {
-    if (result == null) { result = Matrix.create(rows(), cols()); }
-    assert(result.rows() == rows());
-    assert(result.cols() == cols());
+    assert(result != null && result.rows() == rows() && result.cols() == cols());
     if (result != this) {
       for (int i = 0; i < rows(); ++i) {
         for (int j = 0; j < cols(); ++j) {
@@ -300,7 +293,7 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public Matrix copy() {
-    return copy(null);
+    return copy(create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------
