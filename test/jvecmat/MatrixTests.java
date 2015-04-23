@@ -449,9 +449,9 @@ public class MatrixTests extends AssertionBaseTest {
                               -0, +0, NR,
                               +0, -6, NR,
                               -7, -8);
-    Q = Matrix.create(4, 4);
-    R = Matrix.create(4, 2);
-    M4.QR(Q, R, Vector.create(3));
+    Q = Matrix.rand(4, 4, RNG);
+    R = Matrix.rand(4, 2, RNG);
+    M4.QR(Q, R, Vector.rand(3, RNG));
     assertTrue(PREC > M4.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(4).sub(Q.T().mul(Q)).norm1());
 
@@ -476,9 +476,9 @@ public class MatrixTests extends AssertionBaseTest {
     Matrix M7 = Matrix.create(1, 2, 3, 4, NR, // size: 3x4
                               2, 4, 6, 8, NR,
                               8, 7, 6, 5);
-    Q = Matrix.create(3, 3);
-    R = Matrix.create(3, 4);
-    M7.QR(Q, R, Vector.create(2));        
+    Q = Matrix.rand(3, 3, RNG);
+    R = Matrix.rand(3, 4, RNG);
+    M7.QR(Q, R, Vector.rand(2, RNG));
     assertTrue(PREC > M7.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(3).sub(Q.T().mul(Q)).norm1());
   }
@@ -502,8 +502,11 @@ public class MatrixTests extends AssertionBaseTest {
                                4,  6, 13, 20, 22, NR,
                               10, 12, 19, 21,  3, NR,
                               11, 18, 25,  2,  9);
-    LUP = M3.LU(); L = LUP[0]; U = LUP[1]; P = LUP[2];
-    assertTrue(PREC > M3.sub(P.T().mul(L).mul(U)).norm1());
+    L = Matrix.rand(M3.rows(), Math.min(M3.rows(), M3.cols()), RNG);
+    U = Matrix.rand(Math.min(M3.rows(), M3.cols()), M3.cols(), RNG);
+    Permutation p = Permutation.rand(M3.rows(), RNG);
+    M3.LU(L, U, p);
+    assertTrue(PREC > M3.sub(p.inv().mul(L).mul(U)).norm1());
 
     Matrix M4 = Matrix.create(1, 2, 3, 4, NR, // size: 3x4
                               2, 4, 6, 8, NR,
@@ -544,85 +547,71 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > M7.sub(P.T().mul(L).mul(U)).norm1());
   }
 
-  public void testInvertLowerTriangularMatrix() {
-    Matrix m = Matrix.create(1.0, 0.0, 0.0, NR,
-                             2.0, 3.0, 0.0, NR,
-                             4.0, 5.0, 6.0);
-    Matrix I = Matrix.eye(3);
-    Matrix R = m.invLT();
-    assertTrue(PREC > I.sub(m.mul(R)).norm1());
-
-    m.set(0, 0, 11.11111); m.set(1, 1, 13.13131); m.set(2, 2, 17.17171);
-    m.invLT(R);
-    assertTrue(PREC > I.sub(R.mul(m)).norm1());
-  }
-
-  public void testInvertDiagonalMatrix() {
-    Matrix m = Matrix.create(2.0, 0.0, 0.0, NR,
-                             0.0, 3.0, 0.0, NR,
-                             0.0, 0.0, 5.0);
-    Matrix I = Matrix.eye(3);
-    Matrix R = m.invD();
-    assertTrue(PREC > I.sub(m.mul(R)).normF());
-
-    m.set(1, 1, 3.33);
-    m.invD(R);
-    assertTrue(PREC > I.sub(m.mul(R)).normF());
-  }
-
-  public void testInvertPositiveDefiniteMatrix() {
-    Matrix m = Matrix.create(2.0, 1.0, 1.0, NR,
-                             1.0, 2.0, 1.0, NR,
-                             1.0, 1.0, 2.0);
-    Matrix I = Matrix.eye(3);
-    Matrix R = m.invPD();
-    assertTrue(PREC > I.sub(m.mul(R)).normF());
-
-    m.set(1, 1, 3.333);
-    Matrix RL = Matrix.zeros(3, 3);
-    Matrix tmp = Matrix.zeros(3, 3);
-    Vector D = Vector.zeros(3);
-    m.invPD(R, RL, D, tmp);
-    assertTrue(PREC > R.sub(RL.T().mulD(D).mul(RL)).normF());
-    assertTrue(PREC > tmp.sub(RL.T().mulD(D)).normF());
-    assertTrue(PREC > I.sub(R.mul(m)).normF());
-
-    m.set(1, 1, 2.222);
-    RL = Matrix.zeros(3,3);
-    m.invPD(R, RL);
-    assertTrue(PREC > R.sub(RL.T().mul(RL)).normF());
-    assertTrue(PREC > I.sub(R.mul(m)).normF());
-  }
-
   public void testInverseSmallMatrix() {
-    Matrix I2x2 = Matrix.eye(2);
-    Matrix m2x2 = Matrix.create(2.0, 1.0, NR,
-                                1.0, 3.0);
-    assertTrue(PREC > I2x2.sub(m2x2.mul(m2x2.invPD())).norm1());
-    Matrix m2x2inv = Matrix.create(2, 2);
-    m2x2.inv2x2(m2x2inv);
-    assertTrue(PREC > m2x2.invPD().sub(m2x2inv).norm1());
+    Matrix i2 = Matrix.eye(2);
+    Matrix m2 = Matrix.create(2.0, 1.0, NR,
+                              1.0, 3.0);
+    assertTrue(PREC > i2.sub(m2.mul(m2.inv())).norm1());
+    assertTrue(PREC > i2.sub(m2.inv().mul(m2)).norm1());
 
-    Matrix I3x3 = Matrix.eye(3);
-    Matrix m3x3 = Matrix.create(2.0, 1.0, 1.0, NR,
-                                1.0, 3.0, 1.0, NR,
-                                1.0, 1.0, 4.0);
-    assertTrue(PREC > I3x3.sub(m3x3.mul(m3x3.inv3x3())).norm1());
-    Matrix m3x3inv = Matrix.create(3, 3);
-    m3x3.inv3x3(m3x3inv);
-    assertTrue(PREC > m3x3.invPD().sub(m3x3inv).norm1());
+    Matrix i3 = Matrix.eye(3);
+    Matrix m3 = Matrix.create(2.0, 1.0, 1.0, NR,
+                              1.0, 3.0, 1.0, NR,
+                              1.0, 1.0, 4.0);
+    assertTrue(PREC > i3.sub(m3.mul(m3.inv())).norm1());
+    assertTrue(PREC > i3.sub(m3.inv().mul(m3)).norm1());
+  }
 
-    m2x2.set(1, 1, 0.5);
-    Matrix m2x2c = m2x2.copy();
-    assertEquals(null, m2x2.inv2x2(m2x2));
-    assertTrue(PREC > m2x2c.sub(m2x2).norm1());
+  public void testInverseLargeMatrix() {
+    Matrix i5 = Matrix.eye(5);
+    Matrix m5 = Matrix.create(1.7, 2.4, 0.1, 0.8, 1.5, NR,
+                              2.3, 0.5, 0.7, 1.4, 1.6, NR,
+                              0.4, 0.6, 1.3, 2.0, 2.2, NR,
+                              1.0, 1.2, 1.9, 2.1, 0.3, NR,
+                              1.1, 1.8, 2.5, 0.2, 0.9);
+    assertTrue(PREC > i5.sub(m5.mul(m5.inv())).norm1());
+    assertTrue(PREC > i5.sub(m5.inv().mul(m5)).norm1());
 
-    m3x3.set(0, 1, 3.0);
-    m3x3.set(1, 1, 1.5);
-    m3x3.set(2, 1, 1.5);
-    Matrix m3x3c = m3x3.copy();
-    assertEquals(null, m3x3.inv3x3(m3x3));
-    assertTrue(PREC > m3x3c.sub(m3x3).norm1());
+    Matrix m5b = m5.mul(m5.T());
+    Matrix r1 = Matrix.rand(m5b.rows(), m5b.cols(), RNG);
+    Matrix r2 = Matrix.rand(m5b.rows(), m5b.cols(), RNG);
+    Permutation pr = Permutation.rand(m5b.rows(), RNG);
+    assertTrue(PREC > i5.sub(m5b.mul(m5b.inv(r1, r2, pr))).norm1());
+    pr = Permutation.rand(m5b.rows(), RNG);
+    assertTrue(PREC > i5.sub(m5b.inv(r2, r1, pr).mul(m5b)).norm1());
+  }
+
+  public void testInverseSmallMatrixPsd() {
+    Matrix i2 = Matrix.eye(2);
+    Matrix m2 = Matrix.create(2.0, 1.0, NR,
+                              1.0, 3.0);
+    assertTrue(PREC > i2.sub(m2.mul(m2.invPsd())).norm1());
+    assertTrue(PREC > i2.sub(m2.invPsd().mul(m2)).norm1());
+
+    Matrix i3 = Matrix.eye(3);
+    Matrix m3 = Matrix.create(2.0, 1.0, 1.0, NR,
+                              1.0, 3.0, 1.0, NR,
+                              1.0, 1.0, 4.0);
+    assertTrue(PREC > i3.sub(m3.mul(m3.invPsd())).norm1());
+    assertTrue(PREC > i3.sub(m3.invPsd().mul(m3)).norm1());
+  }
+
+  public void testInverseLargeMatrixPsd() {
+    Matrix i5 = Matrix.eye(5);
+    Matrix m5 = Matrix.create(1.7, 2.4, 0.1, 0.8, 1.5, NR,
+                              2.3, 0.5, 0.7, 1.4, 1.6, NR,
+                              0.4, 0.6, 1.3, 2.0, 2.2, NR,
+                              1.0, 1.2, 1.9, 2.1, 0.3, NR,
+                              1.1, 1.8, 2.5, 0.2, 0.9);
+    Matrix m5a = m5.T().mul(m5);
+    assertTrue(PREC > i5.sub(m5a.mul(m5a.invPsd())).norm1());
+    assertTrue(PREC > i5.sub(m5a.invPsd().mul(m5a)).norm1());
+
+    Matrix m5b = m5.mul(m5.T());
+    Matrix r1 = Matrix.rand(m5.rows(), m5.cols(), RNG);
+    Matrix r2 = Matrix.rand(m5.rows(), m5.cols(), RNG);
+    assertTrue(PREC > i5.sub(m5b.mul(m5b.invPsd(r1, r2))).norm1());
+    assertTrue(PREC > i5.sub(m5b.invPsd(r2, r1).mul(m5b)).norm1());
   }
 
   public void testDeterminant() {
@@ -658,8 +647,9 @@ public class MatrixTests extends AssertionBaseTest {
                          2.7, 3.6, 2.0, 2.9, 1.8, NR,
                          1.0, 1.2, 1.9, 2.1, 0.3, NR,
                          1.1, 1.8, 2.5, 0.2, 0.9);
-    assertTrue(PREC > Math.abs(0.0 - m5x5.det()));
-    assertTrue(PREC > Math.abs(0.0 - m5x5.T().det()));
+    Matrix r = Matrix.rand(m5x5.rows(), m5x5.cols(), RNG);
+    assertTrue(PREC > Math.abs(0.0 - m5x5.det(r)));
+    assertTrue(PREC > Math.abs(0.0 - m5x5.T().det(r.setToRand(RNG))));
   }
 
   public void testReciproc() {

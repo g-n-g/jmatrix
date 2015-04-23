@@ -1807,51 +1807,53 @@ public abstract class Matrix implements VecMat {
 
   /**
    * Cholesky decomposition of a (symmetric) positive-definite matrix.
+   * Returns the result in matrix <code>L</code>
+   * having the same size as <code>this</code>.
    *
-   * The <code>result</code> matrix is assumed to be zero above the diagonal
-   * and has the same size as <code>this</code>.
-   *
-   * @param result storage of the result
+   * @param L will be set to the lower triangular factor
    *        (not <code>null</code> and not equal to <code>this</code>)
-   * @return <code>result</code> holding the lower-triangular Cholesky factor
+   * @return <code>L</code> holding the lower triangular Cholesky factor
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
-  public Matrix choleskyL(Matrix result) {
+  public Matrix choleskyL(Matrix L) {
     assert (rows() == cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    assert (L != null && L.rows() == rows() && L.cols() == cols());
     final int n = rows();
     double Ljj, Lij, v;
     for (int j = 0; j < n; ++j) {
       Ljj = get(j,j);
       for (int k = 0; k < j; ++k) {
-        v = result.get(j,k);
+        v = L.get(j,k);
         Ljj -= v * v;
       }
       if (Ljj <= 0.0) {
         throw new UnsupportedOperationException("Matrix has to be positive-definite.");
       }
       Ljj = Math.sqrt(Ljj);
-      result.set(j, j, Ljj);
+      L.set(j, j, Ljj);
       Ljj = 1.0 / Ljj;
       if (Double.isInfinite(Ljj)) {
         throw new UnsupportedOperationException("Matrix has to be positive-definite.");
       }
-            
+
+      for (int i = 0; i < j; ++i) {
+        L.set(i, j, 0.0); // zero above the diagonal
+      }
       for (int i = j+1; i < n; ++i) {
         Lij = get(i,j);
         for (int k = 0; k < j; ++k) {
-          Lij -= result.get(i,k) * result.get(j,k);
+          Lij -= L.get(i,k) * L.get(j,k);
         }
-        result.set(i, j, Lij * Ljj);
+        L.set(i, j, Lij * Ljj);
       }
     }
-    return result;
+    return L;
   }
 
   /**
    * Cholesky decomposition of a (symmetric) positive-definite matrix.
    *
-   * @return the lower-triangular Cholesky factor in a new matrix
+   * @return the lower triangular Cholesky factor in a new matrix
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public Matrix choleskyL() {
@@ -1862,13 +1864,12 @@ public abstract class Matrix implements VecMat {
    * LDL (Cholesky) decomposition of a (symmetric) positive-definite matrix.
    * Returns the result in matrix <code>L</code> and vector <code>D</code>.
    *
-   * The <code>L</code> matrix is assumed to be zero above the diagonal
-   * and has the same size as <code>this</code>.
+   * The <code>L</code> matrix should have the same size as <code>this</code>.
    * The diagonal elements of <code>L</code> will be set to one.
    * The length of vector D has to be equal to the row/column number of
    * <code>this</code> matrix.
    *
-   * @param L will be set to the lower-triangular LDL factor
+   * @param L will be set to the lower triangular LDL factor
    *        (not <code>null</code> and not equal to <code>this</code>)
    * @param D will be set to the diagonal elements of the diagonal LDL factor
    *        (not <code>null</code>)
@@ -1896,6 +1897,9 @@ public abstract class Matrix implements VecMat {
       }
       L.set(j, j, 1.0);
             
+      for (int i = 0; i < j; ++i) {
+        L.set(i, j, 0.0); // zero above the diagonal
+      }
       for (int i = j+1; i < n; ++i) {
         Lij = get(i,j);
         for (int k = 0; k < j; ++k) {
@@ -1910,7 +1914,7 @@ public abstract class Matrix implements VecMat {
    * LDL (Cholesky) decomposition of a (symmetric) positive-definite matrix.
    *
    * @return <code>{L,D}</code> matrices, where <code>L</code> is the
-   *         lower-triangular and <code>D</code> is the diagonal factor
+   *         lower triangular and <code>D</code> is the diagonal factor
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public Matrix[] choleskyLD() {
@@ -2145,9 +2149,9 @@ public abstract class Matrix implements VecMat {
    */
   public Matrix[] LU() {
     final int n = Math.min(rows(), cols());
-    Matrix L = zeros(rows(), n);
-    Matrix U = zeros(n, cols());
-    Permutation P = Permutation.eye(rows());
+    Matrix L = create(rows(), n);
+    Matrix U = create(n, cols());
+    Permutation P = Permutation.eye(rows()); // TODO: LU will set to eye...
     LU(L, U, P);
     return new Matrix[]{L, U, P.toMatrix()};
   }
@@ -2187,6 +2191,8 @@ public abstract class Matrix implements VecMat {
    * Returns the determinant of a square matrix. An LU decomposition is performed
    * for size larger than <code>3x3</code>.
    *
+   * @param result storage of the result
+   *        (not <code>null</code> and not equal to <code>this</code>)
    * @return determinant
    */
   public double det() {
@@ -2196,100 +2202,92 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
-  // TODO: unify these into a general inv method
-
   /**
-   * @return inverse of a 2x2 matrix (placed into "result")
-   *         or null if the determinant is zero ("result" remains unchanged)
+   * Computes the inverse of a square matrix (in <code>result</code>).
+   *
+   * Matrix <code>result</code> and <code>tmpM</code> should be square matrices
+   * of the same size as <code>this</code>. The length of permutation <code>tmpP</code>
+   * should match the side length of the square matrices.
+   *
+   * @param result storage of the result
+   *               (not <code>null</code> and not equal to <code>this</code>)
+   * @param tmpM temporary matrix (not <code>null</code> and not equal to
+   *             <code>this</code>, having size of <code>rows() x cols()</code>)
+   * @param tmpP temporary permutation
+   *             (not <code>null</code> with size of <code>rows()</code>)
+   * @return <code>result</code> holding the matrix inverse
+   * @throws UnsupportedOperationException if the matrix is singular
    */
-  public Matrix inv2x2(Matrix result) {
-    assert (rows() == 2 && cols() == 2);
-    double a = get(0,0), b = get(0,1),
-           c = get(1,0), d = get(1,1);
-    double det = a*d - b*c;
-    if (0.0 == det) return null;
-    if (null == result) result = create(2,2);
-    result.set(0, 0,  d); result.set(0, 1, -b);
-    result.set(1, 0, -c); result.set(1, 1,  a);
-    return result.div(det, result);
-  }
+  public Matrix inv(Matrix result, Matrix tmpM, Permutation tmpP) {
+    assert (rows() == cols());
+    assert (result != null && result.rows() == rows() && result.cols() == cols());
 
-  /**
-   * @return inverse of a 2x2 matrix (placed into a new matrix)
-   *         or null if the determinant is zero
-   */
-  public Matrix inv2x2() {
-    return inv2x2(null);
-  }
-
-  /**
-   * @return inverse of a 3x3 matrix (placed into "result")
-   *         or null if the determinant is zero ("result" remains unchanged)
-   */
-  public Matrix inv3x3(Matrix result) {
-    assert (rows() == 3 && cols() == 3);
-    double a = get(0,0), b = get(0,1), c = get(0,2),
-           d = get(1,0), e = get(1,1), f = get(1,2),
-           g = get(2,0), h = get(2,1), k = get(2,2);
-    double A = e*k-f*h, D = c*h-b*k, G = b*f-c*e,
-           B = f*g-d*k, E = a*k-c*g, H = c*d-a*f,
-           C = d*h-e*g, F = g*b-a*h, K = a*e-b*d;
-    double det = a*A + b*B + c*C;
-    if (0.0 == det) return null;
-    if (null == result) result = create(3,3);
-    result.set(0, 0, A); result.set(0, 1, D); result.set(0, 2, G);
-    result.set(1, 0, B); result.set(1, 1, E); result.set(1, 2, H);
-    result.set(2, 0, C); result.set(2, 1, F); result.set(2, 2, K);
-    return result.div(det, result);
-  }
-
-  /**
-   * @return inverse of a 3x3 matrix (placed into a new matrix)
-   *         or null if the determinant is zero
-   */    
-  public Matrix inv3x3() {
-    return inv3x3(null);
-  }
-
-  /**
-   * Invert a diagonal matrix having non-zero diagonal elements.
-   * The provided "result" matrix is assumed to be zero on its
-   * non-diagonal elements.
-   * @return diagonal matrix inverse (placed into "result")
-   */
-  public Matrix invD(Matrix result) {
-    for (int i = 0; i < rows(); ++i) {
-      result.set(i, i, 1.0 / get(i,i));
+    switch (rows()) {
+    case 0:
+      break;
+    case 1: {
+      double rdet = 1.0 / get(0,0);
+      if (Double.isInfinite(rdet)) {
+        throw new UnsupportedOperationException("Matrix is singular.");
+      }
+      result.set(0, 0, rdet);
+      break;
+    }
+    case 2: {
+      double a = get(0,0), b = get(0,1), c = get(1,0), d = get(1,1);
+      double rdet = 1.0 / (a*d - b*c);
+      if (Double.isInfinite(rdet)) {
+        throw new UnsupportedOperationException("Matrix is singular.");
+      }
+      result.set(0, 0,  d); result.set(0, 1, -b);
+      result.set(1, 0, -c); result.set(1, 1,  a);
+      result.mul(rdet, result);
+      break;
+    }
+    case 3: {
+      double a = get(0,0), b = get(0,1), c = get(0,2);
+      double d = get(1,0), e = get(1,1), f = get(1,2);
+      double g = get(2,0), h = get(2,1), k = get(2,2);
+      double A = e*k-f*h, D = c*h-b*k, G = b*f-c*e;
+      double B = f*g-d*k, E = a*k-c*g, H = c*d-a*f;
+      double C = d*h-e*g, F = g*b-a*h, K = a*e-b*d;
+      double rdet = 1.0 / (a*A + b*B + c*C);
+      if (Double.isInfinite(rdet)) {
+        throw new UnsupportedOperationException("Matrix is singular.");
+      }
+      result.set(0, 0, A); result.set(0, 1, D); result.set(0, 2, G);
+      result.set(1, 0, B); result.set(1, 1, E); result.set(1, 2, H);
+      result.set(2, 0, C); result.set(2, 1, F); result.set(2, 2, K);
+      result.mul(rdet, result);
+      break;
+    }
+    default:
+      LU(tmpM, tmpM, tmpP);
+      tmpM.invLT(result, false); // inv(L)
+      tmpM.T().invLT(result.T(), true); // inv(U)
+      result.mulUL(tmpM); // tmpM = inv(U)*inv(L)
+      tmpM.mul(tmpP, result); // result = tmpM*tmpP
     }
     return result;
   }
 
   /**
-   * Invert a diagonal matrix having non-zero diagonal elements.
-   * @return diagonal matrix inverse (placed into a new matrix)
+   * Inverts a square lower triangular matrix <code>L</code> in
+   * </code>result</code>. If <code>mirror</code> is set, the result is also
+   * copied into the upper half, otherwise <code>result</code> is kept untouched
+   * above the diagonal.
    */
-  public Matrix invD() {
-    return invD(zeros(rows(), cols()));
-  }
-
-  /**
-   * Invert a lower triangular matrix having non-zero diagonal elements.
-   * The provided "result" matrix is assumed to be zero on its
-   * upper-triangular half.
-   * The "result" parameter also has to be different from "this".
-   * @return lower-triangular matrix inverse (placed into "result")
-   * @throws UnsupportedOperationException if matrix is singular
-   */
-  public Matrix invLT(Matrix result) {
+  private Matrix invLT(Matrix result, boolean useDiag) {
     for (int i = 0; i < rows(); ++i) {
-      double Rii = 1.0 / get(i,i);
+      double Rii = 1.0;
+      if (useDiag) { Rii /= get(i,i); }
       if (Double.isInfinite(Rii)) {
         throw new UnsupportedOperationException("Matrix is singular.");
       }
       result.set(i, i, Rii);
       for (int j = 0; j < i; ++j) {
         double Rij = 0.0;
-        for (int k = 0; k < i; ++k) { Rij -= get(i,k) * result.get(k,j); }
+        for (int k = j; k < i; ++k) { Rij -= get(i,k) * result.get(k,j); }
         result.set(i, j, Rii * Rij);
       }
     }
@@ -2297,54 +2295,82 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Invert a lower triangular matrix.
-   * @return lower-triangular matrix inverse (placed into a new matrix)
+   * Multiplication of a upper triangular (U) and a unit lower triangular
+   * matrix (L) as U*L, both stored in <code>this</code> square matrix as
+   * <code>[L \ U]</code>.
    */
-  public Matrix invLT() {
-    return invLT(zeros(rows(), cols()));
+  private Matrix mulUL(Matrix result) {
+    final int n = rows(); // == cols()
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < n; ++j) {
+        int k = Math.max(i, j);
+        double value = 0.0;
+        if (k == j) {
+          value = get(i,j);
+          ++k;
+        }
+        while (k < n) {
+          value += get(i,k) * get(k,j);
+          ++k;
+        }
+        result.set(i, j, value);
+      }
+    }
+    return result;
   }
 
   /**
-   * Invert a (symmetric) positive-definite matrix.
-   * This version is slightly faster, but not as stable numerically as the 
-   * invPD(Matrix,Matrix,Vector,Matrix) one.
-   * The provided "invL" matrix is assumed to be zero on its
-   * upper-triangular half. They also have to be different from "this" and
-   * each other. Also, "result" = invL^T * invL will hold.
-   * @return positive-definite matrix inverse (placed into "result")
+   * Computes the inverse of a square matrix (in new matrix).
+   *
+   * @return the matrix inverse
+   * @throws UnsupportedOperationException if the matrix is singular
    */
-  public Matrix invPD(Matrix result, Matrix invL) {
-    assert (result != this && result != invL && invL != this);
+  public Matrix inv() {
+    return inv(create(rows(), cols()),
+               create(rows(), cols()),
+               Permutation.eye(rows()));
+  }
+
+  /**
+   * Computes the inverse of a (symmatric) positive-definite matrix
+   * (in <code>result</code>). Symmetry is not verified, violating this condition
+   * might silently produce an invalid result.
+   *
+   * Matrix <code>result</code> and <code>tmpM</code> should be square matrices
+   * of the same size as <code>this</code>. They should be different from each
+   * other and from <code>this</code>.
+   *
+   * @param result storage of the result
+   *               (not <code>null</code> and not equal to
+   *                <code>tmpM</code> and <code>this</code>)
+   * @param tmpM temporary matrix (not <code>null</code> and not equal to
+   *                               <code>tmpM</code> and <code>this</code>,
+   *                               having size of <code>rows() x cols()</code>)
+   * @return <code>result</code> holding the matrix inverse
+   * @throws UnsupportedOperationException if the matrix is singular
+   */
+  public Matrix invPsd(Matrix result, Matrix tmpM) {
+    assert (rows() == cols());
+    assert (result != null && result != this && result != tmpM &&
+            result.rows() == rows() && result.cols() == cols());
+    assert (tmpM != null && tmpM != this &&
+            tmpM.rows() == rows() && tmpM.cols() == cols());
     choleskyL(result);
-    result.invLT(invL);
-    return invL.T().mul(invL, result);
+    tmpM.setToZeros();
+    result.invLT(tmpM, true);
+    return tmpM.T().mul(tmpM, result); // TODO: optimize (private method mulLL).
   }
 
   /**
-   * Invert a (symmetric) positive-definite matrix.
-   * The provided "invL" matrix is assumed to be zero on its upper-triangular
-   * half. All matrix parameters have to be different from "this" and each 
-   * other. Also, "result" = invL^T * diag(invD) * invL and
-   * "tmp" = invL^T * diag(invD) will hold.
-   * @return positive-definite matrix inverse (placed into "result")
+   * Computes the inverse of a (symmatric) positive-definite matrix
+   * (in new matrix). Symmetry is not verified, violating this condition
+   * might silently produce an invalid result.
+   *
+   * @return the matrix inverse
+   * @throws UnsupportedOperationException if the matrix is singular
    */
-  public Matrix invPD(Matrix result, Matrix invL, Vector invD, Matrix tmp) {
-    assert (result != this && result != invL && invL != this);
-    choleskyLD(result, invD);
-    result.invLT(invL);
-    invD.reciproc(invD);
-    return invL.T().mulD(invD, tmp).mul(invL, result);
-  }
-
-  /**
-   * Invert a (symmetric) positive-definite matrix.
-   * @return positive-definite matrix inverse (placed into a new matrix)
-   */
-  public Matrix invPD() {
-    return invPD(zeros(rows(), cols()),
-                 zeros(rows(), cols()),
-                 Vector.zeros(rows()),
-                 zeros(rows(), cols()));
+  public Matrix invPsd() {
+    return invPsd(create(rows(), cols()), create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------

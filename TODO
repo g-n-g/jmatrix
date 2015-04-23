@@ -7,11 +7,12 @@ Workflow warning in README.
 bsxfun (Binary Singleton Expansion Function)
 (PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}
 
+Proper exception handling.
+
 -------------------------------------------------------------------------------
 Functionality:
 
 matrix outer product
-general matrix inverse
 singular value decomposition
 back substitution
 least squares solution
