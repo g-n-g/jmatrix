@@ -1807,11 +1807,11 @@ public abstract class Matrix implements VecMat {
 
   /**
    * Cholesky decomposition of a (symmetric) positive-definite matrix.
-   * Returns the result in matrix <code>L</code>
-   * having the same size as <code>this</code>.
+   * Returns the result in matrix <code>L</code> having the same size as
+   * <code>this</code>. Matrix <code>L</code> can be set to <code>this</code>
+   * supporting in-place operation.
    *
-   * @param L will be set to the lower triangular factor
-   *        (not <code>null</code> and not equal to <code>this</code>)
+   * @param L the lower triangular factor (not <code>null</code>)
    * @return <code>L</code> holding the lower triangular Cholesky factor
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
@@ -1866,13 +1866,12 @@ public abstract class Matrix implements VecMat {
    *
    * The <code>L</code> matrix should have the same size as <code>this</code>.
    * The diagonal elements of <code>L</code> will be set to one.
-   * The length of vector D has to be equal to the row/column number of
-   * <code>this</code> matrix.
+   * Matrix <code>L</code> can be set to <code>this</code> supporting in-place
+   * operation. The length of vector D has to be equal to the row/column number
+   * of <code>this</code> matrix.
    *
-   * @param L will be set to the lower triangular LDL factor
-   *        (not <code>null</code> and not equal to <code>this</code>)
-   * @param D will be set to the diagonal elements of the diagonal LDL factor
-   *        (not <code>null</code>)
+   * @param L the lower triangular LDL factor (not <code>null</code>)
+   * @param D the diagonal factor (not <code>null</code>)
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public void choleskyLD(Matrix L, Vector D) {
@@ -2273,9 +2272,8 @@ public abstract class Matrix implements VecMat {
 
   /**
    * Inverts a square lower triangular matrix <code>L</code> in
-   * </code>result</code>. If <code>mirror</code> is set, the result is also
-   * copied into the upper half, otherwise <code>result</code> is kept untouched
-   * above the diagonal.
+   * </code>result</code>. If <code>useDiag</code> is set, the diagonal is
+   * inverted, otherwise the diagonal entries are considered to be one.
    */
   private Matrix invLT(Matrix result, boolean useDiag) {
     for (int i = 0; i < rows(); ++i) {
@@ -2336,29 +2334,41 @@ public abstract class Matrix implements VecMat {
    * (in <code>result</code>). Symmetry is not verified, violating this condition
    * might silently produce an invalid result.
    *
-   * Matrix <code>result</code> and <code>tmpM</code> should be square matrices
-   * of the same size as <code>this</code>. They should be different from each
-   * other and from <code>this</code>.
+   * Matrix <code>result</code> should be a square matrix of the same size as
+   * <code>this</code>. Matrix <code>result</code> can also be set to
+   * <code>this</code> supporting in-place operation.
    *
-   * @param result storage of the result
-   *               (not <code>null</code> and not equal to
-   *                <code>tmpM</code> and <code>this</code>)
-   * @param tmpM temporary matrix (not <code>null</code> and not equal to
-   *                               <code>tmpM</code> and <code>this</code>,
-   *                               having size of <code>rows() x cols()</code>)
+   * @param result storage of the result (not <code>null</code>)
    * @return <code>result</code> holding the matrix inverse
    * @throws UnsupportedOperationException if the matrix is singular
    */
-  public Matrix invPsd(Matrix result, Matrix tmpM) {
-    assert (rows() == cols());
-    assert (result != null && result != this && result != tmpM &&
-            result.rows() == rows() && result.cols() == cols());
-    assert (tmpM != null && tmpM != this &&
-            tmpM.rows() == rows() && tmpM.cols() == cols());
+  public Matrix invPsd(Matrix result) {
+    final int n = rows();
+    assert (cols() == n);
+    assert (result != null && result.rows() == n && result.cols() == n);
+    // Compute the inverse of the Cholesky factor and store its transpose
+    // into the upper triangular half of result.
     choleskyL(result);
-    tmpM.setToZeros();
-    result.invLT(tmpM, true);
-    return tmpM.T().mul(tmpM, result); // TODO: optimize (private method mulLL).
+    result.invLT(result.T(), true);
+    // Multiply the upper triangular half of result with its own transpose
+    // and store it into the lower triangular half by overwriting the diagonal
+    // in the last step.
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j <= i; ++j) {
+        double value = 0.0;
+        for (int k = i; k < n; ++k) {
+          value += result.get(i,k) * result.get(j,k);
+        }
+        result.set(j, i, value);
+      }
+    }
+    // Mirror the lower triangular half into the upper one.
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < i; ++j) {
+        result.set(i, j, result.get(j,i));
+      }
+    }
+    return result;
   }
 
   /**
@@ -2370,7 +2380,7 @@ public abstract class Matrix implements VecMat {
    * @throws UnsupportedOperationException if the matrix is singular
    */
   public Matrix invPsd() {
-    return invPsd(create(rows(), cols()), create(rows(), cols()));
+    return invPsd(create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------

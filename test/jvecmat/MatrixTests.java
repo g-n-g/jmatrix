@@ -403,6 +403,10 @@ public class MatrixTests extends AssertionBaseTest {
     m.set(0, 0, 3.33333); m.set(1, 1, 4.44444); m.set(2, 2, 5.55555);
     m.choleskyL(L);
     assertTrue(PREC > m.sub(L.mul(L.T())).norm1());
+
+    L = m.copy();
+    L.choleskyL(L); // in-place
+    assertTrue(PREC > m.sub(L.mul(L.T())).norm1());
   }
 
   public void testCholeskyDecompositionLD() {
@@ -412,6 +416,10 @@ public class MatrixTests extends AssertionBaseTest {
     Matrix LD[] = m.choleskyLD();
     Matrix L = LD[0];
     Vector D = LD[1].getDiag();
+    assertTrue(PREC > m.sub(L.mulD(D).mul(L.T())).norm1());
+
+    L = m.copy();
+    L.choleskyLD(L, D); // "in-place"
     assertTrue(PREC > m.sub(L.mulD(D).mul(L.T())).norm1());
   }
 
@@ -594,6 +602,11 @@ public class MatrixTests extends AssertionBaseTest {
                               1.0, 1.0, 4.0);
     assertTrue(PREC > i3.sub(m3.mul(m3.invPsd())).norm1());
     assertTrue(PREC > i3.sub(m3.invPsd().mul(m3)).norm1());
+
+    Matrix ip = m3.copy();
+    ip.invPsd(ip); // in-place
+    assertTrue(PREC > i3.sub(m3.mul(ip)).norm1());
+    assertTrue(PREC > i3.sub(ip.mul(m3)).norm1());
   }
 
   public void testInverseLargeMatrixPsd() {
@@ -609,9 +622,14 @@ public class MatrixTests extends AssertionBaseTest {
 
     Matrix m5b = m5.mul(m5.T());
     Matrix r1 = Matrix.rand(m5.rows(), m5.cols(), RNG);
+    assertTrue(PREC > i5.sub(m5b.mul(m5b.invPsd(r1))).norm1());
     Matrix r2 = Matrix.rand(m5.rows(), m5.cols(), RNG);
-    assertTrue(PREC > i5.sub(m5b.mul(m5b.invPsd(r1, r2))).norm1());
-    assertTrue(PREC > i5.sub(m5b.invPsd(r2, r1).mul(m5b)).norm1());
+    assertTrue(PREC > i5.sub(m5b.invPsd(r2).mul(m5b)).norm1());
+
+    Matrix ip = m5a.copy();
+    ip.invPsd(ip); // in-place
+    assertTrue(PREC > i5.sub(m5a.mul(ip)).norm1());
+    assertTrue(PREC > i5.sub(ip.mul(m5a)).norm1());
   }
 
   public void testDeterminant() {
