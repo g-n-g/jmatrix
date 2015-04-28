@@ -3,26 +3,34 @@ package jvecmat;
 final class DenseMatrix extends Matrix {
 
   DenseMatrix(double[][] data) {
-    super(data,
-          (data == null) ? 0 : data.length,
-          (data != null && 0 < data.length) ? data[0].length : 0);
+    this.data = (data == null) ? new double[0][0] : data;
     trMat = new TDenseMatrix(this);
   }
 
   //----------------------------------------------------------------------------
 
   @Override
+  public int rows() {
+    return data.length;
+  }
+
+  @Override
+  public int cols() {
+    return (data.length != 0) ? data[0].length : 0;
+  }
+
+  @Override
   public double get(int i, int j) {
     assert (0 <= i && i < rows());
     assert (0 <= j && j < cols());
-    return array()[i][j];
+    return data[i][j];
   }
 
   @Override
   public void set(int i, int j, double value) {
     assert (0 <= i && i < rows());
     assert (0 <= j && j < cols());
-    array()[i][j] = value;
+    data[i][j] = value;
   }
 
   //----------------------------------------------------------------------------
@@ -34,5 +42,6 @@ final class DenseMatrix extends Matrix {
 
   //----------------------------------------------------------------------------
 
+  private final double[][] data;
   private final TDenseMatrix trMat;
 }

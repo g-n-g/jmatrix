@@ -13,9 +13,9 @@ public abstract class Matrix implements VecMat {
   public final static double NR = Double.NaN;
 
   /**
-   * Creates a matrix using the provided data.
+   * Creates a dense matrix using the provided data.
    *
-   * @param data elements of the vector
+   * @param data elements of the matrix
    * @return matrix which encapsulates <code>data</code> (not copied)
    */
   public static Matrix create(double[][] data) {
@@ -23,7 +23,7 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Creates a matrix of given size having uninitialized elements.
+   * Creates a dense matrix of given size having uninitialized elements.
    *
    * @param rows number of rows
    * @param cols number of columns
@@ -35,7 +35,7 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Creates a matrix of the given <code>values</code>.
+   * Creates a dense matrix of the given <code>values</code>.
    * New rows can be indicated by the {@link Matrix#NR} constant.
    *
    * The <code>values</code> should not contain any <code>Double.NaN</code> value.
@@ -206,38 +206,11 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
-  /**
-   * Creates a matrix object of size <code>rows</code> x <code>cols</code>
-   * which encapsulates <code>data</code>.
-   *
-   * @param rows number of rows
-   * @param cols number of columns
-   * @param data matrix data (not copied)
-   */
-  protected Matrix(double[][] data, int rows, int cols) {
-    this.data = data;
-    this.rows = rows;
-    this.cols = cols;
-  }
-
-  /**
-   * Returns the array representation of the matrix.
-   * The data is not copied, so any changes to the returned array
-   * will change the matrix too.
-   *
-   * @return the array representation of the matrix
-   */
-  public final double[][] array() {
-    return data;
-  }
-
-  //----------------------------------------------------------------------------
-
   @Override
   public boolean hasNaN() {
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         if (Double.isNaN(get(i,j))) { return true; }
       }
     }
@@ -246,9 +219,9 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public boolean hasInf() {
-    int i, j;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         if (Double.isInfinite(get(i,j))) { return true; }
       }
     }
@@ -257,11 +230,10 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public void replaceNaNandInf(double nan, double negInf, double posInf) {
-    int i, j;
-    double e;
-    for (i = 0; i < rows(); ++i) {
-      for (j = 0; j < cols(); ++j) {
-        e = get(i,j);
+    final int rows = rows(), cols = cols();
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        double e = get(i,j);
         if (Double.isNaN(e)) { set(i, j, nan); }
         else if (Double.POSITIVE_INFINITY == e) { set(i, j, posInf); }
         else if (Double.NEGATIVE_INFINITY == e) { set(i, j, negInf); }
@@ -280,10 +252,11 @@ public abstract class Matrix implements VecMat {
    * @return copy of the matrix
    */
   public Matrix copy(Matrix result) {
-    assert(result != null && result.rows() == rows() && result.cols() == cols());
+    final int rows = rows(), cols = cols();
+    assert(result != null && result.rows() == rows && result.cols() == cols);
     if (result != this) {
-      for (int i = 0; i < rows(); ++i) {
-        for (int j = 0; j < cols(); ++j) {
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
           result.set(i, j, get(i,j));
         }
       }
@@ -303,18 +276,14 @@ public abstract class Matrix implements VecMat {
    *
    * @return number of rows of the matrix
    */
-  public final int rows() {
-    return rows;
-  }
+  public abstract int rows();
 
   /**
    * Returns the number of columns of the matrix.
    *
    * @return number of columns of the matrix
    */
-  public final int cols() {
-    return cols;
-  }
+  public abstract int cols();
 
   /**
    * Returns the element of the matrix at row <code>i</code>
@@ -324,7 +293,7 @@ public abstract class Matrix implements VecMat {
    * @param j the column index of the matrix element
    * @return the (i,j) element of the matrix
    */
-  abstract public double get(int i, int j);
+  public abstract double get(int i, int j);
 
   /**
    * Set the matrix element at row <code>i</code> and column <code>j</code>
@@ -334,14 +303,15 @@ public abstract class Matrix implements VecMat {
    * @param j the column index of the matrix element
    * @param value the new value
    */
-  abstract public void set(int i, int j, double value);
+  public abstract void set(int i, int j, double value);
 
   //----------------------------------------------------------------------------
 
   @Override
   public Matrix setToScalars(double c) {
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         set(i, j, c);
       }
     }
@@ -365,8 +335,9 @@ public abstract class Matrix implements VecMat {
    * @return <code>this</code> matrix
    */
   public Matrix setToEye() {
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         set(i, j, i==j ? 1.0 : 0.0);
       }
     }
@@ -375,8 +346,9 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public Matrix setToRand(Random rng) {
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         set(i, j, rng.nextDouble());
       }
     }
@@ -385,8 +357,9 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public Matrix setToRandN(Random rng) {
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         set(i, j, rng.nextGaussian());
       }
     }
@@ -437,18 +410,19 @@ public abstract class Matrix implements VecMat {
    * @return <code>result</code> holding the lower triangular part
    */
   public Matrix getTriL(int offset, Matrix result) {
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    int jend = Math.min(offset+1, cols());
-    for (int i = 0; i < rows(); ++i) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    int jend = Math.min(offset+1, cols);
+    for (int i = 0; i < rows; ++i) {
       for (int j = 0; j < jend; ++j) {
         result.set(i, j, get(i,j));
       }
       if (jend >= 0) {
-        for (int j = jend; j < cols(); ++j) {
+        for (int j = jend; j < cols; ++j) {
           result.set(i, j, 0.0);
         }
       }
-      if (jend < cols()) { ++jend; }
+      if (jend < cols) { ++jend; }
     }
     return result;
   }
@@ -557,10 +531,11 @@ public abstract class Matrix implements VecMat {
    * @return vector of the <code>i</code>-th row
    */
   public Vector getRow(int i, Vector result) {
-    assert (0 <= i && i <= rows());
-    if (result == null) { result = Vector.create(cols()); }
-    assert (result.length() == cols());
-    for (int j = 0; j < cols(); ++j) { result.set(j, get(i,j)); }
+    final int rows = rows(), cols = cols();
+    assert (0 <= i && i <= rows);
+    if (result == null) { result = Vector.create(cols); }
+    assert (result.length() == cols);
+    for (int j = 0; j < cols; ++j) { result.set(j, get(i,j)); }
     return result;
   }
 
@@ -582,9 +557,10 @@ public abstract class Matrix implements VecMat {
    * @return <code>this</code> matrix
    */
   public Matrix setRow(int i, Vector v) {
-    assert (0 <= i && i <= rows());
-    assert (v != null && cols() == v.length());
-    for (int j = 0; j < v.length(); ++j) { set(i, j, v.get(j)); }
+    final int rows = rows(), cols = cols();
+    assert (0 <= i && i <= rows);
+    assert (v != null && cols == v.length());
+    for (int j = 0; j < cols; ++j) { set(i, j, v.get(j)); }
     return this;
   }
 
@@ -597,9 +573,10 @@ public abstract class Matrix implements VecMat {
    * @return <code>this</code> matrix
    */
   public Matrix setRow(int i, Matrix m) {
-    assert (0 <= i && i <= rows());
-    assert (m != null && cols() == m.cols());
-    for (int j = 0; j < m.cols(); ++j) { set(i, j, m.get(i, j)); }
+    final int rows = rows(), cols = cols();
+    assert (0 <= i && i <= rows);
+    assert (m != null && cols == m.cols());
+    for (int j = 0; j < cols; ++j) { set(i, j, m.get(i, j)); }
     return this;
   }
 
@@ -614,10 +591,11 @@ public abstract class Matrix implements VecMat {
    * @return vector of the <code>j</code>-th column
    */
   public Vector getCol(int j, Vector result) {
-    assert (0 <= j && j <= cols());
-    if (result == null) { result = Vector.create(rows()); }
-    assert (result.length() == rows());
-    for (int i = 0; i < rows(); ++i) { result.set(i, get(i,j)); }
+    final int rows = rows(), cols = cols();
+    assert (0 <= j && j <= cols);
+    if (result == null) { result = Vector.create(rows); }
+    assert (result.length() == rows);
+    for (int i = 0; i < rows; ++i) { result.set(i, get(i,j)); }
     return result;
   }
 
@@ -639,9 +617,10 @@ public abstract class Matrix implements VecMat {
    * @return <code>this</code> matrix
    */
   public Matrix setCol(int j, Vector v) {
-    assert (0 <= j && j <= cols());
-    assert (v != null && rows() == v.length());
-    for (int i = 0; i < v.length(); ++i) { set(i, j, v.get(i)); }
+    final int rows = rows(), cols = cols();
+    assert (0 <= j && j <= cols);
+    assert (v != null && rows == v.length());
+    for (int i = 0; i < rows; ++i) { set(i, j, v.get(i)); }
     return this;
   }
 
@@ -654,9 +633,10 @@ public abstract class Matrix implements VecMat {
    * @return <code>this</code> matrix
    */
   public Matrix setCol(int j, Matrix m) {
-    assert (0 <= j && j <= cols());
-    assert (m != null && rows() == m.rows());
-    for (int i = 0; i < m.rows(); ++i) { set(i, j, m.get(i, j)); }
+    final int rows = rows(), cols = cols();
+    assert (0 <= j && j <= cols);
+    assert (m != null && rows == m.rows());
+    for (int i = 0; i < rows; ++i) { set(i, j, m.get(i, j)); }
     return this;
   }
 
@@ -675,8 +655,9 @@ public abstract class Matrix implements VecMat {
    *                   and columns from <code>jF</code> to <code>jT</code>
    */
   public Matrix getMat(int iF, int iT, int jF, int jT, Matrix result) {
-    assert (0 <= iF && iF <= iT && iT < rows());
-    assert (0 <= jF && jF <= jT && jT < cols());
+    final int rows = rows(), cols = cols();
+    assert (0 <= iF && iF <= iT && iT < rows);
+    assert (0 <= jF && jF <= jT && jT < cols);
     if (result == null) { result = create(iT-iF+1, jT-jF+1); }
     assert (result.rows() == iT-iF+1);
     assert (result.cols() == jT-jF+1);
@@ -718,8 +699,9 @@ public abstract class Matrix implements VecMat {
    * @return <code>this</code> matrix
    */
   public Matrix setMat(int iF, int iT, int jF, int jT, Matrix m) {
-    assert (0 <= iF && iF <= iT && iT < rows());
-    assert (0 <= jF && jF <= jT && jT < cols());
+    final int rows = rows(), cols = cols();
+    assert (0 <= iF && iF <= iT && iT < rows);
+    assert (0 <= jF && jF <= jT && jT < cols);
     assert (m != null && m.rows() == iT-iF+1 && m.cols() == jT-jF+1);
     for (int i = 0, ii = iF; ii <= iT; ++i, ++ii) {
       for (int j = 0, jj = jF; jj <= jT; ++j, ++jj) {
@@ -742,9 +724,10 @@ public abstract class Matrix implements VecMat {
    * @return entrywise absolute value
    */
   public Matrix abs(Matrix result) {
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, Math.abs(get(i,j)));
       }
     }
@@ -770,9 +753,10 @@ public abstract class Matrix implements VecMat {
    * @return entrywise sign value
    */
   public Matrix sign(double zeroReplacement, Matrix result) {
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         double value = get(i,j);
         result.set(i, j, (0.0 == value) ? zeroReplacement : Math.signum(value));
       }
@@ -791,9 +775,10 @@ public abstract class Matrix implements VecMat {
    * @return entrywise sign value
    */
   public Matrix sign(Matrix result) {
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, Math.signum(get(i,j)));
       }
     }
@@ -823,9 +808,10 @@ public abstract class Matrix implements VecMat {
    * @return <code>result</code> having the negated matrix
    */
   public Matrix neg(Matrix result) {
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, -get(i,j));
       }
     }
@@ -855,10 +841,11 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> and <code>m</code>
    */
   public Matrix add(Matrix m, Matrix result) {
-    assert (m != null && rows() == m.rows() && cols() == m.cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (m != null && rows == m.rows() && cols == m.cols());
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, get(i,j) + m.get(i,j));
       }
     }
@@ -892,9 +879,10 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> shifted by <code>c</code>
    */
   public Matrix add(double c, Matrix result) {
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, get(i,j) + c);
       }
     }
@@ -922,11 +910,12 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> shifted by vector <code>v</code>
    */
   public Matrix addRow(Vector v, Matrix result) {
-    assert (v != null && v.length() == cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == cols);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int j = 0; j < cols; ++j) {
       double value = v.get(j);
-      for (int i = 0; i < rows(); ++i) { result.set(i, j, get(i,j) + value); }
+      for (int i = 0; i < rows; ++i) { result.set(i, j, get(i,j) + value); }
     }
     return result;
   }
@@ -962,11 +951,12 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> shifted by vector <code>v</code>
    */
   public Matrix addCol(Vector v, Matrix result) {
-    assert (v != null && v.length() == rows());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == rows);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
       double value = v.get(i);
-      for (int j = 0; j < cols(); ++j) { result.set(i, j, get(i,j) + value); }
+      for (int j = 0; j < cols; ++j) { result.set(i, j, get(i,j) + value); }
     }
     return result;
   }
@@ -1004,10 +994,11 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> and <code>m</code>
    */
   public Matrix sub(Matrix m, Matrix result) {
-    assert (m != null && rows() == m.rows() && cols() == m.cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (m != null && rows == m.rows() && cols == m.cols());
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, get(i,j) - m.get(i,j));
       }
     }
@@ -1068,11 +1059,12 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> shifted by vector <code>-v</code>
    */
   public Matrix subRow(Vector v, Matrix result) {
-    assert (v != null && v.length() == cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == cols);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int j = 0; j < cols; ++j) {
       double value = v.get(j);
-      for (int i = 0; i < rows(); ++i) { result.set(i, j, get(i,j) - value); }
+      for (int i = 0; i < rows; ++i) { result.set(i, j, get(i,j) - value); }
     }
     return result;
   }
@@ -1109,11 +1101,12 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> shifted by vector <code>-v</code>
    */
   public Matrix subCol(Vector v, Matrix result) {
-    assert (v != null && v.length() == rows());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == rows);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
       double value = v.get(i);
-      for (int j = 0; j < cols(); ++j) { result.set(i, j, get(i,j) - value); }
+      for (int j = 0; j < cols; ++j) { result.set(i, j, get(i,j) - value); }
     }
     return result;
   }
@@ -1175,11 +1168,12 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> divided by the elements of vector <code>v</code>
    */
   public Matrix divRow(Vector v, Matrix result) {
-    assert (v != null && v.length() == cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == cols);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int j = 0; j < cols; ++j) {
       double value = v.get(j);
-      for (int i = 0; i < rows(); ++i) { result.set(i, j, get(i,j) / value); }
+      for (int i = 0; i < rows; ++i) { result.set(i, j, get(i,j) / value); }
     }
     return result;
   }
@@ -1217,11 +1211,12 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> divided by the elements of vector <code>v</code>
    */
   public Matrix divCol(Vector v, Matrix result) {
-    assert (v != null && v.length() == rows());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == rows);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
       double value = v.get(i);
-      for (int j = 0; j < cols(); ++j) { result.set(i, j, get(i,j) / value); }
+      for (int j = 0; j < cols; ++j) { result.set(i, j, get(i,j) / value); }
     }
     return result;
   }
@@ -1258,9 +1253,10 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> multiplied by <code>c</code>
    */
   public Matrix mul(double c, Matrix result) {
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, c * get(i,j));
       }
     }
@@ -1289,11 +1285,12 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> multiplied by the elements of vector <code>v</code>
    */
   public Matrix mulRow(Vector v, Matrix result) {
-    assert (v != null && v.length() == cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == cols);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int j = 0; j < cols; ++j) {
       double value = v.get(j);
-      for (int i = 0; i < rows(); ++i) { result.set(i, j, get(i,j) * value); }
+      for (int i = 0; i < rows; ++i) { result.set(i, j, get(i,j) * value); }
     }
     return result;
   }
@@ -1331,11 +1328,12 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> multiplied by the elements of vector <code>v</code>
    */
   public Matrix mulCol(Vector v, Matrix result) {
-    assert (v != null && v.length() == rows());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == rows);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
       double value = v.get(i);
-      for (int j = 0; j < cols(); ++j) { result.set(i, j, get(i,j) * value); }
+      for (int j = 0; j < cols; ++j) { result.set(i, j, get(i,j) * value); }
     }
     return result;
   }
@@ -1373,15 +1371,16 @@ public abstract class Matrix implements VecMat {
    * @see Vector#mul(Matrix, Vector)
    */
   public Vector mul(Vector v, Vector result) {
-    assert (v != null && v.length() == cols());
-    assert (result != null && result != v && result.length() == rows());
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == cols);
+    assert (result != null && result != v && result.length() == rows);
     double vj = v.get(0); // j = 0
-    for (int i = 0; i < rows(); ++i) { // initialize "result"
+    for (int i = 0; i < rows; ++i) { // initialize "result"
       result.set(i, vj * get(i,0));
     }
-    for (int j = 1; j < cols(); ++j) {
+    for (int j = 1; j < cols; ++j) {
       vj = v.get(j);
-      for (int i = 0; i < rows(); ++i) {
+      for (int i = 0; i < rows; ++i) {
         result.set(i, result.get(i) + vj * get(i,j));
       }
     }
@@ -1420,11 +1419,12 @@ public abstract class Matrix implements VecMat {
    * @see Vector#mulD(Matrix, Matrix)
    */
   public Matrix mulD(Vector v, Matrix result) {
-    assert (v != null && v.length() == cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (v != null && v.length() == cols);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int j = 0; j < cols; ++j) {
       double d = v.get(j);
-      for (int i = 0; i < rows(); ++i)
+      for (int i = 0; i < rows; ++i)
         result.set(i, j, get(i,j) * d);
     }
     return result;
@@ -1463,20 +1463,20 @@ public abstract class Matrix implements VecMat {
    *         by matrix <code>m</code> from the right
    */
   public Matrix mul(Matrix m, Matrix result) {
-    assert (m != null && m.rows() == cols());
+    final int rows = rows(), cols = cols(), mcols = m.cols();
+    assert (m != null && m.rows() == cols);
     assert (result != null && result != this && result != m);
-    assert (result.rows() == rows() && result.cols() == m.cols());
-    final int cols = m.cols();
-    if (cols <= rows()) {
+    assert (result.rows() == rows && result.cols() == mcols);
+    if (mcols <= rows) {
       double tik;
-      for (int i = 0; i < rows(); ++i) {
+      for (int i = 0; i < rows; ++i) {
         tik = get(i,0); // k = 0
-        for (int j = 0; j < cols; ++j) { // initialize "result[i:*]"
+        for (int j = 0; j < mcols; ++j) { // initialize "result[i:*]"
           result.set(i, j, tik * m.get(0,j));
         }
-        for (int k = 1; k < cols(); ++k) {
+        for (int k = 1; k < cols; ++k) {
           tik = get(i,k);
-          for (int j = 0; j < cols; ++j) {
+          for (int j = 0; j < mcols; ++j) {
             result.set(i, j, result.get(i,j) + tik * m.get(k,j));
           }
         }
@@ -1520,13 +1520,14 @@ public abstract class Matrix implements VecMat {
    * @see Permutation#mul(Matrix, Matrix)
    */
   public Matrix mul(Permutation p, Matrix result) {
-    assert (p != null && p.length() == cols());
+    final int rows = rows(), cols = cols();
+    assert (p != null && p.length() == cols);
     assert (result != null && result != this &&
-            result.rows() == rows() && result.cols() == cols());
-    for (int j = 0; j < cols(); ++j) {
+            result.rows() == rows && result.cols() == cols);
+    for (int j = 0; j < cols; ++j) {
       int col = p.get(j);
-      for (int i = 0; i < rows(); ++i) {
-        result.set(i, j, get(i,col));
+      for (int i = 0; i < rows; ++i) {
+        result.set(i, j, get(i, col));
       }
     }
     return result;
@@ -1562,9 +1563,10 @@ public abstract class Matrix implements VecMat {
    * @return <code>result</code> holding the elementwise reciproc matrix
    */
   public Matrix reciproc(Matrix result) {
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, 1.0 / get(i,j));
       }
     }
@@ -1592,9 +1594,10 @@ public abstract class Matrix implements VecMat {
    *         <code>this</code> with respect to modulus <code>m</code>
    */
   public Matrix mod(double m, Matrix result) {
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, get(i,j) % m);
       }
     }
@@ -1623,10 +1626,11 @@ public abstract class Matrix implements VecMat {
    *         and <code>m</code> multiplied entrywise
    */
   public Matrix emul(Matrix m, Matrix result) {
-    assert (m != null && rows() == m.rows() && cols() == m.cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    final int rows = rows(), cols = cols();
+    assert (m != null && rows == m.rows() && cols == m.cols());
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         result.set(i, j, get(i,j) * m.get(i,j));
       }
     }
@@ -1655,11 +1659,11 @@ public abstract class Matrix implements VecMat {
    * @return 1-norm of <code>this</code> matrix
    */
   public double norm1() {
-    int i, j;
-    double s, maxs = 0.0;
-    for (j = 0; j < cols(); ++j) {
-      s = 0.0;
-      for (i = 0; i < rows(); ++i) { s += Math.abs(get(i,j)); }
+    final int rows = rows(), cols = cols();
+    double maxs = 0.0;
+    for (int j = 0; j < cols; ++j) {
+      double s = 0.0;
+      for (int i = 0; i < rows; ++i) { s += Math.abs(get(i,j)); }
       if (s > maxs) { maxs = s; }
     }
     return maxs;
@@ -1671,11 +1675,11 @@ public abstract class Matrix implements VecMat {
    * @return infinity-norm of <code>this</code> matrix
    */
   public double normI() {
-    int i, j;
-    double s, maxs = 0.0;
-    for (i = 0; i < rows(); ++i) {
-      s = 0.0;
-      for (j = 0; j < cols(); ++j) { s += Math.abs(get(i,j)); }
+    final int rows = rows(), cols = cols();
+    double maxs = 0.0;
+    for (int i = 0; i < rows; ++i) {
+      double s = 0.0;
+      for (int j = 0; j < cols; ++j) { s += Math.abs(get(i,j)); }
       if (s > maxs) { maxs = s; }
     }
     return maxs;
@@ -1687,9 +1691,10 @@ public abstract class Matrix implements VecMat {
    * @return Frobenius norm of <code>this</code> matrix
    */
   public double normF() {
+    final int rows = rows(), cols = cols();
     double s = 0.0;
-    for (int i = 0; i < rows(); ++i) {
-      for (int j = 0; j < cols(); ++j) {
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
         double v = get(i,j);
         s += v * v;
       }
@@ -1722,11 +1727,12 @@ public abstract class Matrix implements VecMat {
    * @return trace of <code>this</code> times <code>m</code>
    */
   public double traceMul(Matrix m) {
-    assert (m != null && cols() == m.rows());
+    final int cols = cols();
+    assert (m != null && cols == m.rows());
     double trace = 0.0;
     final int limit = Math.min(rows(), m.cols());
     for (int i = 0; i < limit; ++i) {
-      for (int j = 0; j < cols(); ++j) {
+      for (int j = 0; j < cols; ++j) {
         trace += get(i,j) * m.get(j,i);
       }
     }
@@ -1755,11 +1761,12 @@ public abstract class Matrix implements VecMat {
    * @return sum of rows
    */
   public Vector rowSum(Vector result) {
-    assert (result != null && result.length() == cols());
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.length() == cols);
     result.setToZeros();
-    for (int j = 0; j < cols(); ++j) {
+    for (int j = 0; j < cols; ++j) {
       double s = 0.0;
-      for (int i = 0; i < rows(); ++i) { s += get(i,j); }
+      for (int i = 0; i < rows; ++i) { s += get(i,j); }
       result.set(j, s);
     }
     return result;
@@ -1784,11 +1791,12 @@ public abstract class Matrix implements VecMat {
    * @return sum of columns
    */
   public Vector colSum(Vector result) {
-    assert (result != null && result.length() == rows());
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.length() == rows);
     result.setToZeros();
-    for (int i = 0; i < rows(); ++i) {
+    for (int i = 0; i < rows; ++i) {
       double s = 0.0;
-      for (int j = 0; j < cols(); ++j) { s += get(i,j); }
+      for (int j = 0; j < cols; ++j) { s += get(i,j); }
       result.set(i, s);
     }
     return result;
@@ -1816,9 +1824,9 @@ public abstract class Matrix implements VecMat {
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public Matrix choleskyL(Matrix L) {
-    assert (rows() == cols());
-    assert (L != null && L.rows() == rows() && L.cols() == cols());
     final int n = rows();
+    assert (cols() == n);
+    assert (L != null && L.rows() == n && L.cols() == n);
     double Ljj, Lij, v;
     for (int j = 0; j < n; ++j) {
       Ljj = get(j,j);
@@ -1875,10 +1883,10 @@ public abstract class Matrix implements VecMat {
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public void choleskyLD(Matrix L, Vector D) {
-    assert (rows() == cols());
-    assert (L != null && L.rows() == rows() && L.cols() == cols());
-    assert (D != null && D.length() == rows());
     final int n = rows();
+    assert (cols() == n);
+    assert (L != null && L.rows() == n && L.cols() == n);
+    assert (D != null && D.length() == n);
     double Dj, Lij, v;
     for (int j = 0; j < n; ++j) {
       Dj = get(j,j);
@@ -1917,9 +1925,10 @@ public abstract class Matrix implements VecMat {
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
   public Matrix[] choleskyLD() {
-    assert (rows() == cols());
-    Matrix L = zeros(rows(), rows());
-    Vector D = Vector.create(rows());
+    final int n = rows();
+    assert (cols() == n);
+    Matrix L = zeros(n, n);
+    Vector D = Vector.create(n);
     choleskyLD(L, D);
     return new Matrix[]{L, diag(D)};
   }
@@ -1945,10 +1954,10 @@ public abstract class Matrix implements VecMat {
    *             (not <code>null</code> with size >= <code>min(rows()-1, cols())</code>
    */
   public void QR(Matrix Q, Matrix R, Vector tmpV) {
-    assert (Q == null || (Q.rows() == rows() && Q.cols() == rows()));
-    assert (R != null && R != Q && R.rows() == rows() && R.cols() == cols());
-
     final int rows = rows(), cols = cols();
+    assert (Q == null || (Q.rows() == rows && Q.cols() == rows));
+    assert (R != null && R != Q && R.rows() == rows && R.cols() == cols);
+
     final int t = Math.min(rows-1, cols);
     assert (t <= tmpV.length());
 
@@ -2030,9 +2039,10 @@ public abstract class Matrix implements VecMat {
    *         and <code>R</code> is the upper-triangular factor
    */
   public Matrix[] QR() {
-    Matrix Q = create(rows(), rows());
-    Matrix R = zeros(rows(), cols());
-    QR(Q, R, Vector.create(Math.min(rows()-1, cols())));
+    final int rows = rows(), cols = cols();
+    Matrix Q = create(rows, rows);
+    Matrix R = zeros(rows, cols);
+    QR(Q, R, Vector.create(Math.min(rows-1, cols)));
     return new Matrix[]{Q, R};
   }
 
@@ -2065,24 +2075,26 @@ public abstract class Matrix implements VecMat {
   }
 
   private int LU(Matrix L, Matrix U, Permutation P, boolean isRowPivot) {
-    if (rows() > cols()) {
+    final int rows = rows(), cols = cols();
+    if (rows > cols) {
       return T().LU(U.T(), L.T(), P, false);
     }
 
-    assert (L != null && L.rows() == rows() && L.cols() == rows());
-    assert (U != null && U.rows() == rows() && U.cols() == cols());
+    assert (L != null && L.rows() == rows && L.cols() == rows);
+    assert (U != null && U.rows() == rows && U.cols() == cols);
 
     copy(U);
     if (P != null) { P.setToEye(); }
     Matrix V = isRowPivot ? U : U.T(); // pivot matrix (sharing data with U)
+    final int Vcols = V.cols();
     assert(P == null || P.length() == V.rows()); // (P == null) is for internal use only
 
     int nperms = 0;
-    for (int i = 0; i < rows(); ++i) {
+    for (int i = 0; i < rows; ++i) {
       // find the pivot
       int p = i;
       double pval = V.get(i,i);
-      for (int k = i+1; k < rows(); ++k) {
+      for (int k = i+1; k < rows; ++k) {
         double val = V.get(k,i);
         if (val > pval) {
           p = k;
@@ -2095,7 +2107,7 @@ public abstract class Matrix implements VecMat {
 
       // swap rows if necessary
       if (p != i) {
-        for (int j = 0; j < V.cols(); ++j) {
+        for (int j = 0; j < Vcols; ++j) {
           double val = V.get(i,j);
           V.set(i, j, V.get(p,j));
           V.set(p, j, val);
@@ -2114,7 +2126,7 @@ public abstract class Matrix implements VecMat {
       }
 
       // update above the diagonal: Uij = Aij - sum_k(Lik*Ukj)
-      for (int j = i; j < cols(); ++j) {
+      for (int j = i; j < cols; ++j) {
         double sum = U.get(i,j);
         for (int k = 0; k < i; ++k) {
           sum -= L.get(i,k) * U.get(k,j);
@@ -2124,7 +2136,7 @@ public abstract class Matrix implements VecMat {
     }
 
     if (L != U) { // ensure U is upper triangular and L is unit lower triangular
-      for (int i = 0; i < U.rows(); ++i) {
+      for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < i; ++j) { U.set(i, j, 0.0); }
         L.set(i, i, 1.0);
         for (int k = 0; k < i; ++k) { L.set(k, i, 0.0); }
@@ -2147,10 +2159,11 @@ public abstract class Matrix implements VecMat {
    *         and <code>U</code> is the upper triangular factor
    */
   public Matrix[] LU() {
-    final int n = Math.min(rows(), cols());
-    Matrix L = create(rows(), n);
-    Matrix U = create(n, cols());
-    Permutation P = Permutation.eye(rows()); // TODO: LU will set to eye...
+    final int rows = rows(), cols = cols();
+    final int n = Math.min(rows, cols);
+    Matrix L = create(rows, n);
+    Matrix U = create(n, cols);
+    Permutation P = Permutation.eye(rows); // TODO: LU will set to eye...
     LU(L, U, P);
     return new Matrix[]{L, U, P.toMatrix()};
   }
@@ -2276,7 +2289,8 @@ public abstract class Matrix implements VecMat {
    * inverted, otherwise the diagonal entries are considered to be one.
    */
   private Matrix invLT(Matrix result, boolean useDiag) {
-    for (int i = 0; i < rows(); ++i) {
+    final int n = rows(); // == cols()
+    for (int i = 0; i < n; ++i) {
       double Rii = 1.0;
       if (useDiag) { Rii /= get(i,i); }
       if (Double.isInfinite(Rii)) {
@@ -2400,10 +2414,11 @@ public abstract class Matrix implements VecMat {
 
   @Override
   public String toString() {
+    final int rows = rows(), cols = cols();
     String str = "[";
-    for (int i = 0; i < rows(); ++i) {
+    for (int i = 0; i < rows; ++i) {
       if (0 != i) str += "; ";
-      for (int j = 0; j < cols(); ++j) {
+      for (int j = 0; j < cols; ++j) {
         if (0 != j) str += " ";
         str += get(i,j);
       }
@@ -2411,9 +2426,4 @@ public abstract class Matrix implements VecMat {
     str += "]";
     return str;
   }
-
-  //----------------------------------------------------------------------------
-
-  protected final int rows, cols;
-  private final double[][] data;
 }
