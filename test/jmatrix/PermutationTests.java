@@ -1,6 +1,7 @@
 package jmatrix;
 
 import java.util.Random;
+import static jmatrix.Matrix.NR;
 
 /**
  * Tests for permuting vectors and matrices.
@@ -45,35 +46,27 @@ public class PermutationTests extends AssertionBaseTest {
   }
 
   public void testMatrixRowPerms() {
-    Matrix m1 = Matrix.create(new double[][]{
-        new double[]{1.0, 2.0},
-        new double[]{3.0, 4.0},
-        new double[]{5.0, 6.0},
-        new double[]{7.0, 8.0}
-      });
-    Matrix m2 = Matrix.create(new double[][]{
-        new double[]{5.0, 6.0},
-        new double[]{3.0, 4.0},
-        new double[]{7.0, 8.0},
-        new double[]{1.0, 2.0}
-      });
+    Matrix m1 = Matrix.create(1.0, 2.0, NR,
+                              3.0, 4.0, NR,
+                              5.0, 6.0, NR,
+                              7.0, 8.0);
+    Matrix m2 = Matrix.create(5.0, 6.0, NR,
+                              3.0, 4.0, NR,
+                              7.0, 8.0, NR,
+                              1.0, 2.0);
 
-    Permutation p = Permutation.create(new int[]{2, 1, 3, 0});
+    Permutation p = Permutation.create(2, 1, 3, 0);
     assertEquals(0.0, p.mul(m1).sub(m2).norm1());
     assertEquals(0.0, p.toMatrix().mul(m1).sub(m2).norm1());
   }
 
   public void testMatrixColumnPerms() {
-    Matrix m1 = Matrix.create(new double[][]{
-        new double[]{1.1, 2.2, 3.3, 4.4, 5.5},
-        new double[]{6.6, 7.7, 8.8, 9.9, 0.0}
-      });
-    Matrix m2 = Matrix.create(new double[][]{
-        new double[]{2.2, 3.3, 5.5, 4.4, 1.1},
-        new double[]{7.7, 8.8, 0.0, 9.9, 6.6}
-      });
+    Matrix m1 = Matrix.create(1.1, 2.2, 3.3, 4.4, 5.5, NR,
+                              6.6, 7.7, 8.8, 9.9, 0.0);
+    Matrix m2 = Matrix.create(2.2, 3.3, 5.5, 4.4, 1.1, NR,
+                              7.7, 8.8, 0.0, 9.9, 6.6);
 
-    Permutation p = Permutation.create(new int[]{1, 2, 4, 3, 0});
+    Permutation p = Permutation.create(1, 2, 4, 3, 0);
     assertEquals(0.0, m1.mul(p).sub(m2).norm1());
     assertEquals(0.0, m1.mul(p.toMatrix().T()).sub(m2).norm1());
   }
