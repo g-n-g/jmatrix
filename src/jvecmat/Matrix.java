@@ -31,6 +31,7 @@ public abstract class Matrix implements VecMat {
    *         having uninitialized elements
    */
   public static Matrix create(int rows, int cols) {
+    assert(rows >= 0 && cols >= 0);
     return create(new double[rows][cols]);
   }
 
@@ -118,39 +119,18 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Creates a matrix by its <code>rows</code>.
-   *
-   * @param rows vectors forming the rows of the matrix
-   * @return matrix formed by <code>rows</code> (not copied)
-   */
-  public static Matrix createByRows(Vector[] rows) {
-    double [][]d = new double[rows.length][];
-    for (int i = 0; i < rows.length; ++i) { d[i] = rows[i].array(); }
-    return create(d);
-  }
-
-  /**
-   * Creates a matrix by its <code>columns</code>.
-   *
-   * @param columns vectors forming the columns of the matrix
-   * @return matrix formed by <code>columns</code> (not copied)
-   */
-  public static Matrix createByCols(Vector[] columns) {
-    return createByRows(columns).T();
-  }
-
-  /**
    * Creates a square diagonal matrix
    * using the elements of vector <code>v</code>.
    *
    * @param v vector forming the diagonal
    * @return square diagonal matrix defined by vector <code>v</code>
    */
-  public static Matrix diag(Vector v) {
-    int n = v.length();
+  public static Matrix diag(Matrix v) {
+    if (v.cols() > 1) { v = v.T(); }
+    final int n = v.rows();
     double[][] mat = new double[n][n];
     for (int i = 0; i < n; ++i) {
-      mat[i][i] = v.get(i);
+      mat[i][i] = v.get(i, 0);
       for (int j = 0; j < i; ++j)
         mat[i][j] = mat[j][i] = 0.0;
     }
@@ -245,7 +225,6 @@ public abstract class Matrix implements VecMat {
 
   /**
    * Returns a copy of the matrix placed into <code>result</code>.
-   * If <code>result</code> is <code>null</code>, a new object is created.
    * The operation is skipped if <code>result</code> is equal to <code>this</code>.
    *
    * @param result appropriately sized storage for the copy (not <code>null</code>)
@@ -370,28 +349,28 @@ public abstract class Matrix implements VecMat {
 
   /**
    * Returns the diagonal elements as a vector.
-   * A new vector is created if <code>result</code> is <code>null</code>.
    * Otherwise, the length of <code>result</code> has to match the number
    * of diagonal elements (the minimum of the number of rows and columns).
    *
-   * @param result storage of the result or <code>null</code>
+   * @param result storage of the result (not <code>null</code>)
    * @return vector of the diagonal elements
    */
-  public Vector getDiag(Vector result) {
+  public Matrix getDiag(Matrix result) {
     int n = Math.min(rows(), cols());
-    if (result == null) { result = Vector.create(n); }
-    assert(result.length() == n);
-    for (int i = 0; i < n; ++i) { result.set(i, get(i,i)); }
+    assert (result != null);
+    Matrix diag = (result.cols() == 1) ? result : result.T();
+    assert(diag.rows() == n && diag.cols() == 1);
+    for (int i = 0; i < n; ++i) { diag.set(i, 0, get(i,i)); }
     return result;
   }
 
   /**
-   * Returns the diagonal elements in a new vector.
+   * Returns the diagonal elements in a new column vector.
    *
-   * @return vector of the diagonal elements
+   * @return column vector of the diagonal elements
    */
-  public Vector getDiag() {
-    return getDiag(null);
+  public Matrix getDiag() {
+    return getDiag(Matrix.create(Math.min(rows(), cols()), 1));
   }
 
   //----------------------------------------------------------------------------
@@ -519,126 +498,6 @@ public abstract class Matrix implements VecMat {
   }
 
   //----------------------------------------------------------------------------
-
-  /**
-   * Returns the <code>i</code>-th row as a vector.
-   * A new vector is created if <code>result</code> is <code>null</code>.
-   * Otherwise, the length of <code>result</code> has to match the number
-   * of columns.
-   *
-   * @param i row index
-   * @param result storage of the result or <code>null</code>
-   * @return vector of the <code>i</code>-th row
-   */
-  public Vector getRow(int i, Vector result) {
-    final int rows = rows(), cols = cols();
-    assert (0 <= i && i <= rows);
-    if (result == null) { result = Vector.create(cols); }
-    assert (result.length() == cols);
-    for (int j = 0; j < cols; ++j) { result.set(j, get(i,j)); }
-    return result;
-  }
-
-  /**
-   * Returns the <code>i</code>-th row in a new vector.
-   *
-   * @param i row index
-   * @return vector of the <code>i</code>-th row
-   */
-  public Vector getRow(int i) {
-    return getRow(i, null);
-  }
-
-  /**
-   * Sets the <code>i</code>-th row to <code>v</code>.
-   *
-   * @param i row index
-   * @param v new row elements
-   * @return <code>this</code> matrix
-   */
-  public Matrix setRow(int i, Vector v) {
-    final int rows = rows(), cols = cols();
-    assert (0 <= i && i <= rows);
-    assert (v != null && cols == v.length());
-    for (int j = 0; j < cols; ++j) { set(i, j, v.get(j)); }
-    return this;
-  }
-
-  /**
-   * Sets the <code>i</code>-th row to the <code>i</code>-th row
-   * of matrix <code>m</code>.
-   *
-   * @param i row index
-   * @param m matrix containing the new row elements
-   * @return <code>this</code> matrix
-   */
-  public Matrix setRow(int i, Matrix m) {
-    final int rows = rows(), cols = cols();
-    assert (0 <= i && i <= rows);
-    assert (m != null && cols == m.cols());
-    for (int j = 0; j < cols; ++j) { set(i, j, m.get(i, j)); }
-    return this;
-  }
-
-  /**
-   * Returns the <code>j</code>-th column as a vector.
-   * A new vector is created if <code>result</code> is <code>null</code>.
-   * Otherwise, the length of <code>result</code> has to match the number
-   * of rows.
-   *
-   * @param j column index
-   * @param result storage of the result or <code>null</code>
-   * @return vector of the <code>j</code>-th column
-   */
-  public Vector getCol(int j, Vector result) {
-    final int rows = rows(), cols = cols();
-    assert (0 <= j && j <= cols);
-    if (result == null) { result = Vector.create(rows); }
-    assert (result.length() == rows);
-    for (int i = 0; i < rows; ++i) { result.set(i, get(i,j)); }
-    return result;
-  }
-
-  /**
-   * Returns the <code>j</code>-th column in a new vector.
-   *
-   * @param j column index
-   * @return vector of the <code>j</code>-th column
-   */
-  public Vector getCol(int j) {
-    return getCol(j, null);
-  }
-
-  /**
-   * Sets the <code>j</code>-th column to <code>v</code>.
-   *
-   * @param j column index
-   * @param v new column elements
-   * @return <code>this</code> matrix
-   */
-  public Matrix setCol(int j, Vector v) {
-    final int rows = rows(), cols = cols();
-    assert (0 <= j && j <= cols);
-    assert (v != null && rows == v.length());
-    for (int i = 0; i < rows; ++i) { set(i, j, v.get(i)); }
-    return this;
-  }
-
-  /**
-   * Sets the <code>j</code>-th column to the <code>j</code>-th row
-   * of matrix <code>m</code>.
-   *
-   * @param j column index
-   * @param m matrix containing the new column elements
-   * @return <code>this</code> matrix
-   */
-  public Matrix setCol(int j, Matrix m) {
-    final int rows = rows(), cols = cols();
-    assert (0 <= j && j <= cols);
-    assert (m != null && rows == m.rows());
-    for (int i = 0; i < rows; ++i) { set(i, j, m.get(i, j)); }
-    return this;
-  }
 
   /**
    * Returns the submatrix having rows from <code>iF</code> to <code>iT</code>
@@ -894,88 +753,6 @@ public abstract class Matrix implements VecMat {
     return add(c, create(rows(), cols()));
   }
 
-  /**
-   * Matrix-vector addition along rows (in <code>result</code>).
-   * Adds vector <code>v</code> to all rows of <code>this</code> matrix.
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param v vector to add to each row (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the rows of
-   *         <code>this</code> shifted by vector <code>v</code>
-   */
-  public Matrix addRow(Vector v, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == cols);
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int j = 0; j < cols; ++j) {
-      double value = v.get(j);
-      for (int i = 0; i < rows; ++i) { result.set(i, j, get(i,j) + value); }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector addition along rows (in new matrix).
-   * Adds vector <code>v</code> to all rows of <code>this</code> matrix.
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to add to each row (not <code>null</code>)
-   * @return new matrix having the rows of
-   *         <code>this</code> shifted by vector <code>v</code>
-   */
-  public Matrix addRow(Vector v) {
-    return addRow(v, create(rows(), cols()));
-  }
-
-  /**
-   * Matrix-vector addition along columns (in <code>result</code>).
-   * Adds vector <code>v</code> to all columns of <code>this</code> matrix.
-   *
-   * The length of vector <code>v</code> has to be equal to the row number
-   * of <code>this</code> matrix.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param v vector to add to each column (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the columns of
-   *         <code>this</code> shifted by vector <code>v</code>
-   */
-  public Matrix addCol(Vector v, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == rows);
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      double value = v.get(i);
-      for (int j = 0; j < cols; ++j) { result.set(i, j, get(i,j) + value); }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector addition along columns (in new matrix).
-   * Adds vector <code>v</code> to all columns of <code>this</code> matrix.
-   *
-   * The length of vector <code>v</code> has to be equal to the row number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to add to each column (not <code>null</code>)
-   * @return new matrix having the columns of
-   *         <code>this</code> shifted by vector <code>v</code>
-   */
-  public Matrix addCol(Vector v) {
-    return addCol(v, create(rows(), cols()));
-  }
-
   //----------------------------------------------------------------------------
 
   /**
@@ -1043,90 +820,6 @@ public abstract class Matrix implements VecMat {
     return sub(c, create(rows(), cols()));
   }
 
-  /**
-   * Matrix-vector subtraction along rows (in <code>result</code>).
-   * Subtracts vector <code>v</code> from all rows of <code>this</code> matrix.
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param v vector to subtract from each row (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the rows of
-   *         <code>this</code> shifted by vector <code>-v</code>
-   */
-  public Matrix subRow(Vector v, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == cols);
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int j = 0; j < cols; ++j) {
-      double value = v.get(j);
-      for (int i = 0; i < rows; ++i) { result.set(i, j, get(i,j) - value); }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector subtraction along rows (in new matrix).
-   * Subtracts vector <code>v</code> from all rows of <code>this</code> matrix.
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to subtract from each row (not <code>null</code>)
-   * @return new matrix having the rows of
-   *         <code>this</code> shifted by vector <code>-v</code>
-   */
-  public Matrix subRow(Vector v) {
-    return subRow(v, create(rows(), cols()));
-  }
-
-  /**
-   * Matrix-vector subtraction along columns (in <code>result</code>).
-   * Subtracts vector <code>v</code> from all columns of <code>this</code>
-   * matrix.
-   *
-   * The length of vector <code>v</code> has to be equal to the row number
-   * of <code>this</code> matrix.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param v vector to subtract from each column (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the columns of
-   *         <code>this</code> shifted by vector <code>-v</code>
-   */
-  public Matrix subCol(Vector v, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == rows);
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      double value = v.get(i);
-      for (int j = 0; j < cols; ++j) { result.set(i, j, get(i,j) - value); }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector subtraction along columns (in new matrix).
-   * Subtracts vector <code>v</code> from all columns of <code>this</code>
-   * matrix.
-   *
-   * The length of vector <code>v</code> has to be equal to the row number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to subtract from each column (not <code>null</code>)
-   * @return new matrix having the columns of
-   *         <code>this</code> shifted by vector <code>-v</code>
-   */
-  public Matrix subCol(Vector v) {
-    return subCol(v, create(rows(), cols()));
-  }
-
   //----------------------------------------------------------------------------
 
   /**
@@ -1149,92 +842,6 @@ public abstract class Matrix implements VecMat {
   @Override
   public Matrix div(double c) {
     return div(c, create(rows(), cols()));
-  }
-
-  /**
-   * Matrix-vector elementwise division along rows (in <code>result</code>).
-   * Divides all rows of <code>this</code> matrix elementwise
-   * by vector <code>v</code>.
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param v vector to divide each row (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the rows of
-   *         <code>this</code> divided by the elements of vector <code>v</code>
-   */
-  public Matrix divRow(Vector v, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == cols);
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int j = 0; j < cols; ++j) {
-      double value = v.get(j);
-      for (int i = 0; i < rows; ++i) { result.set(i, j, get(i,j) / value); }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector elementwise division along rows (in new matrix).
-   * Divides all rows of <code>this</code> matrix elementwise
-   * by vector <code>v</code>.
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to divide each row (not <code>null</code>)
-   * @return new matrix having the rows of
-   *         <code>this</code> divided by the elements of vector <code>v</code>
-   */
-  public Matrix divRow(Vector v) {
-    return divRow(v, create(rows(), cols()));
-  }
-
-  /**
-   * Matrix-vector elementwise division along columns (in <code>result</code>).
-   * Divides all columns of <code>this</code> matrix elementwise
-   * by vector <code>v</code>.
-   *
-   * The length of vector <code>v</code> has to be equal to the row number
-   * of <code>this</code> matrix.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param v vector to divide each column (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the columns of
-   *         <code>this</code> divided by the elements of vector <code>v</code>
-   */
-  public Matrix divCol(Vector v, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == rows);
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      double value = v.get(i);
-      for (int j = 0; j < cols; ++j) { result.set(i, j, get(i,j) / value); }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector elementwise division along columns (in new matrix).
-   * Divides all columns of <code>this</code> matrix elementwise
-   * by vector <code>v</code>.
-   *
-   * The length of vector <code>v</code> has to be equal to the row number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to divide each column (not <code>null</code>)
-   * @return new matrix having the columns of
-   *         <code>this</code> divided by the elements of vector <code>v</code>
-   */
-  public Matrix divCol(Vector v) {
-    return divCol(v, create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------
@@ -1266,184 +873,6 @@ public abstract class Matrix implements VecMat {
   @Override
   public Matrix mul(double c) {
     return mul(c, create(rows(), cols()));
-  }
-
-  /**
-   * Matrix-vector elementwise multiplication along rows (in <code>result</code>).
-   * Multiplies all rows of <code>this</code> matrix elementwise
-   * by vector <code>v</code>.
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param v vector to multiply each row (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the rows of
-   *         <code>this</code> multiplied by the elements of vector <code>v</code>
-   */
-  public Matrix mulRow(Vector v, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == cols);
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int j = 0; j < cols; ++j) {
-      double value = v.get(j);
-      for (int i = 0; i < rows; ++i) { result.set(i, j, get(i,j) * value); }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector elementwise multiplication along rows (in new matrix).
-   * Multiplies all rows of <code>this</code> matrix elementwise
-   * by vector <code>v</code>.
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to multiply each row (not <code>null</code>)
-   * @return new matrix having the rows of
-   *         <code>this</code> multiplied by the elements of vector <code>v</code>
-   */
-  public Matrix mulRow(Vector v) {
-    return mulRow(v, create(rows(), cols()));
-  }
-
-  /**
-   * Matrix-vector elementwise multiplication along columns (in <code>result</code>).
-   * Multiplies all columns of <code>this</code> matrix elementwise
-   * by vector <code>v</code>.
-   *
-   * The length of vector <code>v</code> has to be equal to the row number
-   * of <code>this</code> matrix.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param v vector to multiply each column (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the columns of
-   *         <code>this</code> multiplied by the elements of vector <code>v</code>
-   */
-  public Matrix mulCol(Vector v, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == rows);
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      double value = v.get(i);
-      for (int j = 0; j < cols; ++j) { result.set(i, j, get(i,j) * value); }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector elementwise multiplication along columns (in new matrix).
-   * Multiplies all columns of <code>this</code> matrix elementwise
-   * by vector <code>v</code>.
-   *
-   * The length of vector <code>v</code> has to be equal to the row number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to multiply each column (not <code>null</code>)
-   * @return new matrix having the columns of
-   *         <code>this</code> multiplied by the elements of vector <code>v</code>
-   */
-  public Matrix mulCol(Vector v) {
-    return mulCol(v, create(rows(), cols()));
-  }
-
-  /**
-   * Matrix-vector multiplication (in <code>result</code>).
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   * The length of <code>result</code> has to be equal to the row number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to multiply with on the right
-   *               (not <code>null</code> and not equal to <code>result</code>)
-   * @param result storage of the result
-   *               (not <code>null</code> and not equal to <code>v</code>)
-   * @return <code>this</code> matrix multiplied
-   *         by vector <code>v</code> from the right side
-   * @see Vector#mul(Matrix, Vector)
-   */
-  public Vector mul(Vector v, Vector result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == cols);
-    assert (result != null && result != v && result.length() == rows);
-    double vj = v.get(0); // j = 0
-    for (int i = 0; i < rows; ++i) { // initialize "result"
-      result.set(i, vj * get(i,0));
-    }
-    for (int j = 1; j < cols; ++j) {
-      vj = v.get(j);
-      for (int i = 0; i < rows; ++i) {
-        result.set(i, result.get(i) + vj * get(i,j));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Matrix-vector multiplication (in new vector).
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector to multiply with on the right
-   * @return <code>this</code> matrix multiplied
-   *         by vector <code>v</code> from the right side
-   * @see Vector#mul(Matrix)
-   */
-  public Vector mul(Vector v) {
-    return mul(v, Vector.create(rows()));
-  }
-
-  /**
-   * Matrix multiplication from the right with a diagonal matrix
-   * represented by vector <code>v</code> (in <code>result</code>).
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   * Furthermore, <code>result</code> has to have the same size
-   * as <code>this</code> matrix. The <code>result</code> parameter can also
-   * be set to <code>this</code> providing in-place operation.
-   *
-   * @param v vector representing the multiplier diagonal matrix
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having <code>this</code> matrix multiplied by
-   *         <code>diag(v)</code> from the right
-   * @see Vector#mulD(Matrix, Matrix)
-   */
-  public Matrix mulD(Vector v, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (v != null && v.length() == cols);
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int j = 0; j < cols; ++j) {
-      double d = v.get(j);
-      for (int i = 0; i < rows; ++i)
-        result.set(i, j, get(i,j) * d);
-    }
-    return result;
-  }
-
-  /**
-   * Matrix multiplication from the right with a diagonal matrix
-   * represented by vector <code>v</code> (in new matrix).
-   *
-   * The length of vector <code>v</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   *
-   * @param v vector representing the multiplier diagonal matrix
-   * @return <code>result</code> having <code>this</code> matrix multiplied by
-   *         <code>diag(v)</code> from the right
-   * @see Vector#mulD(Matrix)
-   */
-  public Matrix mulD(Vector v) {
-    return mulD(v, create(rows(), cols()));
   }
 
   /**
@@ -1760,14 +1189,14 @@ public abstract class Matrix implements VecMat {
    * @param result storage of the result (not <code>null</code>)
    * @return sum of rows
    */
-  public Vector rowSum(Vector result) {
+  public Matrix rowSum(Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (result != null && result.length() == cols);
+    assert (result != null && result.rows() == 1 && result.cols() == cols);
     result.setToZeros();
     for (int j = 0; j < cols; ++j) {
       double s = 0.0;
       for (int i = 0; i < rows; ++i) { s += get(i,j); }
-      result.set(j, s);
+      result.set(0, j, s);
     }
     return result;
   }
@@ -1777,8 +1206,8 @@ public abstract class Matrix implements VecMat {
    *
    * @return sum of rows
    */
-  public Vector rowSum() {
-    return rowSum(Vector.create(cols()));
+  public Matrix rowSum() {
+    return rowSum(create(1, cols()));
   }
 
   /**
@@ -1790,14 +1219,14 @@ public abstract class Matrix implements VecMat {
    * @param result storage of the result (not <code>null</code>)
    * @return sum of columns
    */
-  public Vector colSum(Vector result) {
+  public Matrix colSum(Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (result != null && result.length() == rows);
+    assert (result != null && result.rows() == rows && result.cols() == 1);
     result.setToZeros();
     for (int i = 0; i < rows; ++i) {
       double s = 0.0;
       for (int j = 0; j < cols; ++j) { s += get(i,j); }
-      result.set(i, s);
+      result.set(i, 0, s);
     }
     return result;
   }
@@ -1807,8 +1236,8 @@ public abstract class Matrix implements VecMat {
    *
    * @return sum of columns
    */
-  public Vector colSum() {
-    return colSum(Vector.create(rows()));
+  public Matrix colSum() {
+    return colSum(create(rows(), 1));
   }
 
   //----------------------------------------------------------------------------
@@ -1879,25 +1308,27 @@ public abstract class Matrix implements VecMat {
    * of <code>this</code> matrix.
    *
    * @param L the lower triangular LDL factor (not <code>null</code>)
-   * @param D the diagonal factor (not <code>null</code>)
+   * @param D the diagonal factor as a vector (not <code>null</code>)
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */
-  public void choleskyLD(Matrix L, Vector D) {
+  public void choleskyLD(Matrix L, Matrix D) {
     final int n = rows();
     assert (cols() == n);
     assert (L != null && L.rows() == n && L.cols() == n);
-    assert (D != null && D.length() == n);
+    assert (D != null);
+    if (D.cols() > 1) { D = D.T(); }
+    assert (D.rows() == n && D.cols() == 1);
     double Dj, Lij, v;
     for (int j = 0; j < n; ++j) {
       Dj = get(j,j);
       for (int k = 0; k < j; ++k) {
         v = L.get(j,k);
-        Dj -= v * v * D.get(k);
+        Dj -= v * v * D.get(k,0);
       }
       if (Dj <= 0.0) {
         throw new UnsupportedOperationException("Matrix has to be positive-definite.");
       }
-      D.set(j, Dj);
+      D.set(j, 0, Dj);
       Dj = 1.0 / Dj;
       if (Double.isInfinite(Dj)) {
         throw new UnsupportedOperationException("Matrix has to be positive-definite.");
@@ -1910,7 +1341,7 @@ public abstract class Matrix implements VecMat {
       for (int i = j+1; i < n; ++i) {
         Lij = get(i,j);
         for (int k = 0; k < j; ++k) {
-          Lij -= L.get(i,k) * L.get(j,k) * D.get(k);
+          Lij -= L.get(i,k) * L.get(j,k) * D.get(k,0);
         }
         L.set(i, j, Lij * Dj);
       }
@@ -1928,7 +1359,7 @@ public abstract class Matrix implements VecMat {
     final int n = rows();
     assert (cols() == n);
     Matrix L = zeros(n, n);
-    Vector D = Vector.create(n);
+    Matrix D = create(n, 1);
     choleskyLD(L, D);
     return new Matrix[]{L, diag(D)};
   }
@@ -1953,13 +1384,14 @@ public abstract class Matrix implements VecMat {
    * @param tmpV temporary vector
    *             (not <code>null</code> with size >= <code>min(rows()-1, cols())</code>
    */
-  public void QR(Matrix Q, Matrix R, Vector tmpV) {
+  public void QR(Matrix Q, Matrix R, Matrix tmpV) {
     final int rows = rows(), cols = cols();
     assert (Q == null || (Q.rows() == rows && Q.cols() == rows));
     assert (R != null && R != Q && R.rows() == rows && R.cols() == cols);
 
     final int t = Math.min(rows-1, cols);
-    assert (t <= tmpV.length());
+    if (tmpV.cols() > tmpV.rows()) { tmpV = tmpV.T(); }
+    assert (t <= tmpV.rows());
 
     copy(R); // this -> R
     for (int k = 0; k < t; ++k) {
@@ -1983,7 +1415,7 @@ public abstract class Matrix implements VecMat {
           }
         }
       }
-      tmpV.set(k, -norm);
+      tmpV.set(k, 0, -norm);
     }
 
     if (Q != null) { // compute Q only if requested
@@ -2005,7 +1437,7 @@ public abstract class Matrix implements VecMat {
     }
 
     for (int k = 0; k < t; ++k) {
-      R.set(k, k, tmpV.get(k));
+      R.set(k, k, tmpV.get(k,0));
 
       // ensure R is upper triangular
       for (int i = k+1; i < rows; ++i) { R.set(i, k, 0.0); }
@@ -2042,7 +1474,7 @@ public abstract class Matrix implements VecMat {
     final int rows = rows(), cols = cols();
     Matrix Q = create(rows, rows);
     Matrix R = zeros(rows, cols);
-    QR(Q, R, Vector.create(Math.min(rows-1, cols)));
+    QR(Q, R, Matrix.create(Math.min(rows-1, cols), 1));
     return new Matrix[]{Q, R};
   }
 

@@ -3,43 +3,38 @@ Refactoring:
 See TODO comments in the files...
 Workflow warning in README.
 
-{Vector,Matrix}.horzcat/vertcat
-bsxfun (Binary Singleton Expansion Function)
-(PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}
-
 Proper exception handling.
+ant doc directory does not exist failure fix
+
+Integrate VecMat into Matrix.
 
 -------------------------------------------------------------------------------
 Functionality:
+
+horzcat, vertcat, dot
+
+bsxfun (Binary Singleton Expansion Function)
+(PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}
 
 matrix outer product
 singular value decomposition
 back substitution
 least squares solution
+spectral norm computation
 
 sparse vectors/matrices
 
 -------------------------------------------------------------------------------
 Performance:
 
-vector performance improvements
-  constant vector
-  standard unit vector
-
-matrix performance improvements
-  diagonal matrices, identity matrix
-  lower/upper triangular matrices
+diagonal matrices, identity matrix
+lower/upper triangular matrices
 
 -------------------------------------------------------------------------------
 Ideas:
 
 Column major order for Matrix representation?
 create(double[][]) looks row major though
-createRowVector, createColumnVector
-
-Eliminating the Vector class?
-Matrix <- Vector <- ColumnVector/RowVector
-normW(Matrix)
 
 Instead of array, store the representation (DenseMatrix, TDenseMatrix)
 inside the Matrix class and implement in-place transpose, etc...
