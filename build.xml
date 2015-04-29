@@ -1,4 +1,4 @@
-<project name="jvecmat" default="compile" basedir=".">
+<project name="jmatrix" default="compile" basedir=".">
   <property name="src" location="src"/>
   <property name="bin" location="bin"/>
   <property name="doc" location="doc"/>
@@ -29,12 +29,12 @@
 
   <!-- compilation targets -->
 
-  <target name="compile" description="Compile the jvecmat package.">
-    <javac srcdir="${src}/jvecmat" destdir="${bin}"/>
+  <target name="compile" description="Compile the jmatrix package.">
+    <javac srcdir="${src}/jmatrix" destdir="${bin}"/>
   </target>
 
   <target name="jar" description="Make a jar file." depends="compile">
-    <jar destfile="jvecmat.jar" basedir="${bin}">
+    <jar destfile="jmatrix.jar" basedir="${bin}">
       <exclude name=".keep"/>
       <exclude name="**/test/**"/>
       <manifest>
@@ -49,7 +49,7 @@
           description="Compile the test cases."
           depends="compile">
     <mkdir dir="${bin}/test"/>
-    <javac srcdir="${test}/jvecmat" destdir="${bin}/test">
+    <javac srcdir="${test}/jmatrix" destdir="${bin}/test">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
@@ -58,26 +58,11 @@
     </javac>
   </target>
 
-  <target name="test-vector"
-          description="Run vector tests."
-          depends="test-compile">
-    <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="jvecmat.VectorTests"/>
-      <classpath>
-        <pathelement path="${classpath}"/>
-        <pathelement location="${bin}"/>
-        <pathelement location="${bin}/test"/>
-        <pathelement location="${junit}"/>
-        <pathelement location="${hamcrest}"/>
-      </classpath>
-    </java>
-  </target>
-
   <target name="test-matrix"
           description="Run matrix tests."
           depends="test-compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="jvecmat.MatrixTests"/>
+      <arg value="jmatrix.MatrixTests"/>
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
@@ -92,7 +77,7 @@
           description="Run permutation tests."
           depends="test-compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="jvecmat.PermutationTests"/>
+      <arg value="jmatrix.PermutationTests"/>
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
@@ -105,7 +90,7 @@
 
   <target name="test-all"
           description="Run all tests."
-          depends="test-vector,test-matrix,test-permutation">
+          depends="test-matrix,test-permutation">
   </target>
 
   <!-- other targets -->
@@ -115,13 +100,13 @@
   </target>
 
   <target name="clean" description="Delete class files.">
-    <delete dir="${bin}/jvecmat"/>
+    <delete dir="${bin}/jmatrix"/>
     <delete dir="${bin}/test"/>
     <delete includeemptydirs="true">
       <fileset dir="${doc}" includes="*.html"/>
       <fileset dir="${doc}" includes="*.css"/>
       <fileset dir="${doc}" includes="package-list"/>
-      <fileset dir="${doc}/jvecmat"/>
+      <fileset dir="${doc}/jmatrix"/>
       <fileset dir="${doc}/resources"/>
     </delete>
   </target>

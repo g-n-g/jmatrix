@@ -1,5 +1,5 @@
 
-A small vector/matrix library which allows user caching of the
+A small matrix library which allows user caching of the
 results and the intermediate computations to avoid garbage collection.
 
 This is a work in progress, expect API changes...

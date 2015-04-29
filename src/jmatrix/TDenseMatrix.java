@@ -1,4 +1,4 @@
-package jvecmat;
+package jmatrix;
 
 final class TDenseMatrix extends Matrix {
 

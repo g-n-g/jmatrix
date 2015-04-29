@@ -1,4 +1,4 @@
-package jvecmat;
+package jmatrix;
 
 import java.util.Random;
 
@@ -932,9 +932,9 @@ public abstract class Matrix implements VecMat {
   }
 
   /**
-   * Permutes the columns of the matrix, i.e. multiplying the matrix from
-   * the right with a permutation matrix represented by <code>p</code>
-   * (in <code>result</code>).
+   * Permutes a vector or the columns of a matrix,
+   * i.e. multiplying the matrix from the right with a permutation matrix
+   * represented by <code>p</code> (in <code>result</code>).
    *
    * The length of permutation <code>p</code> has to be equal to the column
    * number of <code>this</code> matrix.
@@ -949,14 +949,19 @@ public abstract class Matrix implements VecMat {
    * @see Permutation#mul(Matrix, Matrix)
    */
   public Matrix mul(Permutation p, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (p != null && p.length() == cols);
     assert (result != null && result != this &&
-            result.rows() == rows && result.cols() == cols);
+            result.rows() == rows() && result.cols() == cols());
+    Matrix m = this, r = result;
+    if (m.rows() > 1 && m.cols() == 1) {
+      m = m.T();
+      r = r.T();
+    }
+    final int rows = m.rows(), cols = m.cols();
+    assert (p != null && p.length() == cols);
     for (int j = 0; j < cols; ++j) {
       int col = p.get(j);
       for (int i = 0; i < rows; ++i) {
-        result.set(i, j, get(i, col));
+        r.set(i, j, m.get(i, col));
       }
     }
     return result;

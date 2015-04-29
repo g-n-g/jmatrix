@@ -1,7 +1,7 @@
-package jvecmat;
+package jmatrix;
 
 import java.util.Random;
-import static jvecmat.Matrix.NR;
+import static jmatrix.Matrix.NR;
 
 /**
  * Tests for the Matrix class.

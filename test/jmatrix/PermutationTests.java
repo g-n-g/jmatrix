@@ -1,4 +1,4 @@
-package jvecmat;
+package jmatrix;
 
 import java.util.Random;
 
@@ -22,19 +22,20 @@ public class PermutationTests extends AssertionBaseTest {
   }
 
   public void testVectorPerms() {
-    Vector v1 = Vector.create(new double[]{1.0, 2.0, 3.0});
-    Vector v2 = Vector.create(new double[]{3.0, 1.0, 2.0});
+    Matrix v1 = Matrix.create(1.0, 2.0, 3.0);
+    Matrix v2 = Matrix.create(3.0, 1.0, 2.0);
 
+    // test this form of create
     Permutation p = Permutation.create(new int[]{2, 0, 1});
     assertEquals(0.0, v1.mul(p).sub(v2).norm1());
     assertEquals(0.0, p.mul(v1).sub(v2).norm1());
   }
 
   public void testPermInv() {
-    Vector v1 = Vector.create(new double[]{1.0, 2.0, 3.0, 4.0});
-    Vector v2 = Vector.create(new double[]{3.0, 1.0, 4.0, 2.0});
+    Matrix v1 = Matrix.create(1.0, 2.0, 3.0, 4.0);
+    Matrix v2 = Matrix.create(3.0, 1.0, 4.0, 2.0);
 
-    Permutation p = Permutation.create(new int[]{2, 0, 3, 1});
+    Permutation p = Permutation.create(2, 0, 3, 1);
     assertEquals(0.0, v1.mul(p).sub(v2).norm1());
     assertEquals(0.0, p.mul(v1).sub(v2).norm1());
 
@@ -78,8 +79,8 @@ public class PermutationTests extends AssertionBaseTest {
   }
 
   public void testPermSwaps() {
-    Vector v1 = Vector.create(new double[]{1.0, 2.0, 3.0});
-    Vector v2 = Vector.create(new double[]{3.0, 1.0, 2.0});
+    Matrix v1 = Matrix.create(1.0, 2.0, 3.0);
+    Matrix v2 = Matrix.create(3.0, 1.0, 2.0);
 
     Permutation p = Permutation.eye(3).swap(1, 2);
     p.swap(0, 1); // modifies p

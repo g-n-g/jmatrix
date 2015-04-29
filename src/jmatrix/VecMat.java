@@ -1,4 +1,4 @@
-package jvecmat;
+package jmatrix;
 
 import java.util.Random;
 

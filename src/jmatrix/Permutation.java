@@ -1,4 +1,4 @@
-package jvecmat;
+package jmatrix;
 
 import java.util.Random;
 import java.lang.IllegalArgumentException;
@@ -18,7 +18,7 @@ public class Permutation {
    * @throws IllegalArgumentException if <code>data</code> does not hold
    *         a permutation of <code>[0..data.length-1]</code>
    */
-  public static Permutation create(int[] data) {
+  public static Permutation create(int... data) {
     assert (data != null);
     final int n = data.length;
     int s = 0;
@@ -160,7 +160,7 @@ public class Permutation {
    * @return <code>this</code> permutation set to identity
    */
   public Permutation setToEye() {
-    for (int i = 0; i < length(); ++i) { data[i] = i; }
+    for (int i = length()-1; i >= 0; --i) { data[i] = i; }
     return this;
   }
 
@@ -182,47 +182,9 @@ public class Permutation {
   //----------------------------------------------------------------------------
 
   /**
-   * Permutes the elements of vector <code>v</code>, i.e. multiplying the vector
-   * (left or right) with <code>this</code> permutation matrix
-   * (in <code>result</code>).
-   *
-   * The length of <code>this</code> permutation has to be equal to the length
-   * of vector <code>v</code>.
-   * Furthermore, <code>result</code> has to have the same length
-   * as vector <code>v</code>.
-   *
-   * @param v vector to permute (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>
-   *                                      and not equal to <code>this</code>)
-   * @return <code>result</code>
-   *         having vector <code>v</code> permuted by <code>this</code>
-   * @see Vector#mul(Permutation, Vector)
-   */
-  public Vector mul(Vector v, Vector result) {
-    return v.mul(this, result);
-  }
-
-  /**
-   * Permutes the elements of vector <code>v</code>, i.e. multiplying the vector
-   * (left or right) with <code>this</code> permutation matrix
-   * (in a new vector).
-   *
-   * The length of <code>this</code> permutation has to be equal to the length
-   * of vector <code>v</code>.
-   *
-   * @param v vector to permute (not <code>null</code>)
-   * @return new vector being equal to
-   *         vector <code>v</code> permuted by <code>this</code>
-   * @see Vector#mul(Permutation)
-   */
-  public Vector mul(Vector v) {
-    return v.mul(this);
-  }
-
-  /**
-   * Permutes the rows of matrix <code>m</code>, i.e. multiplying the matrix
-   * from the left with a permutation matrix represented by <code>this</code>
-   * (in <code>result</code>).
+   * Permutes a vector or the rows of a matrix <code>m</code>,
+   * i.e. multiplying the matrix from the left with a permutation matrix
+   * represented by <code>this</code> (in <code>result</code>).
    *
    * The length of <code>this</code> permutation has to be equal to the row
    * number of matrix <code>m</code>.
@@ -237,13 +199,19 @@ public class Permutation {
    * @see Matrix#mul(Permutation, Matrix)
    */
   public Matrix mul(Matrix m, Matrix result) {
-    assert (m != null && length() == m.rows());
-    assert (result != null && result != m &&
-            result.rows() == m.rows() && result.cols() == m.cols());
-    for (int i = 0; i < length(); ++i) {
+    assert (m != null && result != null && m != result);
+    Matrix r = result;
+    if (m.rows() == 1 && m.cols() > 1) {
+      m = m.T();
+      r = result.T();
+    }
+    final int rows = m.rows(), cols = m.cols();
+    assert (length() == rows);
+    assert (r.rows() == rows && r.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
       int row = get(i);
-      for (int j = 0; j < m.cols(); ++j) {
-        result.set(i, j, m.get(row,j));
+      for (int j = 0; j < cols; ++j) {
+        r.set(i, j, m.get(row,j));
       }
     }
     return result;
@@ -282,7 +250,7 @@ public class Permutation {
    */
   public Permutation inv(Permutation result) {
     assert (result != null && result.length() == length());
-    for (int i = 0; i < length(); ++i) { result.data[get(i)] = i; }
+    for (int i = length()-1; i >= 0; --i) { result.data[get(i)] = i; }
     return result;
   }
 
@@ -322,7 +290,7 @@ public class Permutation {
   public Matrix toMatrix(Matrix result) {
     assert(result != null && result.rows() == length() && result.cols() == length());
     result.setToZeros();
-    for (int i = 0; i < length(); ++i) { result.set(i, get(i), 1.0); }
+    for (int i = length()-1; i >= 0; --i) { result.set(i, get(i), 1.0); }
     return result;
   }
 

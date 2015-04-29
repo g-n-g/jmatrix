@@ -4,4 +4,4 @@
  * and allows caching the (final/intermediate) results to reduce the overhead
  * of garbage collection.
  */
-package jvecmat;
+package jmatrix;
