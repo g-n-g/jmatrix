@@ -64,28 +64,6 @@ public class Permutation {
   //----------------------------------------------------------------------------
 
   /**
-   * Creates a permutation object which encapsulates <code>data</code>.
-   *
-   * @param data permutation data
-   */
-  private Permutation(int[] data) {
-    this.data = data;
-  }
-
-  /**
-   * Returns the array representation of the permutation.
-   * The data is not copied, so any changes to the returned array
-   * will change (and might violate) the permutation.
-   *
-   * @return array representation of the permutation
-   */
-  public final int[] array() {
-    return data;
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
    * Returns a copy of the permutation placed into <code>result</code>.
    * If <code>result</code> is <code>null</code>, a new object is created.
    * The operation is skipped if <code>result</code> is equal to <code>this</code>.
@@ -305,6 +283,26 @@ public class Permutation {
   }
 
   //----------------------------------------------------------------------------
+
+  /**
+   * Creates a permutation object which encapsulates <code>data</code>.
+   *
+   * @param data permutation data
+   */
+  Permutation(int[] data) {
+    this.data = data;
+  }
+
+  /**
+   * Returns the array representation of the permutation.
+   * The data is not copied, so any changes to the returned array
+   * will change (and might violate) the permutation.
+   *
+   * @return array representation of the permutation
+   */
+  final int[] array() {
+    return data;
+  }
 
   private final int[] data;
 }

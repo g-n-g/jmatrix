@@ -106,8 +106,8 @@
       <fileset dir="${doc}" includes="*.html"/>
       <fileset dir="${doc}" includes="*.css"/>
       <fileset dir="${doc}" includes="package-list"/>
-      <fileset dir="${doc}/jmatrix"/>
-      <fileset dir="${doc}/resources"/>
+      <fileset dir="${doc}/jmatrix" erroronmissingdir="false"/>
+      <fileset dir="${doc}/resources" erroronmissingdir="false"/>
     </delete>
   </target>
 </project>

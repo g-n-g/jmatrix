@@ -1697,7 +1697,7 @@ public abstract class Matrix {
     final int n = Math.min(rows, cols);
     Matrix L = create(rows, n);
     Matrix U = create(n, cols);
-    Permutation P = Permutation.eye(rows); // TODO: LU will set to eye...
+    Permutation P = new Permutation(new int[rows]);
     LU(L, U, P);
     return new Matrix[]{L, U, P.toMatrix()};
   }
@@ -1872,7 +1872,7 @@ public abstract class Matrix {
   public Matrix inv() {
     return inv(create(rows(), cols()),
                create(rows(), cols()),
-               Permutation.eye(rows()));
+               new Permutation(new int[rows()]));
   }
 
   /**

@@ -1,22 +1,16 @@
 Refactoring:
 
-See TODO comments in the files...
 Workflow warning in README.
-
 Proper exception handling.
-ant doc directory does not exist failure fix
-
-Integrate VecMat into Matrix.
 
 -------------------------------------------------------------------------------
 Functionality:
 
-horzcat, vertcat, dot
+horzcat, vertcat, dot product
 
 bsxfun (Binary Singleton Expansion Function)
 (PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}
 
-matrix outer product
 singular value decomposition
 back substitution
 least squares solution
@@ -26,6 +20,9 @@ sparse vectors/matrices
 
 -------------------------------------------------------------------------------
 Performance:
+
+Benchmarking:
+  - matrix multiplication
 
 diagonal matrices, identity matrix
 lower/upper triangular matrices
