@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Abstract matrix representation.
  */
-public abstract class Matrix implements VecMat {
+public abstract class Matrix {
 
   /**
    * New row constant for the {@link Matrix#create(double...)} constructor.
@@ -186,7 +186,11 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
-  @Override
+  /**
+   * Returns <code>true</code> if the matrix has a NaN element.
+   *
+   * @return <code>true</code> if there is a NaN element
+   */
   public boolean hasNaN() {
     final int rows = rows(), cols = cols();
     for (int i = 0; i < rows; ++i) {
@@ -197,7 +201,11 @@ public abstract class Matrix implements VecMat {
     return false;
   }
 
-  @Override
+  /**
+   * Returns <code>true</code> if the matrix has an infinite element.
+   *
+   * @return <code>true</code> if there is an infinite element
+   */
   public boolean hasInf() {
     final int rows = rows(), cols = cols();
     for (int i = 0; i < rows; ++i) {
@@ -208,7 +216,13 @@ public abstract class Matrix implements VecMat {
     return false;
   }
 
-  @Override
+  /**
+   * Replaces the NaN and infinite elements by the specified values.
+   *
+   * @param nan replacement value for NaN elements
+   * @param negInf replacement value for negative infinity elements
+   * @param posInf replacement value for positive infinity elements
+   */
   public void replaceNaNandInf(double nan, double negInf, double posInf) {
     final int rows = rows(), cols = cols();
     for (int i = 0; i < rows; ++i) {
@@ -243,7 +257,11 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  @Override
+  /**
+   * Returns a new copy.
+   *
+   * @return a copy of the matrix
+   */
   public Matrix copy() {
     return copy(create(rows(), cols()));
   }
@@ -286,7 +304,12 @@ public abstract class Matrix implements VecMat {
 
   //----------------------------------------------------------------------------
 
-  @Override
+  /**
+   * Sets all elements to <code>c</code>.
+   *
+   * @param c the new value for all elements
+   * @return <code>this</code> matrix
+   */
   public Matrix setToScalars(double c) {
     final int rows = rows(), cols = cols();
     for (int i = 0; i < rows; ++i) {
@@ -297,12 +320,20 @@ public abstract class Matrix implements VecMat {
     return this;
   }
 
-  @Override
+  /**
+   * Sets all elements to zero.
+   *
+   * @return <code>this</code> matrix
+   */
   public Matrix setToZeros() {
     return setToScalars(0.0);
   }
 
-  @Override
+  /**
+   * Sets all elements to one.
+   *
+   * @return <code>this</code> matrix
+   */
   public Matrix setToOnes() {
     return setToScalars(1.0);
   }
@@ -323,8 +354,15 @@ public abstract class Matrix implements VecMat {
     return this;
   }
 
-  @Override
+  /**
+   * Sets all elements randomly
+   * drawing the new values from the uniform distribution on [0,1].
+   *
+   * @param rng random number generator (not <code>null</code>)
+   * @return <code>this</code> matrix
+   */
   public Matrix setToRand(Random rng) {
+    assert (rng != null);
     final int rows = rows(), cols = cols();
     for (int i = 0; i < rows; ++i) {
       for (int j = 0; j < cols; ++j) {
@@ -334,8 +372,15 @@ public abstract class Matrix implements VecMat {
     return this;
   }
 
-  @Override
+  /**
+   * Sets all elements randomly
+   * drawing the new values from the standard normal distribution.
+   *
+   * @param rng random number generator (not <code>null</code>)
+   * @return <code>this</code> matrix
+   */
   public Matrix setToRandN(Random rng) {
+    assert (rng != null);
     final int rows = rows(), cols = cols();
     for (int i = 0; i < rows; ++i) {
       for (int j = 0; j < cols; ++j) {
@@ -593,7 +638,11 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  @Override
+  /**
+   * Entrywise absolute value (in new matrix).
+   *
+   * @return entrywise absolute value
+   */
   public Matrix abs() {
     return abs(create(rows(), cols()));
   }
@@ -644,12 +693,21 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  @Override
+  /**
+   * Entrywise sign operation with zero replacement (in new matrix).
+   *
+   * @param zeroReplacement value replacing 0.0 values
+   * @return entrywise sign value
+   */
   public Matrix sign(double zeroReplacement) {
     return sign(zeroReplacement, create(rows(), cols()));
   }
 
-  @Override
+  /**
+   * Entrywise sign operation (in new matrix).
+   *
+   * @return entrywise sign values
+   */
   public Matrix sign() {
     return sign(create(rows(), cols()));
   }
@@ -677,7 +735,11 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  @Override
+  /**
+   * Entrywise negation (in new matrix).
+   *
+   * @return object with the negated elements
+   */
   public Matrix neg() {
     return neg(create(rows(), cols()));
   }
@@ -748,7 +810,13 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  @Override
+  /**
+   * Constant addition (in new matrix). Adds constant <code>c</code> to all
+   * elements of <code>this</code> matrix.
+   *
+   * @param c constant to add
+   * @return new matrix with values of <code>this</code> shifted by <code>c</code>
+   */
   public Matrix add(double c) {
     return add(c, create(rows(), cols()));
   }
@@ -815,7 +883,13 @@ public abstract class Matrix implements VecMat {
     return add(-c, result);
   }
 
-  @Override
+  /**
+   * Constant subtraction (in new matrix). Subtracts constant <code>c</code>
+   * from all elements of <code>this</code> matrix.
+   *
+   * @param c constant to subtract
+   * @return new matrix with values of <code>this</code> shifted by <code>-c</code>
+   */
   public Matrix sub(double c) {
     return sub(c, create(rows(), cols()));
   }
@@ -839,7 +913,13 @@ public abstract class Matrix implements VecMat {
     return mul(1.0 / c, result);
   }
 
-  @Override
+  /**
+   * Constant division (in new matrix). Divides all elements of
+   * <code>this</code> by constant <code>c</code>.
+   *
+   * @param c constant to divide with
+   * @return new matrix with values of <code>this</code> divided by <code>c</code>
+   */
   public Matrix div(double c) {
     return div(c, create(rows(), cols()));
   }
@@ -870,7 +950,13 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  @Override
+  /**
+   * Constant multipication (in new matrix). Multiplies all elements of
+   * <code>this</code> by constant <code>c</code>.
+   *
+   * @param c constant to divide with
+   * @return new matrix with values of <code>this</code> multiplied by <code>c</code>
+   */
   public Matrix mul(double c) {
     return mul(c, create(rows(), cols()));
   }
@@ -1006,8 +1092,12 @@ public abstract class Matrix implements VecMat {
     }
     return result;
   }
-
-  @Override
+ 
+  /**
+   * Takes the reciproc of all elements (in new matrix).
+   *
+   * @return elementwise reciproc in a new matrix
+   */
   public Matrix reciproc() {
     return reciproc(create(rows(), cols()));
   }
@@ -1038,7 +1128,14 @@ public abstract class Matrix implements VecMat {
     return result;
   }
 
-  @Override
+  /**
+   * Entrywise (signed) remainder with respect to modulus <code>m</code>
+   * (in new matrix).
+   *
+   * @param m modulus
+   * @return new matrix with the remainders of the values of
+   *         <code>this</code> with respect to modulus <code>m</code>
+   */
   public Matrix mod(double m) {
     return mod(m, create(rows(), cols()));
   }
@@ -1640,8 +1737,6 @@ public abstract class Matrix implements VecMat {
    * Returns the determinant of a square matrix. An LU decomposition is performed
    * for size larger than <code>3x3</code>.
    *
-   * @param result storage of the result
-   *        (not <code>null</code> and not equal to <code>this</code>)
    * @return determinant
    */
   public double det() {
