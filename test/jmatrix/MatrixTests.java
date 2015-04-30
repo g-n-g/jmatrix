@@ -304,6 +304,33 @@ public class MatrixTests extends AssertionBaseTest {
     m1.setToScalars(3.0);
   }
 
+  public void testEntrywisePower() {
+    Matrix m1 = Matrix.create(1, 2, 3, NR,
+                              4, 5, 6);
+    Matrix m2 = Matrix.create(1, 4, 9, NR,
+                              16, 25, 36);
+    assertTrue(PREC > m2.sub(m1.epow(2)).norm1());
+
+    Matrix mr = Matrix.randN(4, 5, RNG);
+    assertTrue(PREC > mr.emul(mr).sub(mr.epow(2)).norm1());
+    assertTrue(PREC > mr.emul(mr).emul(mr).sub(mr.epow(3)).norm1());
+  }
+
+  public void testDotProduct() {
+    Matrix v1 = Matrix.create(1, 2, 0, 3);
+    Matrix v2 = Matrix.create(5, 2, 9, -1);
+
+    assertEquals(6.0, v1.dot(v2));
+    assertEquals(6.0, v1.T().dot(v2));
+    assertEquals(6.0, v1.dot(v2.T()));
+    assertEquals(6.0, v1.T().dot(v2.T()));
+
+    assertEquals(6.0, v2.dot(v1));
+    assertEquals(6.0, v2.T().dot(v1));
+    assertEquals(6.0, v2.dot(v1.T()));
+    assertEquals(6.0, v2.T().dot(v1.T()));
+  }
+
   public void testTrace() {
     Matrix m = Matrix.create(1.0, 1.5, -0.5, NR,
                              2.0, 4.0, -4.0, NR,

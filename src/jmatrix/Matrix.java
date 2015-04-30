@@ -1115,6 +1115,42 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
 
   /**
+   * Entrywise power operation by exponent <code>p</code> (in <code>result</code>).
+   *
+   * Matrix <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
+   * @param p exponent of the power operation
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> having the elements of <code>this</code>
+   *         raised to the power of <code>p</code>
+   */
+  public Matrix epow(double p, Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        result.set(i, j, Math.pow(get(i,j), p));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Entrywise power operation by exponent <code>p</code> (in new matrix).
+   *
+   * @param p exponent of the power operation
+   * @return <code>this</code> matrix having the elements of <code>this</code>
+   *         raised to the power of <code>p</code>
+   */
+  public Matrix epow(double p) {
+    return epow(p, create(rows(), cols()));
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
    * Takes the reciproc of all elements (in <code>result</code>).
    *
    * Matrix <code>result</code> has to have the same size as <code>this</code>.
@@ -1234,6 +1270,25 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+
+  /**
+   * Returns the dot product of vectors <code>this</code> and <code>v</code>.
+   * The orientations of the vectors are ignored, only their lengths have to match.
+   *
+   * @param v vector to take the dot product with (not <code>null</code>)
+   * @return the dot product of vectors <code>this</code> and <code>v</code>
+   */
+  public double dot(Matrix v) {
+    assert (v != null);
+    final Matrix v1 = (rows() != 1) ? T() : this;
+    final Matrix v2 = (v.rows() != 1) ? v.T() : v;
+    assert (v1.rows() == 1);
+    final int length = v1.cols();
+    assert (v2.rows() == 1 && v2.cols() == length);
+    double s = 0.0;
+    for (int j = 0; j < length; ++j) { s += v1.get(0,j) * v2.get(0,j); }
+    return s;
+  }
 
   /**
    * Returns the trace (sum of diagonal elements).
