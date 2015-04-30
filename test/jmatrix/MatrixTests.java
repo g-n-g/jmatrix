@@ -326,10 +326,10 @@ public class MatrixTests extends AssertionBaseTest {
                              11, 18, 25,  2,  9, 1);
 
     Matrix vRow = Matrix.create(65, 65, 83, 65, 65, 5);
-    assertTrue(PREC > m.rowSum().sub(vRow).norm1());
+    assertTrue(PREC > m.sumRows().sub(vRow).norm1());
 
     Matrix vCol = Matrix.create(66, 66, 84, 66, 66).T();
-    assertTrue(PREC > m.colSum().sub(vCol).norm1());
+    assertTrue(PREC > m.sumCols().sub(vCol).norm1());
   }
 
   public void testCholeskyDecomposition() {

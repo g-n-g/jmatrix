@@ -6,7 +6,8 @@ Proper exception handling.
 -------------------------------------------------------------------------------
 Functionality:
 
-horzcat, vertcat, dot product
+vector norms
+horzcat, vertcat, dot product, pow
 
 bsxfun (Binary Singleton Expansion Function)
 (PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}

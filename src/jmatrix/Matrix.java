@@ -897,36 +897,6 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
 
   /**
-   * Matrix-constant division (in <code>result</code>). Divides all elements of
-   * <code>this</code> matrix by constant <code>c</code>.
-   *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param c constant to divide with
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the values of
-   *         <code>this</code> divided by <code>c</code>
-   */
-  public Matrix div(double c, Matrix result) {
-    return mul(1.0 / c, result);
-  }
-
-  /**
-   * Constant division (in new matrix). Divides all elements of
-   * <code>this</code> by constant <code>c</code>.
-   *
-   * @param c constant to divide with
-   * @return new matrix with values of <code>this</code> divided by <code>c</code>
-   */
-  public Matrix div(double c) {
-    return div(c, create(rows(), cols()));
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
    * Matrix-constant multiplication (in <code>result</code>). Multiplies all
    * elements of <code>this</code> matrix by constant <code>c</code>.
    *
@@ -1073,6 +1043,78 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
 
   /**
+   * Matrix-constant division (in <code>result</code>). Divides all elements of
+   * <code>this</code> matrix by constant <code>c</code>.
+   *
+   * Matrix <code>result</code> has to have the same size as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
+   * @param c constant to divide with
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> having the values of
+   *         <code>this</code> divided by <code>c</code>
+   */
+  public Matrix div(double c, Matrix result) {
+    return mul(1.0 / c, result);
+  }
+
+  /**
+   * Constant division (in new matrix). Divides all elements of
+   * <code>this</code> by constant <code>c</code>.
+   *
+   * @param c constant to divide with
+   * @return new matrix with values of <code>this</code> divided by <code>c</code>
+   */
+  public Matrix div(double c) {
+    return div(c, create(rows(), cols()));
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
+   * (in <code>result</code>).
+   *
+   * Matrices <code>v</code> and <code>result</code> have to have the same size
+   * as <code>this</code>.
+   * The <code>result</code> parameter can be also set to <code>this</code>
+   * providing in-place operation.
+   *
+   * @param m matrix to multiply with entrywise (not <code>null</code>)
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> having the elements of <code>this</code>
+   *         and <code>m</code> multiplied entrywise
+   */
+  public Matrix emul(Matrix m, Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (m != null && rows == m.rows() && cols == m.cols());
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        result.set(i, j, get(i,j) * m.get(i,j));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
+   * (in new matrix).
+   *
+   * Matrix <code>result</code> has to have the same size as <code>this</code>.
+   *
+   * @param m matrix to multiply with entrywise (not <code>null</code>)
+   * @return new matrix having the elements of <code>this</code>
+   *         and <code>m</code> multiplied entrywise
+   */
+  public Matrix emul(Matrix m) {
+    return emul(m, create(rows(), cols()));
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
    * Takes the reciproc of all elements (in <code>result</code>).
    *
    * Matrix <code>result</code> has to have the same size as <code>this</code>.
@@ -1138,48 +1180,6 @@ public abstract class Matrix {
    */
   public Matrix mod(double m) {
     return mod(m, create(rows(), cols()));
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
-   * (in <code>result</code>).
-   *
-   * Matrices <code>v</code> and <code>result</code> have to have the same size
-   * as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param m matrix to multiply with entrywise (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the elements of <code>this</code>
-   *         and <code>m</code> multiplied entrywise
-   */
-  public Matrix emul(Matrix m, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (m != null && rows == m.rows() && cols == m.cols());
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, get(i,j) * m.get(i,j));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
-   * (in new matrix).
-   *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   *
-   * @param m matrix to multiply with entrywise (not <code>null</code>)
-   * @return new matrix having the elements of <code>this</code>
-   *         and <code>m</code> multiplied entrywise
-   */
-  public Matrix emul(Matrix m) {
-    return emul(m, create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------
@@ -1291,10 +1291,9 @@ public abstract class Matrix {
    * @param result storage of the result (not <code>null</code>)
    * @return sum of rows
    */
-  public Matrix rowSum(Matrix result) {
+  public Matrix sumRows(Matrix result) {
     final int rows = rows(), cols = cols();
     assert (result != null && result.rows() == 1 && result.cols() == cols);
-    result.setToZeros();
     for (int j = 0; j < cols; ++j) {
       double s = 0.0;
       for (int i = 0; i < rows; ++i) { s += get(i,j); }
@@ -1308,8 +1307,8 @@ public abstract class Matrix {
    *
    * @return sum of rows
    */
-  public Matrix rowSum() {
-    return rowSum(create(1, cols()));
+  public Matrix sumRows() {
+    return sumRows(create(1, cols()));
   }
 
   /**
@@ -1321,16 +1320,8 @@ public abstract class Matrix {
    * @param result storage of the result (not <code>null</code>)
    * @return sum of columns
    */
-  public Matrix colSum(Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == 1);
-    result.setToZeros();
-    for (int i = 0; i < rows; ++i) {
-      double s = 0.0;
-      for (int j = 0; j < cols; ++j) { s += get(i,j); }
-      result.set(i, 0, s);
-    }
-    return result;
+  public Matrix sumCols(Matrix result) {
+    return T().sumRows(result.T()).T();
   }
 
   /**
@@ -1338,8 +1329,8 @@ public abstract class Matrix {
    *
    * @return sum of columns
    */
-  public Matrix colSum() {
-    return colSum(create(rows(), 1));
+  public Matrix sumCols() {
+    return sumCols(create(rows(), 1));
   }
 
   //----------------------------------------------------------------------------
@@ -1934,11 +1925,12 @@ public abstract class Matrix {
   /**
    * Returns the matrix transpose (lazy operation).
    *
-   * Data is not moved, but shared between <code>this</code> and the returned
-   * matrix object. Only the access to the data is changed by the redefinition
-   * of the get/set methods. Use <code>copy().T()</code> to avoid data sharing.
+   * Each matrix has two interfaces, a normal and a transposed one.
+   * This function switches between them, so any changes to the data of the
+   * returned object changes the original matrix. To avoid such data sharing,
+   * use <code>copy().T()</code> instead.
    *
-   * @return transpose of the matrix (new object with shared data)
+   * @return transpose of the matrix (new interface with shared data)
    */
   abstract public Matrix T();
 
