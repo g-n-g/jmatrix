@@ -32,6 +32,9 @@ public abstract class Matrix {
    */
   public static Matrix create(int rows, int cols) {
     assert(rows >= 0 && cols >= 0);
+    if (cols > 0 && (rows == 0 || rows > cols)) {
+      return create(new double[cols][rows]).T();
+    }
     return create(new double[rows][cols]);
   }
 
@@ -267,6 +270,15 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+
+  /**
+   * Returns <code>true</code> if the matrix is empty (having no rows or columns).
+   *
+   * @return <code>true</code> if the matrix is empty
+   */
+  public boolean isEmpty() {
+    return (rows() == 0) || (cols() == 0);
+  }
 
   /**
    * Returns the number of rows of the matrix.

@@ -6,18 +6,16 @@ Proper exception handling.
 -------------------------------------------------------------------------------
 Functionality:
 
-isEmpty
-vector norms (and spectral norm?)
-horzcat, vertcat
+vector norms
+horzcat, vertcat, blkdiag
+back substitution
 
 bsxfun (Binary Singleton Expansion Function)
 (PLUS, MINUS, TIMES, DIVIDE, MOD, MIN, MAX}
 
-singular value decomposition
-back substitution
-least squares solution
 spectral norm computation
 
+singular value decomposition
 sparse vectors/matrices
 
 -------------------------------------------------------------------------------

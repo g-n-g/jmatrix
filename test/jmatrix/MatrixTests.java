@@ -17,6 +17,28 @@ public class MatrixTests extends AssertionBaseTest {
 
   //---------------------------------------------------------------------------
 
+  public void testIsEmpty() {
+    Matrix e = Matrix.create(0,0);
+    assertTrue(e.isEmpty());
+    assertTrue(e.rows() == 0);
+    assertTrue(e.cols() == 0);
+
+    e = Matrix.create(0,1);
+    assertTrue(e.isEmpty());
+    assertTrue(e.rows() == 0);
+    assertTrue(e.cols() == 1);
+
+    e = Matrix.create(1,0);
+    assertTrue(e.isEmpty());
+    assertTrue(e.rows() == 1);
+    assertTrue(e.cols() == 0);
+
+    e = Matrix.create(1,1);
+    assertFalse(e.isEmpty());
+    assertTrue(e.rows() == 1);
+    assertTrue(e.cols() == 1);
+  }
+
   public void testNorms() {
     Matrix m = Matrix.create(1.0, 1.5, -0.5, 1.5, NR,
                              2.0, 4.0, -4.0, 0.0, NR,
