@@ -367,6 +367,38 @@ public class MatrixTests extends AssertionBaseTest {
     assertEquals(m3x2.mul(m2x3).trace(), m3x2.traceMul(m2x3), PREC);
   }
 
+  public void testRowColNorms() {
+    Matrix m = Matrix.create(17, 24, -1,  8, 15, 1, NR,
+                             23, -5, -7, 14, 16, 1, NR,
+                             -4,  6, 31, 20, 22, 1, NR,
+                             10, 12, 19, 21,  3, 1, NR,
+                             11, 18, 25, -2,  9, 1);
+
+    Matrix n1 = Matrix.create(66, 66, 84, 66, 66).T();
+    assertTrue(PREC > m.rowNorms1().sub(n1).normI());
+    n1 = Matrix.create(65, 65, 83, 65, 65, 5);
+    assertTrue(PREC > m.colNorms1().sub(n1).normI());
+
+    Matrix n2 = Matrix.create(34.0,
+                              32.4961536185438,
+                              43.5660418215839,
+                              32.4961536185438,
+                              34.0).T();
+    assertTrue(PREC > m.rowNorms2().sub(n2).normI());
+    n2 = Matrix.create(32.48076353782343,
+                       33.24154027718932,
+                       44.68780594300866,
+                       33.24154027718932,
+                       32.48076353782343,
+                       2.23606797749979);
+    assertTrue(PREC > m.colNorms2().sub(n2).normI());
+
+    Matrix nI = Matrix.create(24, 23, 31, 21, 25).T();
+    assertTrue(PREC > m.rowNormsI().sub(nI).normI());
+    nI = Matrix.create(23, 24, 31, 21, 22, 1);
+    assertTrue(PREC > m.colNormsI().sub(nI).normI());
+  }
+
   public void testRowColSums() {
     Matrix m = Matrix.create(17, 24,  1,  8, 15, 1, NR,
                              23,  5,  7, 14, 16, 1, NR,

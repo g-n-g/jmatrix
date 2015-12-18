@@ -17,6 +17,7 @@ Alternatives:
 Compilation:
 
   ant compile
+  ant jar
 
 Generating documentation:
 

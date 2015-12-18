@@ -1231,6 +1231,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // matrix norms
 
   /**
    * Computes the 1-norm (maximum absolute column sum).
@@ -1279,6 +1280,155 @@ public abstract class Matrix {
       }
     }
     return Math.sqrt(s);
+  }
+
+  //----------------------------------------------------------------------------
+  // vector norms of rows and columns
+
+  /**
+   * Computes the 1-norm of each row.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> 1-norm of each row of <code>this</code> matrix
+   */
+  public Matrix rowNorms1(Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (1 <= cols);
+    assert (result != null && result.rows() == rows && result.cols() == 1);
+    for (int i = 0; i < rows; ++i) {
+      double n = 0.0;
+      for (int j = 0; j < cols; ++j) {
+        n += Math.abs(get(i,j));
+      }
+      result.set(i, 0, n);
+    }
+    return result;
+  }
+
+  /**
+   * Computes the 1-norm of each row.
+   *
+   * @return <code>result</code> 1-norm of each row of <code>this</code> matrix
+   */
+  public Matrix rowNorms1() {
+    return rowNorms1(create(rows(),1));
+  }
+
+  /**
+   * Computes the 2-norm of each row.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> 2-norm of each row of <code>this</code> matrix
+   */
+  public Matrix rowNorms2(Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (1 <= cols);
+    assert (result != null && result.rows() == rows && result.cols() == 1);
+    for (int i = 0; i < rows; ++i) {
+      double n = 0.0;
+      for (int j = 0; j < cols; ++j) {
+        double v = get(i,j);
+        n += v*v;
+      }
+      result.set(i, 0, Math.sqrt(n));
+    }
+    return result;
+  }
+
+  /**
+   * Computes the 2-norm of each row.
+   *
+   * @return <code>result</code> 2-norm of each row of <code>this</code> matrix
+   */
+  public Matrix rowNorms2() {
+    return rowNorms2(create(rows(),1));
+  }
+
+  /**
+   * Computes the max-norm of each row.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> max-norm of each row of <code>this</code> matrix
+   */
+  public Matrix rowNormsI(Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (1 <= cols);
+    assert (result != null && result.rows() == rows && result.cols() == 1);
+    for (int i = 0; i < rows; ++i) {
+      double n = 0.0;
+      for (int j = 0; j < cols; ++j) {
+        double v = Math.abs(get(i,j));
+        if (n < v) { n = v; }
+      }
+      result.set(i, 0, n);
+    }
+    return result;
+  }
+
+  /**
+   * Computes the max-norm of each row.
+   *
+   * @return <code>result</code> max-norm of each row of <code>this</code> matrix
+   */
+  public Matrix rowNormsI() {
+    return rowNormsI(create(rows(),1));
+  }
+
+  /**
+   * Computes the 1-norm of each column.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> 1-norm of each column of <code>this</code> matrix
+   */
+  public Matrix colNorms1(Matrix result) {
+    return T().rowNorms1(result.T()).T();
+  }
+
+  /**
+   * Computes the 1-norm of each column.
+   *
+   * @return <code>result</code> 1-norm of each column of <code>this</code> matrix
+   */
+  public Matrix colNorms1() {
+    return colNorms1(create(1,cols()));
+  }
+
+  /**
+   * Computes the 2-norm of each column.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> 2-norm of each column of <code>this</code> matrix
+   */
+  public Matrix colNorms2(Matrix result) {
+    return T().rowNorms2(result.T()).T();
+  }
+
+  /**
+   * Computes the 2-norm of each column.
+   *
+   * @return <code>result</code> 2-norm of each column of <code>this</code> matrix
+   */
+  public Matrix colNorms2() {
+    return colNorms2(create(1,cols()));
+  }
+
+  /**
+   * Computes the max-norm of each column.
+   *
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> max-norm of each column of <code>this</code> matrix
+   */
+  public Matrix colNormsI(Matrix result) {
+    return T().rowNormsI(result.T()).T();
+  }
+
+  /**
+   * Computes the max-norm of each column.
+   *
+   * @return <code>result</code> max-norm of each column of <code>this</code> matrix
+   */
+  public Matrix colNormsI() {
+    return colNormsI(create(1,cols()));
   }
 
   //----------------------------------------------------------------------------
