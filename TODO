@@ -6,29 +6,9 @@ Proper exception handling.
 -------------------------------------------------------------------------------
 Functionality:
 
-horzcat, vertcat
 back substitution
 
 spectral norm computation
   - power method
 
 singular value decomposition
-sparse vectors/matrices
-
--------------------------------------------------------------------------------
-Performance:
-
-Benchmarking:
-  - matrix multiplication
-
-diagonal matrices, identity matrix
-lower/upper triangular matrices
-
--------------------------------------------------------------------------------
-Ideas:
-
-Column major order for Matrix representation?
-create(double[][]) looks row major though
-
-Instead of array, store the representation (DenseMatrix, TDenseMatrix)
-inside the Matrix class and implement in-place transpose, etc...

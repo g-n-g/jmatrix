@@ -339,7 +339,7 @@ public abstract class Matrix {
    * Creates a block diagonal matrix.
    *
    * @param matrices matrices to be used for the blocks
-   * @param block diagonal matrix
+   * @return block diagonal matrix
    */
   public static Matrix blkdiag(Matrix... matrices) {
     if (matrices.length == 0) { return create(0, 0); }
@@ -356,6 +356,56 @@ public abstract class Matrix {
       m.copy(result, rows, cols);
       rows += m.rows();
       cols += m.cols();
+    }
+    return result;
+  }
+
+  /**
+   * Concatenates <code>matrices</code> horizontally.
+   *
+   * @param matrices matrices to be used concatenated horizontally
+   * @return horizontally concatenated matrix
+   */
+  public static Matrix horzcat(Matrix... matrices) {
+    if (matrices.length == 0) { return create(0, 0); }
+
+    final int rows = matrices[0].rows();
+    int cols = 0;
+    for (Matrix m : matrices) {
+      assert (rows == m.rows());
+      cols += m.cols();
+    }
+
+    Matrix result = create(rows, cols);
+    cols = 0;
+    for (Matrix m : matrices) {
+      m.copy(result, 0, cols);
+      cols += m.cols();
+    }
+    return result;
+  }
+
+  /**
+   * Concatenates <code>matrices</code> vertically.
+   *
+   * @param matrices matrices to be used concatenated vertically
+   * @return vertically concatenated matrix
+   */
+  public static Matrix vertcat(Matrix... matrices) {
+    if (matrices.length == 0) { return create(0, 0); }
+
+    final int cols = matrices[0].cols();
+    int rows = 0;
+    for (Matrix m : matrices) {
+      assert (cols == m.cols());
+      rows += m.rows();
+    }
+
+    Matrix result = create(rows, cols);
+    rows = 0;
+    for (Matrix m : matrices) {
+      m.copy(result, rows, 0);
+      rows += m.rows();
     }
     return result;
   }

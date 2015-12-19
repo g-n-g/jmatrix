@@ -231,6 +231,27 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > t.sub(m).normI());
   }
 
+  public void testCat() {
+    Matrix m1 = Matrix.create(0.0, 1.1, NR,
+                              0.0, 2.2);
+    Matrix m2 = Matrix.create(3.3, 4.4, 5.5, NR,
+                              6.6, 7.7, 8.8);
+    Matrix m3 = Matrix.create(9.9, NR,
+                              9.9);
+
+    Matrix m = Matrix.horzcat(m1, m2, m3);
+    Matrix t = Matrix.create(0.0, 1.1, 3.3, 4.4, 5.5, 9.9, NR,
+                             0.0, 2.2, 6.6, 7.7, 8.8, 9.9);
+    assertTrue(PREC > t.sub(m).normI());
+
+    m1 = m1.T();
+    m2 = m2.T();
+    m3 = m3.T();
+    m = Matrix.vertcat(m1, m2, m3);
+    t = t.T();
+    assertTrue(PREC > t.sub(m).normI());
+  }
+
   public void testSetTo() {
     Matrix m = Matrix.ones(4, 7);
     m.setToZeros();
