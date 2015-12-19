@@ -217,6 +217,20 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > m.sub(c).norm1());
   }
 
+  public void testBlkdiag() {
+    Matrix m1 = Matrix.create(1.1, 2.2);
+    Matrix m2 = Matrix.create(3.3, 4.4, 5.5, NR,
+                              6.6, 7.7, 8.8);
+    Matrix m3 = Matrix.create(9.9);
+
+    Matrix m = Matrix.blkdiag(m1, m2, m3);
+    Matrix t = Matrix.create(1.1, 2.2, 0.0, 0.0, 0.0, 0.0, NR,
+                             0.0, 0.0, 3.3, 4.4, 5.5, 0.0, NR,
+                             0.0, 0.0, 6.6, 7.7, 8.8, 0.0, NR,
+                             0.0, 0.0, 0.0, 0.0, 0.0, 9.9);
+    assertTrue(PREC > t.sub(m).normI());
+  }
+
   public void testSetTo() {
     Matrix m = Matrix.ones(4, 7);
     m.setToZeros();

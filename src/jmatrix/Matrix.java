@@ -188,6 +188,53 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // basic matrix `interface'
+
+  /**
+   * Returns <code>true</code> if the matrix is empty (having no rows or columns).
+   *
+   * @return <code>true</code> if the matrix is empty
+   */
+  public boolean isEmpty() {
+    return (rows() == 0) || (cols() == 0);
+  }
+
+  /**
+   * Returns the number of rows of the matrix.
+   *
+   * @return number of rows of the matrix
+   */
+  public abstract int rows();
+
+  /**
+   * Returns the number of columns of the matrix.
+   *
+   * @return number of columns of the matrix
+   */
+  public abstract int cols();
+
+  /**
+   * Returns the element of the matrix at row <code>i</code>
+   * and column <code>j</code>.
+   *
+   * @param i the row index of the matrix element
+   * @param j the column index of the matrix element
+   * @return the (i,j) element of the matrix
+   */
+  public abstract double get(int i, int j);
+
+  /**
+   * Set the matrix element at row <code>i</code> and column <code>j</code>
+   * to <code>value</code>.
+   *
+   * @param i the row index of the matrix element
+   * @param j the column index of the matrix element
+   * @param value the new value
+   */
+  public abstract void set(int i, int j, double value);
+
+  //----------------------------------------------------------------------------
+  // NaN and Inf handling
 
   /**
    * Returns <code>true</code> if the matrix has a NaN element.
@@ -239,6 +286,28 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // copy
+
+  /**
+   * Copies the matrix into <code>result</code>.
+   *
+   * @param result appropriately sized storage for the copy (not <code>null</code>)
+   * @param rowOffset row offset
+   * @param colOffset column offset
+   * @return copy of the matrix
+   */
+  public Matrix copy(Matrix result, int rowOffset, int colOffset) {
+    final int rows = rows(), cols = cols();
+    assert(result != null
+           && result.rows() >= rowOffset+rows
+           && result.cols() >= colOffset+cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        result.set(rowOffset+i, colOffset+j, get(i,j));
+      }
+    }
+    return result;
+  }
 
   /**
    * Returns a copy of the matrix placed into <code>result</code>.
@@ -248,14 +317,8 @@ public abstract class Matrix {
    * @return copy of the matrix
    */
   public Matrix copy(Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert(result != null && result.rows() == rows && result.cols() == cols);
     if (result != this) {
-      for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-          result.set(i, j, get(i,j));
-        }
-      }
+      copy(result, 0, 0);
     }
     return result;
   }
@@ -270,49 +333,32 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // block matrix operations
 
   /**
-   * Returns <code>true</code> if the matrix is empty (having no rows or columns).
+   * Creates a block diagonal matrix.
    *
-   * @return <code>true</code> if the matrix is empty
+   * @param matrices matrices to be used for the blocks
+   * @param block diagonal matrix
    */
-  public boolean isEmpty() {
-    return (rows() == 0) || (cols() == 0);
+  public static Matrix blkdiag(Matrix... matrices) {
+    if (matrices.length == 0) { return create(0, 0); }
+
+    int rows = 0, cols = 0;
+    for (Matrix m : matrices) {
+      rows += m.rows();
+      cols += m.cols();
+    }
+
+    Matrix result = zeros(rows, cols);
+    rows = 0; cols = 0;
+    for (Matrix m : matrices) {
+      m.copy(result, rows, cols);
+      rows += m.rows();
+      cols += m.cols();
+    }
+    return result;
   }
-
-  /**
-   * Returns the number of rows of the matrix.
-   *
-   * @return number of rows of the matrix
-   */
-  public abstract int rows();
-
-  /**
-   * Returns the number of columns of the matrix.
-   *
-   * @return number of columns of the matrix
-   */
-  public abstract int cols();
-
-  /**
-   * Returns the element of the matrix at row <code>i</code>
-   * and column <code>j</code>.
-   *
-   * @param i the row index of the matrix element
-   * @param j the column index of the matrix element
-   * @return the (i,j) element of the matrix
-   */
-  public abstract double get(int i, int j);
-
-  /**
-   * Set the matrix element at row <code>i</code> and column <code>j</code>
-   * to <code>value</code>.
-   *
-   * @param i the row index of the matrix element
-   * @param j the column index of the matrix element
-   * @param value the new value
-   */
-  public abstract void set(int i, int j, double value);
 
   //----------------------------------------------------------------------------
 

@@ -6,7 +6,7 @@ Proper exception handling.
 -------------------------------------------------------------------------------
 Functionality:
 
-horzcat, vertcat, blkdiag
+horzcat, vertcat
 back substitution
 
 spectral norm computation
