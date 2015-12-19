@@ -409,11 +409,11 @@ public abstract class Matrix {
    * Transforms the matrix elementwise by a unary operation <code>op</code>.
    *
    * Matrix <code>result</code> has to have the same size as <code>this</code>
-   * matrix.
+   * matrix, and might be set to <code>this</code> for in-place operation.
    *
    * @param op unary operation
    * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> transformed matrix
+   * @return transformed matrix in <code>result</code>
    */
   public Matrix ewu(UnaryOperation op, Matrix result) {
     final int rows = rows(), cols = cols();
@@ -430,13 +430,146 @@ public abstract class Matrix {
    * Transforms the matrix elementwise by a unary operation <code>op</code>.
    *
    * @param op unary operation
-   * @return <code>result</code> transformed matrix
+   * @return transformed matrix
    */
   public Matrix ewu(UnaryOperation op) {
     return ewu(op, create(rows(), cols()));
   }
 
+  /**
+   * Transforms the matrix elementwise by a binary operation <code>op</code>
+   * using value <code>v</code> for the first argument.
+   *
+   * Matrix <code>result</code> has to have the same size as <code>this</code>
+   * matrix, and might be set to <code>this</code> for in-place operation.
+   *
+   * @param op binary operation
+   * @param v transforming value
+   * @param result storage of the result (not <code>null</code>)
+   * @return transformed matrix in <code>result</code>
+   */
+  public Matrix ewb1(BinaryOperation op, double v, Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        result.set(i, j, op.apply(v, get(i,j)));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Transforms the matrix elementwise by a binary operation <code>op</code>
+   * using value <code>v</code> for the first argument.
+   *
+   * @param op binary operation
+   * @param v transforming value
+   * @return transformed matrix
+   */
+  public Matrix ewb1(BinaryOperation op, double v) {
+    return ewb1(op, v, create(rows(), cols()));
+  }
+
+  /**
+   * Transforms the matrix elementwise by a binary operation <code>op</code>
+   * using value <code>v</code> for the second argument.
+   *
+   * Matrix <code>result</code> has to have the same size as <code>this</code>
+   * matrix, and might be set to <code>this</code> for in-place operation.
+   *
+   * @param op binary operation
+   * @param v transforming value
+   * @param result storage of the result (not <code>null</code>)
+   * @return transformed matrix <code>result</code>
+   */
+  public Matrix ewb2(BinaryOperation op, double v, Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        result.set(i, j, op.apply(get(i,j), v));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Transforms the matrix elementwise by a binary operation <code>op</code>
+   * using value <code>v</code> for the second argument.
+   *
+   * @param op binary operation
+   * @param v transforming value
+   * @return transformed matrix
+   */
+  public Matrix ewb2(BinaryOperation op, double v) {
+    return ewb2(op, v, create(rows(), cols()));
+  }
+
+  /**
+   * Transforms the matrix elementwise by a binary operation <code>op</code>
+   * using the elements of matrix <code>m</code> for the second argument.
+   *
+   * Matrix <code>m</code> has to have either the same size as <code>this</code>,
+   * or has to be a row/column vector with appropriate size for singleton expansion.
+   *
+   * Matrix <code>result</code> has to have the same size as <code>this</code>
+   * matrix, and might be set to <code>this</code> for in-place operation.
+   *
+   * @param op binary operation
+   * @param m transforming matrix
+   * @param result storage of the result (not <code>null</code>)
+   * @return transformed matrix <code>result</code>
+   */
+  public Matrix ewb(BinaryOperation op, Matrix m, Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    if (m.rows() == 1) {
+      assert(m.cols() == cols);
+      for (int j = 0; j < cols; ++j) {
+        double v = m.get(0,j);
+        for (int i = 0; i < rows; ++i) {
+          result.set(i, j, op.apply(get(i,j), v));
+        }
+      }
+    }
+    else if (m.cols() == 1) {
+      assert(m.rows() == rows);
+      for (int i = 0; i < rows; ++i) {
+        double v = m.get(i,0);
+        for (int j = 0; j < cols; ++j) {
+          result.set(i, j, op.apply(get(i,j), v));
+        }
+      }
+    }
+    else {
+      assert(m.rows() == rows && m.cols() == cols);
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+          result.set(i, j, op.apply(get(i,j), m.get(i,j)));
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Transforms the matrix elementwise by a binary operation <code>op</code>
+   * using the elements of matrix <code>m</code> for the second argument.
+   *
+   * Matrix <code>m</code> has to have either the same size as <code>this</code>,
+   * or has to be a row/column vector with appropriate size for singleton expansion.
+   *
+   * @param op binary operation
+   * @param m transforming matrix
+   * @return transformed matrix
+   */
+  public Matrix ewb(BinaryOperation op, Matrix m) {
+    return ewb(op, m, create(rows(), cols()));
+  }
+
   //----------------------------------------------------------------------------
+  // diagonal operations
 
   /**
    * Returns the diagonal elements as a vector.
@@ -462,6 +595,53 @@ public abstract class Matrix {
    */
   public Matrix getDiag() {
     return getDiag(Matrix.create(Math.min(rows(), cols()), 1));
+  }
+
+  /**
+   * Returns the product of the diagonal elements.
+   *
+   * @return product of diagonal elements
+   */
+  public double prodDiag() {
+    final int limit = Math.min(rows(), cols());
+    double prod = 1.0;
+    for (int i = 0; i < limit; ++i) { prod *= get(i,i); }
+    return prod;
+  }
+
+  /**
+   * Returns the trace (sum of diagonal elements).
+   *
+   * @return trace of <code>this</code> matrix
+   */
+  public double trace() {
+    double trace = 0.0;
+    final int limit = Math.min(rows(), cols());
+    for (int i = 0; i < limit; ++i) { trace += get(i,i); }
+    return trace;
+  }
+
+  /**
+   * Returns the trace of the result given by <code>this</code> matrix
+   * multiplied with matrix <code>m</code> on the right.
+   *
+   * The row number of <code>m</code> has to be equal to the column number
+   * of <code>this</code> matrix.
+   *
+   * @param m matrix multiplying on the right (not <code>null</code>)
+   * @return trace of <code>this</code> times <code>m</code>
+   */
+  public double traceMul(Matrix m) {
+    final int cols = cols();
+    assert (m != null && cols == m.rows());
+    double trace = 0.0;
+    final int limit = Math.min(rows(), m.cols());
+    for (int i = 0; i < limit; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        trace += get(i,j) * m.get(j,i);
+      }
+    }
+    return trace;
   }
 
   //----------------------------------------------------------------------------
@@ -664,6 +844,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // addition
 
   /**
    * Matrix-matrix addition (in <code>result</code>).
@@ -681,15 +862,7 @@ public abstract class Matrix {
    *         <code>this</code> and <code>m</code>
    */
   public Matrix add(Matrix m, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (m != null && rows == m.rows() && cols == m.cols());
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, get(i,j) + m.get(i,j));
-      }
-    }
-    return result;
+    return ewb(BasicBinaryOperation.ADD, m, result);
   }
 
   /**
@@ -719,14 +892,7 @@ public abstract class Matrix {
    *         <code>this</code> shifted by <code>c</code>
    */
   public Matrix add(double c, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, get(i,j) + c);
-      }
-    }
-    return result;
+    return ewb2(BasicBinaryOperation.ADD, c, result);
   }
 
   /**
@@ -741,6 +907,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // subtraction
 
   /**
    * Matrix-matrix subtraction (in <code>result</code>).
@@ -758,15 +925,7 @@ public abstract class Matrix {
    *         <code>this</code> and <code>m</code>
    */
   public Matrix sub(Matrix m, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (m != null && rows == m.rows() && cols == m.cols());
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, get(i,j) - m.get(i,j));
-      }
-    }
-    return result;
+    return ewb(BasicBinaryOperation.SUB, m, result);
   }
 
   /**
@@ -814,7 +973,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
-  // matrix multiplication
+  // multiplication
 
   /**
    * Matrix-constant multiplication (in <code>result</code>). Multiplies all
@@ -830,14 +989,7 @@ public abstract class Matrix {
    *         <code>this</code> multiplied by <code>c</code>
    */
   public Matrix mul(double c, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, c * get(i,j));
-      }
-    }
-    return result;
+    return ewb2(BasicBinaryOperation.MUL, c, result);
   }
 
   /**
@@ -961,6 +1113,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // division
 
   /**
    * Matrix-constant division (in <code>result</code>). Divides all elements of
@@ -990,8 +1143,6 @@ public abstract class Matrix {
     return div(c, create(rows(), cols()));
   }
 
-  //----------------------------------------------------------------------------
-
   /**
    * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
    * (in <code>result</code>).
@@ -1007,15 +1158,7 @@ public abstract class Matrix {
    *         and <code>m</code> multiplied entrywise
    */
   public Matrix emul(Matrix m, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (m != null && rows == m.rows() && cols == m.cols());
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, get(i,j) * m.get(i,j));
-      }
-    }
-    return result;
+    return ewb(BasicBinaryOperation.MUL, m, result);
   }
 
   /**
@@ -1030,80 +1173,6 @@ public abstract class Matrix {
    */
   public Matrix emul(Matrix m) {
     return emul(m, create(rows(), cols()));
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Entrywise power operation by exponent <code>p</code> (in <code>result</code>).
-   *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param p exponent of the power operation
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the elements of <code>this</code>
-   *         raised to the power of <code>p</code>
-   */
-  public Matrix epow(double p, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, Math.pow(get(i,j), p));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Entrywise power operation by exponent <code>p</code> (in new matrix).
-   *
-   * @param p exponent of the power operation
-   * @return <code>this</code> matrix having the elements of <code>this</code>
-   *         raised to the power of <code>p</code>
-   */
-  public Matrix epow(double p) {
-    return epow(p, create(rows(), cols()));
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Entrywise (signed) remainder with respect to modulus <code>m</code>
-   * (in <code>result</code>).
-   *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param m modulus
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the remainders of the values of
-   *         <code>this</code> with respect to modulus <code>m</code>
-   */
-  public Matrix mod(double m, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, get(i,j) % m);
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Entrywise (signed) remainder with respect to modulus <code>m</code>
-   * (in new matrix).
-   *
-   * @param m modulus
-   * @return new matrix with the remainders of the values of
-   *         <code>this</code> with respect to modulus <code>m</code>
-   */
-  public Matrix mod(double m) {
-    return mod(m, create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------
@@ -1308,72 +1377,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
-
-  /**
-   * Returns the dot product of vectors <code>this</code> and <code>v</code>.
-   * The orientations of the vectors are ignored, only their lengths have to match.
-   *
-   * @param v vector to take the dot product with (not <code>null</code>)
-   * @return the dot product of vectors <code>this</code> and <code>v</code>
-   */
-  public double dot(Matrix v) {
-    assert (v != null);
-    final Matrix v1 = (rows() != 1) ? T() : this;
-    final Matrix v2 = (v.rows() != 1) ? v.T() : v;
-    assert (v1.rows() == 1);
-    final int length = v1.cols();
-    assert (v2.rows() == 1 && v2.cols() == length);
-    double s = 0.0;
-    for (int j = 0; j < length; ++j) { s += v1.get(0,j) * v2.get(0,j); }
-    return s;
-  }
-
-  /**
-   * Returns the trace (sum of diagonal elements).
-   *
-   * @return trace of <code>this</code> matrix
-   */
-  public double trace() {
-    double trace = 0.0;
-    final int limit = Math.min(rows(), cols());
-    for (int i = 0; i < limit; ++i) { trace += get(i,i); }
-    return trace;
-  }
-
-  /**
-   * Returns the trace of the result given by <code>this</code> matrix
-   * multiplied with matrix <code>m</code> on the right.
-   *
-   * The row number of <code>m</code> has to be equal to the column number
-   * of <code>this</code> matrix.
-   *
-   * @param m matrix multiplying on the right (not <code>null</code>)
-   * @return trace of <code>this</code> times <code>m</code>
-   */
-  public double traceMul(Matrix m) {
-    final int cols = cols();
-    assert (m != null && cols == m.rows());
-    double trace = 0.0;
-    final int limit = Math.min(rows(), m.cols());
-    for (int i = 0; i < limit; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        trace += get(i,j) * m.get(j,i);
-      }
-    }
-    return trace;
-  }
-
-  /**
-   * Returns the product of the diagonal elements.
-   *
-   * @return product of diagonal elements
-   */
-  public double prodDiag() {
-    final int limit = Math.min(rows(), cols());
-    double prod = 1.0;
-    for (int i = 0; i < limit; ++i) { prod *= get(i,i); }
-    return prod;
-  }
+  // row and column summations
 
   /**
    * Returns the sum of the rows (in <code>result</code>).
@@ -1424,6 +1428,27 @@ public abstract class Matrix {
    */
   public Matrix sumCols() {
     return sumCols(create(rows(), 1));
+  }
+
+  //----------------------------------------------------------------------------
+
+  /**
+   * Returns the dot product of vectors <code>this</code> and <code>v</code>.
+   * The orientations of the vectors are ignored, only their lengths have to match.
+   *
+   * @param v vector to take the dot product with (not <code>null</code>)
+   * @return the dot product of vectors <code>this</code> and <code>v</code>
+   */
+  public double dot(Matrix v) {
+    assert (v != null);
+    final Matrix v1 = (rows() != 1) ? T() : this;
+    final Matrix v2 = (v.rows() != 1) ? v.T() : v;
+    assert (v1.rows() == 1);
+    final int length = v1.cols();
+    assert (v2.rows() == 1 && v2.cols() == length);
+    double s = 0.0;
+    for (int j = 0; j < length; ++j) { s += v1.get(0,j) * v2.get(0,j); }
+    return s;
   }
 
   //----------------------------------------------------------------------------

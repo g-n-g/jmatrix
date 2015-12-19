@@ -9,15 +9,6 @@ Functionality:
 horzcat, vertcat, blkdiag
 back substitution
 
-ewiseu: ABS, LOG, EXP, SQRT, SIN, COS, TAN, ASIN, ACOS, ATAN,
-       SINH, COSH, TANH, FLOOR, CEIL, ROUND, RECIPROC, NEG, SIGN
-interface: UnaryOperation
-refactor: reciproc, neg, sign, abs
-
-ewiseb: ADD, SUB, MUL, DIV, MOD, MIN, MAX, ATAN2, POW
-interface: BinaryOperation
-refactor: add(c), sub(c), mul(c), div(c), mod(c)
-
 spectral norm computation
   - power method
 

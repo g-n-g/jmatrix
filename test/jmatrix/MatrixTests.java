@@ -3,6 +3,7 @@ package jmatrix;
 import java.util.Random;
 import static jmatrix.Matrix.NR;
 import static jmatrix.BasicUnaryOperation.*;
+import static jmatrix.BasicBinaryOperation.*;
 
 /**
  * Tests for the Matrix class.
@@ -118,6 +119,7 @@ public class MatrixTests extends AssertionBaseTest {
   }
 
   public void testEwu() {
+    // ABS, NEG, SIGN
     Matrix m = Matrix.randN(4, 6, RNG);
     assertTrue(PREC > m.sub(m.ewu(SIGN).emul(m.ewu(ABS))).norm1());
     assertTrue(PREC > m.ewu(NEG).sub(m.ewu(NEG).ewu(SIGN).emul(m.ewu(ABS))).norm1());
@@ -137,37 +139,70 @@ public class MatrixTests extends AssertionBaseTest {
     s.set(2, 2, 0.0);
     a.set(2, 2, 0.0);
     assertTrue(PREC > s.sub(a).norm1());
+  }
 
-    /* for ewb
+  public void testEwb12() {
+    // RECIPROC
     int nr = 2, nc = 5;
     Matrix v = Matrix.scalars(nr, nc, 0.1);
     Matrix o = Matrix.ones(nr, nc);
     Matrix r = Matrix.zeros(nr, nc);
 
-    assertTrue(PREC > o.sub(v.emul(v.ewu(RECIPROC))).normF());
+    assertTrue(PREC > o.sub(v.emul(v.ewb1(DIV, 1.0))).normF());
 
-    v.ewu(RECIPROC, r);
+    v.ewb1(DIV, 1.0, r);
     assertTrue(PREC > o.sub(v.emul(r)).normF());
 
-    r.ewu(RECIPROC, r);
+    r.ewb1(DIV, 1.0, r);
     assertTrue(PREC > v.sub(r).normF());
-    */
-  }
 
-  public void testMod() {
+    // POW
+    Matrix m1 = Matrix.create(1, 2, 3, NR,
+                              4, 5, 6);
+    Matrix m2 = Matrix.create(1, 4, 9, NR,
+                              16, 25, 36);
+    assertTrue(PREC > m2.sub(m1.ewb2(POW, 2.0)).norm1());
+
+    Matrix mr = Matrix.randN(4, 5, RNG);
+    assertTrue(PREC > mr.emul(mr).sub(mr.ewb2(POW, 2.0)).norm1());
+    assertTrue(PREC > mr.emul(mr).emul(mr).sub(mr.ewb2(POW, 3.0)).norm1());
+
+    // MOD
     double m = 2.3;
     Matrix mm = Matrix.rand(5, 4, RNG);
     mm.mul(8.0, mm);
     Matrix oo = Matrix.scalars(5, 4, m);
 
-    assertTrue(PREC > oo.mod(m).norm1());
-    assertTrue(PREC > mm.add(oo.mul(2.0)).mod(m).sub(mm.mod(m)).norm1());
+    assertTrue(PREC > oo.ewb2(MOD, m).norm1());
+    assertTrue(PREC > mm.add(oo.mul(2.0)).ewb2(MOD, m).sub(mm.ewb2(MOD, m)).norm1());
 
     mm.mul(-1.0, mm);
-    assertTrue(PREC > mm.add(oo.mul(-2.0)).mod(m).sub(mm.mod(m)).norm1());
+    assertTrue(PREC > mm.add(oo.mul(-2.0)).ewb2(MOD, m).sub(mm.ewb2(MOD, m)).norm1());
 
-    oo.mod(m, oo);
+    oo.ewb2(MOD, m, oo);
     assertTrue(PREC > oo.norm1());
+  }
+
+  public void testEwb() {
+    Matrix m = Matrix.create(1, 2, 3, NR,
+                             4, 5, 6);
+
+    Matrix r = Matrix.create(1, 2, 3);
+    Matrix t1 = Matrix.create(1,  4,  9, NR,
+                              4, 10, 18);
+    assertTrue(PREC > m.ewb(MUL, r).sub(t1).normI());
+    m.ewb(MUL, r, m);
+    assertTrue(PREC > m.sub(t1).normI());
+
+    m = Matrix.create(1, 2, 3, NR,
+                      4, 5, 6);
+
+    Matrix c = Matrix.create(1.0, 2.0).T();
+    Matrix t2 = Matrix.create(1,  2,  3, NR,
+                              8, 10, 12);
+    assertTrue(PREC > m.ewb(MUL, c).sub(t2).normI());
+    m.ewb(MUL, c, m);
+    assertTrue(PREC > m.sub(t2).normI());
   }
 
   public void testCopy() {
@@ -338,18 +373,6 @@ public class MatrixTests extends AssertionBaseTest {
     m1.emul(m2, m1);
     assertTrue(PREC > m1.sub(m2.mul(3)).normI());
     m1.setToScalars(3.0);
-  }
-
-  public void testEntrywisePower() {
-    Matrix m1 = Matrix.create(1, 2, 3, NR,
-                              4, 5, 6);
-    Matrix m2 = Matrix.create(1, 4, 9, NR,
-                              16, 25, 36);
-    assertTrue(PREC > m2.sub(m1.epow(2)).norm1());
-
-    Matrix mr = Matrix.randN(4, 5, RNG);
-    assertTrue(PREC > mr.emul(mr).sub(mr.epow(2)).norm1());
-    assertTrue(PREC > mr.emul(mr).emul(mr).sub(mr.epow(3)).norm1());
   }
 
   public void testDotProduct() {
