@@ -403,6 +403,40 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // entrywise operations
+
+  /**
+   * Transforms the matrix elementwise by a unary operation <code>op</code>.
+   *
+   * Matrix <code>result</code> has to have the same size as <code>this</code>
+   * matrix.
+   *
+   * @param op unary operation
+   * @param result storage of the result (not <code>null</code>)
+   * @return <code>result</code> transformed matrix
+   */
+  public Matrix ewu(UnaryOperation op, Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        result.set(i, j, op.apply(get(i,j)));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Transforms the matrix elementwise by a unary operation <code>op</code>.
+   *
+   * @param op unary operation
+   * @return <code>result</code> transformed matrix
+   */
+  public Matrix ewu(UnaryOperation op) {
+    return ewu(op, create(rows(), cols()));
+  }
+
+  //----------------------------------------------------------------------------
 
   /**
    * Returns the diagonal elements as a vector.
@@ -431,6 +465,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // triangular submatrix selection
 
   /**
    * Returns the lower triangular part of the matrix (in <code>result</code>).
@@ -555,6 +590,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // submatrix selection
 
   /**
    * Returns the submatrix having rows from <code>iF</code> to <code>iT</code>
@@ -625,135 +661,6 @@ public abstract class Matrix {
       }
     }
     return this;
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Entrywise absolute value (in <code>result</code>).
-   *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param result storage of the result (not <code>null</code>)
-   * @return entrywise absolute value
-   */
-  public Matrix abs(Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, Math.abs(get(i,j)));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Entrywise absolute value (in new matrix).
-   *
-   * @return entrywise absolute value
-   */
-  public Matrix abs() {
-    return abs(create(rows(), cols()));
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Entrywise sign operation with zero replacement (in <code>result</code>).
-   *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param zeroReplacement value replacing 0.0 values
-   * @param result storage of the result (not <code>null</code>)
-   * @return entrywise sign value
-   */
-  public Matrix sign(double zeroReplacement, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        double value = get(i,j);
-        result.set(i, j, (0.0 == value) ? zeroReplacement : Math.signum(value));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Entrywise sign operation (in <code>result</code>).
-   *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param result storage of the result (not <code>null</code>)
-   * @return entrywise sign value
-   */
-  public Matrix sign(Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, Math.signum(get(i,j)));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Entrywise sign operation with zero replacement (in new matrix).
-   *
-   * @param zeroReplacement value replacing 0.0 values
-   * @return entrywise sign value
-   */
-  public Matrix sign(double zeroReplacement) {
-    return sign(zeroReplacement, create(rows(), cols()));
-  }
-
-  /**
-   * Entrywise sign operation (in new matrix).
-   *
-   * @return entrywise sign values
-   */
-  public Matrix sign() {
-    return sign(create(rows(), cols()));
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Entrywise negation (in <code>result</code>).
-   *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> having the negated matrix
-   */
-  public Matrix neg(Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, -get(i,j));
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Entrywise negation (in new matrix).
-   *
-   * @return object with the negated elements
-   */
-  public Matrix neg() {
-    return neg(create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------
@@ -907,6 +814,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // matrix multiplication
 
   /**
    * Matrix-constant multiplication (in <code>result</code>). Multiplies all
@@ -1158,38 +1066,6 @@ public abstract class Matrix {
    */
   public Matrix epow(double p) {
     return epow(p, create(rows(), cols()));
-  }
-
-  //----------------------------------------------------------------------------
-
-  /**
-   * Takes the reciproc of all elements (in <code>result</code>).
-   *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
-   *
-   * @param result storage of the result (not <code>null</code>)
-   * @return <code>result</code> holding the elementwise reciproc matrix
-   */
-  public Matrix reciproc(Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        result.set(i, j, 1.0 / get(i,j));
-      }
-    }
-    return result;
-  }
- 
-  /**
-   * Takes the reciproc of all elements (in new matrix).
-   *
-   * @return elementwise reciproc in a new matrix
-   */
-  public Matrix reciproc() {
-    return reciproc(create(rows(), cols()));
   }
 
   //----------------------------------------------------------------------------
@@ -1551,6 +1427,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // Cholesky decomposition
 
   /**
    * Cholesky decomposition of a (symmetric) positive-definite matrix.
@@ -1675,6 +1552,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // QR decomposition
 
   /**
    * QR decomposition of an arbitrary matrix using Hauseholder transformations.
@@ -1789,6 +1667,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // LU decomposition
 
   /**
    * P'LU decomposition of an arbitrary matrix
@@ -1911,6 +1790,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // determinant
 
   /**
    * Returns the determinant of a square matrix. An LU decomposition is performed
@@ -1953,6 +1833,7 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // matrix inverse
 
   /**
    * Computes the inverse of a square matrix (in <code>result</code>).
@@ -2084,7 +1965,7 @@ public abstract class Matrix {
   }
 
   /**
-   * Computes the inverse of a (symmatric) positive-definite matrix
+   * Computes the inverse of a (symmetric) positive-definite matrix
    * (in <code>result</code>). Symmetry is not verified, violating this condition
    * might silently produce an invalid result.
    *
@@ -2126,7 +2007,7 @@ public abstract class Matrix {
   }
 
   /**
-   * Computes the inverse of a (symmatric) positive-definite matrix
+   * Computes the inverse of a (symmetric) positive-definite matrix
    * (in new matrix). Symmetry is not verified, violating this condition
    * might silently produce an invalid result.
    *

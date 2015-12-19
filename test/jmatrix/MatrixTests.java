@@ -2,6 +2,7 @@ package jmatrix;
 
 import java.util.Random;
 import static jmatrix.Matrix.NR;
+import static jmatrix.BasicUnaryOperation.*;
 
 /**
  * Tests for the Matrix class.
@@ -116,28 +117,41 @@ public class MatrixTests extends AssertionBaseTest {
     m2.setToOnes();
   }
 
-  public void testAbsAndSignAndNeg() {
+  public void testEwu() {
     Matrix m = Matrix.randN(4, 6, RNG);
-    assertTrue(PREC > m.sub(m.sign().emul(m.abs())).norm1());
-    assertTrue(PREC > m.neg().sub(m.neg().sign().emul(m.abs())).norm1());
+    assertTrue(PREC > m.sub(m.ewu(SIGN).emul(m.ewu(ABS))).norm1());
+    assertTrue(PREC > m.ewu(NEG).sub(m.ewu(NEG).ewu(SIGN).emul(m.ewu(ABS))).norm1());
 
-    m.neg(m);
-    assertTrue(PREC > m.sub(m.sign().emul(m.abs())).norm1());
+    m.ewu(NEG);
+    assertTrue(PREC > m.sub(m.ewu(SIGN).emul(m.ewu(ABS))).norm1());
 
     Matrix s = Matrix.zeros(4, 6);
     Matrix a = Matrix.zeros(4, 6);
-    m.copy(s).sign(s);
-    m.copy(a).abs(m);
+    m.copy(s).ewu(SIGN, s);
+    m.copy(a).ewu(ABS, m);
     assertTrue(PREC > m.sub(s.emul(a)).norm1());
 
-    s.copy(a).sign(s);
+    s.copy(a).ewu(SIGN, s);
     assertTrue(PREC > s.sub(a).norm1());
 
     s.set(2, 2, 0.0);
     a.set(2, 2, 0.0);
     assertTrue(PREC > s.sub(a).norm1());
-    s.sign(8.8, s);
-    assertFalse(PREC > s.sub(a).norm1());
+
+    /* for ewb
+    int nr = 2, nc = 5;
+    Matrix v = Matrix.scalars(nr, nc, 0.1);
+    Matrix o = Matrix.ones(nr, nc);
+    Matrix r = Matrix.zeros(nr, nc);
+
+    assertTrue(PREC > o.sub(v.emul(v.ewu(RECIPROC))).normF());
+
+    v.ewu(RECIPROC, r);
+    assertTrue(PREC > o.sub(v.emul(r)).normF());
+
+    r.ewu(RECIPROC, r);
+    assertTrue(PREC > v.sub(r).normF());
+    */
   }
 
   public void testMod() {
@@ -689,21 +703,6 @@ public class MatrixTests extends AssertionBaseTest {
     Matrix r = Matrix.rand(m5x5.rows(), m5x5.cols(), RNG);
     assertTrue(PREC > Math.abs(0.0 - m5x5.det(r)));
     assertTrue(PREC > Math.abs(0.0 - m5x5.T().det(r.setToRand(RNG))));
-  }
-
-  public void testReciproc() {
-    final int n = 2, m = 5;
-    Matrix v = Matrix.scalars(n, m, 0.1);
-    Matrix o = Matrix.ones(n, m);
-    Matrix r = Matrix.zeros(n, m);
-
-    assertTrue(PREC > o.sub(v.emul(v.reciproc())).normF());
-
-    v.reciproc(r);
-    assertTrue(PREC > o.sub(v.emul(r)).normF());
-
-    r.reciproc(r);
-    assertTrue(PREC > v.sub(r).normF());
   }
 
   //---------------------------------------------------------------------------
