@@ -292,8 +292,8 @@ public abstract class Matrix {
    * Copies the matrix into <code>result</code>.
    *
    * @param result appropriately sized storage for the copy (not <code>null</code>)
-   * @param rowOffset row offset
-   * @param colOffset column offset
+   * @param rowOffset row offset in <code>result</code>
+   * @param colOffset column offset in <code>result</code>
    * @return copy of the matrix
    */
   public Matrix copy(Matrix result, int rowOffset, int colOffset) {
