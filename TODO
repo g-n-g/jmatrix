@@ -6,9 +6,13 @@ Proper exception handling.
 -------------------------------------------------------------------------------
 Functionality:
 
-back substitution
-
 spectral norm computation
   - power method
 
 singular value decomposition
+
+-------------------------------------------------------------------------------
+Performance:
+
+Blocked versions of matrix multiplication and some decompositions.
+Benchmarking against other matrix libraries.

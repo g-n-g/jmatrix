@@ -648,6 +648,30 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > M7.sub(P.T().mul(L).mul(U)).norm1());
   }
 
+  public void testBacks() {
+    Matrix A = Matrix.create(0.275186, 0.492146, 0.967304, 0.027302, NR,
+                             0.889619, 0.760571, 0.496819, 0.499948, NR,
+                             0.913949, 0.246029, 0.510040, 0.411547, NR,
+                             0.769612, 0.280185, 0.554000, 0.086159);
+    Matrix b = Matrix.create(0.71099, 0.78331, 0.53646, 0.28704).T();
+    Matrix[] LU = A.LU();
+    Matrix y = LU[0].backsL(LU[2].mul(b));
+    assertTrue(!y.hasNaN());
+    Matrix x = LU[1].backsU(y);
+    assertTrue(!x.hasNaN());
+    assertTrue(PREC > A.mul(x).sub(b).normI());
+
+    Matrix L = Matrix.create(4,4);
+    Matrix U = Matrix.create(4,4);
+    Permutation P = Permutation.eye(4);
+    A.LU(L, U, P);
+    y = L.backsL(P.mul(b), true);
+    assertTrue(!y.hasNaN());
+    x = U.backsU(y, false);
+    assertTrue(!x.hasNaN());
+    assertTrue(PREC > A.mul(x).sub(b).normI());
+  }
+
   public void testInverseSmallMatrix() {
     Matrix i2 = Matrix.eye(2);
     Matrix m2 = Matrix.create(2.0, 1.0, NR,

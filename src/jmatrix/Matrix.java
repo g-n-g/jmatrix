@@ -1911,6 +1911,130 @@ public abstract class Matrix {
   }
 
   //----------------------------------------------------------------------------
+  // back substitution
+
+  /**
+   * Back substitution solving L*x = b for x
+   * with L being the lower triangular of square matrix <code>this</code>.
+   *
+   * Matrix <code>this</code> should be square and non-singular.
+   * The upper triangular part of matrix <code>this</code> is always ignored.
+   * When <code>isUnitDiag</code> is <code>true</code>,
+   * the diagonal elements are ignored too.
+   *
+   * @param b right hand side vector
+   * @param isUnitDiag unit diagonal indicator
+   * @param result storage of the result (not <code>null</code>)
+   * @return x as the solution for L*x = b
+   */
+  Matrix backsL(Matrix b, boolean isUnitDiag, Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (rows == cols);
+    assert (b != null && b.rows() == rows && b.cols() == 1);
+    assert (result != null && result.rows() == rows && result.cols() == 1);
+    for (int i = 0; i < rows; ++i) {
+      double v = b.get(i,0);
+      for (int j = 0; j < i; ++j) {
+        v -= get(i,j) * result.get(j,0);
+      }
+      result.set(i, 0, isUnitDiag ? v : v / get(i,i));
+    }
+    return result;
+  }
+
+  /**
+   * Back substitution solving L*x = b for x
+   * with L being the lower triangular of square matrix <code>this</code>.
+   *
+   * Matrix <code>this</code> should be square and non-singular.
+   * The upper triangular part of matrix <code>this</code> is always ignored.
+   * When <code>isUnitDiag</code> is <code>true</code>,
+   * the diagonal elements are ignored too.
+   *
+   * @param b right hand side vector
+   * @param isUnitDiag unit diagonal indicator
+   * @return x as the solution for L*x = b
+   */
+  Matrix backsL(Matrix b, boolean isUnitDiag) {
+    return backsL(b, isUnitDiag, create(rows(), 1));
+  }
+
+  /**
+   * Back substitution solving L*x = b for x
+   * with L being the lower triangular of square matrix <code>this</code>.
+   *
+   * Matrix <code>this</code> should be square and non-singular.
+   * The upper triangular part of matrix <code>this</code> is always ignored.
+   *
+   * @param b right hand side vector
+   * @return x as the solution for L*x = b
+   */
+  Matrix backsL(Matrix b) {
+    return backsL(b, false, create(rows(), 1));
+  }
+
+  /**
+   * Back substitution solving U*x = b for x
+   * with U being the upper triangular of square matrix <code>this</code>.
+   *
+   * Matrix <code>this</code> should be square and non-singular.
+   * The lower triangular part of matrix <code>this</code> is always ignored.
+   * When <code>isUnitDiag</code> is <code>true</code>,
+   * the diagonal elements are ignored too.
+   *
+   * @param b right hand side vector
+   * @param isUnitDiag unit diagonal indicator
+   * @param result storage of the result (not <code>null</code>)
+   * @return x as the solution for U*x = b
+   */
+  Matrix backsU(Matrix b, boolean isUnitDiag, Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (rows == cols);
+    assert (b != null && b.rows() == rows && b.cols() == 1);
+    assert (result != null && result.rows() == rows && result.cols() == 1);
+    for (int i = rows-1; i >= 0; --i) {
+      double v = b.get(i,0);
+      for (int j = i+1; j < cols; ++j) {
+        v -= get(i,j) * result.get(j,0);
+      }
+      result.set(i, 0, isUnitDiag ? v : v / get(i,i));
+    }
+    return result;
+  }
+
+  /**
+   * Back substitution solving U*x = b for x
+   * with U being the upper triangular of square matrix <code>this</code>.
+   *
+   * Matrix <code>this</code> should be square and non-singular.
+   * The lower triangular part of matrix <code>this</code> is always ignored.
+   * When <code>isUnitDiag</code> is <code>true</code>,
+   * the diagonal elements are ignored too.
+   *
+   * @param b right hand side vector
+   * @param isUnitDiag unit diagonal indicator
+   * @return x as the solution for U*x = b
+   */
+  Matrix backsU(Matrix b, boolean isUnitDiag) {
+    return backsU(b, isUnitDiag, create(rows(), 1));
+  }
+
+  /**
+   * Back substitution solving U*x = b for x
+   * with U being the upper triangular of square matrix <code>this</code>.
+   *
+   * Matrix <code>this</code> should be square and non-singular.
+   * The lower triangular part of matrix <code>this</code> is always ignored.
+   *
+   * @param b right hand side vector
+   * @param isUnitDiag unit diagonal indicator
+   * @return x as the solution for U*x = b
+   */
+  Matrix backsU(Matrix b) {
+    return backsU(b, false, create(rows(), 1));
+  }
+
+  //----------------------------------------------------------------------------
   // determinant
 
   /**
@@ -1924,9 +2048,10 @@ public abstract class Matrix {
    * @return determinant
    */
   public double det(Matrix tmpLU) {
-    assert (rows() == cols());
+    final int rows = rows();
+    assert (rows == cols());
 
-    switch (rows()) {
+    switch (rows) {
     case 0: return 1.0;
     case 1: return get(0,0);
     case 2: return get(0,0)*get(1,1) - get(0,1)*get(1,0);
@@ -1934,7 +2059,7 @@ public abstract class Matrix {
                  + get(0,1) * (get(1,2)*get(2,0) - get(1,0)*get(2,2))
                  + get(0,2) * (get(1,0)*get(2,1) - get(1,1)*get(2,0));
     default:
-      assert (tmpLU.rows() == rows() && tmpLU.cols() == rows());
+      assert (tmpLU.rows() == rows && tmpLU.cols() == rows);
       int nperms = LU(tmpLU, tmpLU, null, true);
       double det = tmpLU.prodDiag();
       if ((nperms & 1) != 0) { det = -det; }
@@ -1949,8 +2074,9 @@ public abstract class Matrix {
    * @return determinant
    */
   public double det() {
-    assert (rows() == cols());
-    return det((rows() > 3) ? create(rows(), rows()) : null);
+    final int rows = rows();
+    assert (rows == cols());
+    return det((rows > 3) ? create(rows, rows) : null);
   }
 
   //----------------------------------------------------------------------------
