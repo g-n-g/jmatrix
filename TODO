@@ -2,14 +2,15 @@ Refactoring:
 
 Workflow warning in README.
 Proper exception handling.
+Allow result = null settings eerywhere.
 
 -------------------------------------------------------------------------------
 Functionality:
 
+thinSVD
+
 spectral norm computation
   - power method
-
-singular value decomposition
 
 -------------------------------------------------------------------------------
 Performance:

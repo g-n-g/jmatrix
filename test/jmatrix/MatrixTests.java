@@ -787,6 +787,87 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > Math.abs(0.0 - m5x5.T().det(r.setToRand(RNG))));
   }
 
+  public void testSvd() {
+    Matrix m2x2 = Matrix.create(1.0, 0.0, NR,
+                                2.0, 3.0);
+    Matrix U = Matrix.create(2,2);
+    Matrix S = Matrix.create(2,1);
+    Matrix V = Matrix.create(2,2);
+    assertEquals(2, m2x2.compactSVD(U, S, V));
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m2x2).normF());
+    assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > U.mul(U.T()).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > V.mul(V.T()).sub(Matrix.eye(2)).normF());
+
+    Matrix m4x2 = Matrix.create(+1, +2, NR,
+                                -3, +4, NR,
+                                +5, -6, NR,
+                                -7, -8);
+    U = Matrix.create(4,2);
+    S = Matrix.create(2,1);
+    V = Matrix.create(2,2);
+    assertEquals(2, m4x2.compactSVD(U, S, V));
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m4x2).normF());
+    assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > V.mul(V.T()).sub(Matrix.eye(2)).normF());
+
+    Matrix m3x4 = Matrix.create(1, 2, 3, 4, NR,
+                                2, 4, 7, 8, NR,
+                                8, 7, 6, 5);
+    U = Matrix.create(3,3);
+    S = Matrix.create(3,1);
+    V = Matrix.create(4,3);
+    assertEquals(3, m3x4.compactSVD(U, S, V));
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m3x4).normF());
+    assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(3)).normF());
+    assertTrue(PREC > U.mul(U.T()).sub(Matrix.eye(3)).normF());
+    assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(3)).normF());
+
+    Matrix m4x3 = Matrix.create(1, 2, 3, 4, NR,
+                                2, 4, 6, 8, NR,
+                                8, 7, 6, 5).T();
+    U = Matrix.create(4,3);
+    S = Matrix.create(3,1);
+    V = Matrix.create(3,3);
+    assertEquals(2, m4x3.compactSVD(U, S, V));
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m4x3).normF());
+    U = U.getMat(0, 3, 0, 1);
+    S = S.getMat(0, 1, 0, 0);
+    V = V.getMat(0, 2, 0, 1);
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m4x3).normF());
+    assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(2)).normF());
+
+    Matrix m5x9 = Matrix.create(61,   88,   2, 36,  32,  73,   99, 25,  80, NR,
+                                83,   36,  36, 98,   2,  67,   51, 46,  33, NR,
+                                89,  168, -14, 13, -17,  92,  153, 17, 121, NR,
+                                -6, -132,  50, 85,  19, -25, -102, 29, -88, NR,
+                                33,    8,  18, 59,  81,  54,   45, 33,  39);
+
+    Matrix[] USV = m5x9.compactSVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m5x9).normF());
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m5x9).normF());
+    assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(3)).normF());
+    assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(3)).normF());
+
+    Matrix m5x9save = m5x9.copy();
+    U = Matrix.create(5,5);
+    S = Matrix.create(5,1);
+    V = m5x9.T();
+    assertEquals(3, m5x9.compactSVD(U, S, V));
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m5x9save).normF());
+    U = U.getMat(0, 4, 0, 2);
+    S = S.getMat(0, 2, 0, 0);
+    V = V.getMat(0, 8, 0, 2);
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m5x9save).normF());
+    assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(3)).normF());
+    assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(3)).normF());
+  }
+
   //---------------------------------------------------------------------------
 
   public static void main(String[] args) {

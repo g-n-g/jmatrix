@@ -1,5 +1,6 @@
 package jmatrix;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -11,6 +12,11 @@ public abstract class Matrix {
    * New row constant for the {@link Matrix#create(double...)} constructor.
    */
   public final static double NR = Double.NaN;
+
+  /**
+   * Tolerance value for various calculations (e.g. singular values).
+   */
+  public final static double TOL = 2e-8;
 
   /**
    * Creates a dense matrix using the provided data.
@@ -2263,6 +2269,164 @@ public abstract class Matrix {
    */
   public Matrix invPsd() {
     return invPsd(create(rows(), cols()));
+  }
+
+  //----------------------------------------------------------------------------
+  // singular value decomposition
+
+  private double sqrt1xx(double x) {
+    if (x < 0) { x = -x; }
+    if (x <= 64) { return Math.sqrt(1.0 + x*x); }
+    return Math.sqrt(x) * Math.sqrt(1.0/x + x);
+  }
+
+  /**
+   * Compact singular value decomposition. The zero singular values in
+   * <code>S</code> are placed last and their corresponding vectors in
+   * <code>U</code> and <code>V</code> are set to zero.
+   *
+   * Implementation:
+   * J. Demmel, K. Veselic, Jacobi's method is more accurate than QR,
+   * Journal on Matrix Analysis and Applications, 1992, Algorithm 4.1.
+   *
+   * @param U left singular vectors
+   *        (size: rows x min(rows,cols), can be set to <code>this</code>)
+   * @param S singular values (size: min(rows,cols) x 1)
+   * @param V right singular vectors
+   *        (size: cols x min(rows,cols), can be set to <code>this.T()</code>)
+   * @return rank of <code>this</code> matrix
+   */
+  public int compactSVD(Matrix U, Matrix S, Matrix V) {
+    if (rows() < cols()) {
+      return T().compactSVD(V, S, U);
+    }
+    final int rows = rows(), cols = cols();
+    assert (rows >= cols);
+    assert (U != null && U.rows() == rows && U.cols() == cols);
+    assert (S != null && S.rows() == cols && S.cols() == 1);
+    assert (V != null && V.rows() == cols && V.cols() == cols);
+
+    copy(U);
+    V.setToEye();
+
+    final double scale = 1.0 / Math.sqrt(rows);
+    double a = 0.0, b = 0.0, c = 0.0;
+    while (true) {
+      for (int j = 1; j < cols; ++j) {
+        for (int i = 0; i < j; ++i) {
+          // compute submatrix of U'*U
+          a = b = c = 0.0;
+          for (int k = 0; k < rows; ++k) {
+            double u = scale*U.get(k,i);
+            double v = scale*U.get(k,j);
+            a += u*u;
+            b += v*v;
+            c += u*v;
+          }
+
+          // compute Jacobi rotation
+          double eta = (b-a) / (2*c);
+          double t = Math.signum(eta) / (Math.abs(eta) + sqrt1xx(eta));
+          double cs = 1.0 / sqrt1xx(t);
+          double sn = cs * t;
+
+          // rotate columns of U
+          for (int k = 0; k < rows; ++k) {
+            double u = U.get(k,i);
+            double v = U.get(k,j);
+            U.set(k, i, cs*u - sn*v);
+            U.set(k, j, sn*u + cs*v);
+          }
+
+          // rotate columns of V
+          for (int k = 0; k < cols; ++k) {
+            double u = V.get(k,i);
+            double v = V.get(k,j);
+            V.set(k, i, cs*u - sn*v);
+            V.set(k, j, sn*u + cs*v);
+          }
+        }
+      }
+
+      if (Math.sqrt((c/a)*(c/b)) <= TOL) { break; }
+    }
+
+    // compute singular values and left singular vectors
+    int rank = 0;
+    for (int i = 0; i < cols; ++i) {
+      double sigma = 0.0;
+      for (int k = 0; k < rows; ++k) {
+        double t = U.get(k,i);
+        sigma += t*t;
+      }
+      sigma = Math.sqrt(sigma);
+
+      S.set(i, 0, sigma);
+
+      if (sigma > TOL) {
+        ++rank;
+        double t = 1.0 / sigma;
+        for (int k = 0; k < rows; ++k) {
+          U.set(k, i, U.get(k,i) * t);
+        }
+      }
+    }
+
+    // push zero singular values to the back
+    if (rank < cols) {
+      int p = cols-1;
+      int i = 0;
+      while (i < p) {
+        if (S.get(i,0) <= TOL) {
+          while (S.get(p,0) <= TOL) {
+            S.set(p, 0, 0.0);
+            for (int k = 0; k < rows; ++k) { U.set(k, p, 0.0); }
+            for (int k = 0; k < cols; ++k) { V.set(k, p, 0.0); }
+            --p;
+          }
+          if (i >= p) { break; }
+
+          S.set(i, 0, S.get(p,0));
+          S.set(p, 0, 0.0);
+          for (int k = 0; k < rows; ++k) {
+            U.set(k, i, U.get(k,p));
+            U.set(k, p, 0.0);
+          }
+          for (int k = 0; k < cols; ++k) {
+            V.set(k, i, V.get(k,p));
+            V.set(k, p, 0.0);
+          }
+          --p;
+        }
+        ++i;
+      }
+    }
+    return rank;
+  }
+
+  /**
+   * Compact singular value decomposition. The zero singular values in
+   * <code>S</code> are placed last and their corresponding vectors in
+   * <code>U</code> and <code>V</code> are set to zero.
+   *
+   * @return array of three matrices: {U, S, V}
+   * @see Matrix#compactSVD(Matrix, Matrix, Matrix)
+   */
+  public Matrix[] compactSVD() {
+    final int rows = rows(), cols = cols();
+    int m = Math.min(rows, cols);
+
+    Matrix U = Matrix.create(rows, m);
+    Matrix S = Matrix.create(m, 1);
+    Matrix V = Matrix.create(cols, m);
+
+    int rank = compactSVD(U, S, V);
+    if (rank < m) {
+      U = U.getMat(0, rows-1, 0, rank-1);
+      S = S.getMat(0, rank-1, 0, 0);
+      V = V.getMat(0, cols-1, 0, rank-1);
+    }
+    return new Matrix[]{U, S, V};
   }
 
   //----------------------------------------------------------------------------
