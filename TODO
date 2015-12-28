@@ -2,6 +2,7 @@ Refactoring:
 
 Workflow warning in README.
 Allow result = null settings everywhere.
+Split tests to separate classes.
 
 -------------------------------------------------------------------------------
 Functionality:

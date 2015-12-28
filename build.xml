@@ -88,9 +88,24 @@
     </java>
   </target>
 
-  <target name="test-all"
+  <target name="test"
           description="Run all tests."
           depends="test-matrix,test-permutation">
+  </target>
+
+  <target name="bench"
+          description="Run benchmarks."
+          depends="test-compile">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="jmatrix.MatrixBenchmarks"/>
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${bin}"/>
+        <pathelement location="${bin}/test"/>
+        <pathelement location="${junit}"/>
+        <pathelement location="${hamcrest}"/>
+      </classpath>
+    </java>
   </target>
 
   <!-- other targets -->

@@ -25,7 +25,11 @@ Generating documentation:
 
 Running all test cases:
 
-  ant test-all
+  ant test
+
+Running benchmarks:
+
+  ant bench
 
 Cleaning:
 
