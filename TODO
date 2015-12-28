@@ -1,13 +1,14 @@
 Refactoring:
 
 Workflow warning in README.
-Proper exception handling.
-Allow result = null settings eerywhere.
+Allow result = null settings everywhere.
+Rename compactSVD -> reducedSVD.
 
 -------------------------------------------------------------------------------
 Functionality:
 
-ThisSVD, SVD
+Reduced QR decomposition (reducedQR).
+Full SVD.
 
 spectral norm computation
   - power method
@@ -16,4 +17,6 @@ spectral norm computation
 Performance:
 
 Blocked versions of matrix multiplication and some decompositions.
+Initial reducedQR to improve reducedSVD performance.
+
 Benchmarking against other matrix libraries.

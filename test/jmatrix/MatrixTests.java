@@ -14,6 +14,8 @@ public class MatrixTests extends AssertionBaseTest {
   public static final double PREC = 1e-8;
   public static final Random RNG = new Random();
 
+  public static final int nRandomTests = 25;
+
   //---------------------------------------------------------------------------
 
   public MatrixTests(String name) { super(name); }
@@ -517,7 +519,34 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > m.sub(L.mul(Matrix.diag(D)).mul(L.T())).norm1());
   }
 
-  public void testQR() {
+  public void testQR1() { // basic tests
+    Matrix M1 = Matrix.zeros(2, 2);
+    Matrix[] QR = M1.QR();
+    Matrix Q = QR[0];
+    Matrix R = QR[1];
+    assertTrue(PREC > M1.sub(Q.mul(R)).norm1());
+    assertTrue(PREC > Matrix.eye(2).sub(Q.T().mul(Q)).norm1());
+    assertTrue(PREC > Matrix.eye(2).sub(Q.mul(Q.T())).norm1());
+
+    Matrix M2 = Matrix.eye(2);
+    QR = M1.QR();
+    Q = QR[0];
+    R = QR[1];
+    assertTrue(PREC > M1.sub(Q.mul(R)).norm1());
+    assertTrue(PREC > Matrix.eye(2).sub(Q.T().mul(Q)).norm1());
+    assertTrue(PREC > Matrix.eye(2).sub(Q.mul(Q.T())).norm1());
+
+    Matrix M3 = Matrix.create(-1.0, 2.0, NR,
+                              2.0, -1.0);
+    QR = M3.QR();
+    Q = QR[0];
+    R = QR[1];
+    assertTrue(PREC > M3.sub(Q.mul(R)).norm1());
+    assertTrue(PREC > Matrix.eye(2).sub(Q.T().mul(Q)).norm1());
+    assertTrue(PREC > Matrix.eye(2).sub(Q.mul(Q.T())).norm1());
+  }
+
+  public void testQR2() { // full rank tests
     Matrix M1 = Matrix.create(1, 2, NR, // size: 2x2
                               4, 1);
     Matrix[] QR = M1.QR();
@@ -536,16 +565,20 @@ public class MatrixTests extends AssertionBaseTest {
     R = QR[1];
     assertTrue(PREC > M2.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(5).sub(Q.T().mul(Q)).norm1());
+    assertTrue(PREC > Matrix.eye(5).sub(Q.mul(Q.T())).norm1());
+  }
 
+  public void testQR3() { // low rank tests
     Matrix M3 = Matrix.create(+1, +2, NR, // size: 4x2
                               -3, +4, NR,
                               +5, -6, NR,
                               -7, -8);
-    Q = Matrix.create(4, 4);
-    R = Matrix.create(4, 2);
+    Matrix Q = Matrix.create(4, 4);
+    Matrix R = Matrix.create(4, 2);
     M3.QR(Q, R, Matrix.create(3, 1));
     assertTrue(PREC > M3.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(4).sub(Q.T().mul(Q)).norm1());
+    assertTrue(PREC > Matrix.eye(4).sub(Q.mul(Q.T())).norm1());
 
     Matrix M4 = Matrix.create(+1, +2, NR, // size: 4x2
                               -0, +0, NR,
@@ -556,6 +589,7 @@ public class MatrixTests extends AssertionBaseTest {
     M4.QR(Q, R, Matrix.rand(3, 1, RNG));
     assertTrue(PREC > M4.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(4).sub(Q.T().mul(Q)).norm1());
+    assertTrue(PREC > Matrix.eye(4).sub(Q.mul(Q.T())).norm1());
 
     Matrix M5 = Matrix.create(  0,   0, NR, // size: 3x2
                                10,  20, NR,
@@ -565,6 +599,7 @@ public class MatrixTests extends AssertionBaseTest {
     M5.QR(Q, R, Matrix.create(10, 1));
     assertTrue(PREC > M5.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(3).sub(Q.T().mul(Q)).norm1());
+    assertTrue(PREC > Matrix.eye(3).sub(Q.mul(Q.T())).norm1());
 
     Matrix M6 = Matrix.create(0, 10, NR, // size: 3x2
                               0, 20, NR,
@@ -574,6 +609,7 @@ public class MatrixTests extends AssertionBaseTest {
     M6.QR(Q, R, Matrix.create(10, 1));
     assertTrue(PREC > M6.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(3).sub(Q.T().mul(Q)).norm1());
+    assertTrue(PREC > Matrix.eye(3).sub(Q.mul(Q.T())).norm1());
 
     Matrix M7 = Matrix.create(1, 2, 3, 4, NR, // size: 3x4
                               2, 4, 6, 8, NR,
@@ -583,6 +619,24 @@ public class MatrixTests extends AssertionBaseTest {
     M7.QR(Q, R, Matrix.rand(1, 2, RNG));
     assertTrue(PREC > M7.sub(Q.mul(R)).norm1());
     assertTrue(PREC > Matrix.eye(3).sub(Q.T().mul(Q)).norm1());
+    assertTrue(PREC > Matrix.eye(3).sub(Q.mul(Q.T())).norm1());
+  }
+
+  public void testQR4() { // "random" tests
+    Random rng = new Random(19273);
+    final int repeats = nRandomTests;
+    for (int rep = 0; rep < repeats; ++rep) {
+      int rows = 1+rng.nextInt(50);
+      int cols = 1+rng.nextInt(50);
+      // System.out.println("rows = " + rows + ", cols = " + cols);
+      Matrix M = Matrix.randN(rows, cols, rng);
+      Matrix[] QR = M.QR();
+      Matrix Q = QR[0];
+      Matrix R = QR[1];
+      assertTrue(PREC > M.sub(Q.mul(R)).norm1());
+      assertTrue(PREC > Matrix.eye(rows).sub(Q.T().mul(Q)).norm1());
+      assertTrue(PREC > Matrix.eye(rows).sub(Q.mul(Q.T())).norm1());
+    }
   }
 
   public void testLU() {
@@ -923,10 +977,11 @@ public class MatrixTests extends AssertionBaseTest {
 
   public void testCompactSVD4() { // "random" tests with scaling
     Random rng = new Random(19273);
-    final int repeats = 10;
+    final int repeats = nRandomTests;
     for (int rep = 0; rep < repeats; ++rep) {
       int rows = 1+rng.nextInt(50);
       int cols = 1+rng.nextInt(50);
+      // System.out.println("rows = " + rows + ", cols = " + cols);
       Matrix A1 = Matrix.randN(rows, cols, rng);
       Matrix[] USV = A1.compactSVD();
       Matrix U1 = USV[0], S1 = USV[1], V1 = USV[2];
