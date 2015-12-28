@@ -2274,10 +2274,17 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
   // singular value decomposition
 
-  private double sqrt1xx(double x) {
-    if (x < 0) { x = -x; }
-    if (x <= 64) { return Math.sqrt(1.0 + x*x); }
-    return Math.sqrt(x) * Math.sqrt(1.0/x + x);
+  private double stable2norm(double x, double y) {
+    double r = 0.0, s = 0.0;
+    if (x >= y) {
+      r = y/x;
+      s = x;
+    }
+    else {
+      r = x/y;
+      s = y;
+    }
+    return s * Math.sqrt(1.0 + r*r);
   }
 
   /**
@@ -2308,27 +2315,59 @@ public abstract class Matrix {
 
     copy(U);
     V.setToEye();
+    S.setToOnes();
 
-    final double scale = 1.0 / Math.sqrt(rows);
-    double a = 0.0, b = 0.0, c = 0.0;
-    while (true) {
+    // scaling
+    {
+      double maxv = 1.0;
+      for (int i = 0; i < cols; ++i) {
+        for (int k = 0; k < rows; ++k) {
+          double v = Math.abs(U.get(k,i));
+          if (v > maxv) { maxv = v; }
+        }
+      }
+
+      if (maxv > 1.0) {
+        double recmaxv = 1.0 / maxv;
+        for (int i = 0; i < cols; ++i) {
+          S.set(i, 0, maxv);
+          for (int k = 0; k < rows; ++k) {
+            U.set(k, i, U.get(k,i) * recmaxv);
+          }
+        }
+      }
+    }
+
+    boolean isUpdated = true;
+    while (isUpdated) {
+      isUpdated = false;
+
       for (int j = 1; j < cols; ++j) {
         for (int i = 0; i < j; ++i) {
           // compute submatrix of U'*U
-          a = b = c = 0.0;
+          double a = 0.0, b = 0.0, c = 0.0;
           for (int k = 0; k < rows; ++k) {
-            double u = scale*U.get(k,i);
-            double v = scale*U.get(k,j);
+            double u = U.get(k,i);
+            double v = U.get(k,j);
             a += u*u;
             b += v*v;
             c += u*v;
           }
 
           // compute Jacobi rotation
-          double eta = (b-a) / (2*c);
-          double t = Math.signum(eta) / (Math.abs(eta) + sqrt1xx(eta));
-          double cs = 1.0 / sqrt1xx(t);
+          double ba = 0.5*(b-a);
+          double t = 1.0;
+          if (ba < 0.0) { t = -t; ba = -ba; }
+          if (ba <= TOL) { continue; }
+          if (c < 0.0) { t = -t; c = -c; }
+          t *= c / (ba + stable2norm(c, ba));
+          double cs = 1.0 / stable2norm(1.0, t);
           double sn = cs * t;
+
+          // update terminal condition
+          if (!isUpdated && c > Math.sqrt((TOL*a)*(TOL*b))) {
+            isUpdated = true;
+          }
 
           // rotate columns of U
           for (int k = 0; k < rows; ++k) {
@@ -2347,8 +2386,6 @@ public abstract class Matrix {
           }
         }
       }
-
-      if (Math.sqrt((c/a)*(c/b)) <= TOL) { break; }
     }
 
     // compute singular values and left singular vectors
@@ -2361,8 +2398,7 @@ public abstract class Matrix {
       }
       sigma = Math.sqrt(sigma);
 
-      S.set(i, 0, sigma);
-
+      S.set(i, 0, S.get(i,0) * sigma);
       if (sigma > TOL) {
         ++rank;
         double t = 1.0 / sigma;
@@ -2378,7 +2414,7 @@ public abstract class Matrix {
       int i = 0;
       while (i < p) {
         if (S.get(i,0) <= TOL) {
-          while (S.get(p,0) <= TOL) {
+          while (p >= 0 && S.get(p,0) <= TOL) {
             S.set(p, 0, 0.0);
             for (int k = 0; k < rows; ++k) { U.set(k, p, 0.0); }
             for (int k = 0; k < cols; ++k) { V.set(k, p, 0.0); }
@@ -2422,9 +2458,16 @@ public abstract class Matrix {
 
     int rank = compactSVD(U, S, V);
     if (rank < m) {
-      U = U.getMat(0, rows-1, 0, rank-1);
-      S = S.getMat(0, rank-1, 0, 0);
-      V = V.getMat(0, cols-1, 0, rank-1);
+      if (rank == 0) {
+        U = create(rows, 0);
+        S = create(0, 0);
+        V = create(cols, 0);
+      }
+      else {
+        U = U.getMat(0, rows-1, 0, rank-1);
+        S = S.getMat(0, rank-1, 0, 0);
+        V = V.getMat(0, cols-1, 0, rank-1);
+      }
     }
     return new Matrix[]{U, S, V};
   }

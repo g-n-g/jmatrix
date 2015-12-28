@@ -787,7 +787,33 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > Math.abs(0.0 - m5x5.T().det(r.setToRand(RNG))));
   }
 
-  public void testSvd() {
+  public void testCompactSVD1() { // basic tests
+    Matrix m2x2 = Matrix.zeros(2,2);
+    Matrix[] USV = m2x2.compactSVD();
+    assertEquals(3, USV.length);
+    Matrix U = USV[0], S = USV[1], V = USV[2];
+    assertTrue(U.isEmpty());
+    assertTrue(S.isEmpty());
+    assertTrue(V.isEmpty());
+
+    m2x2.setToEye();
+    USV = m2x2.compactSVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    assertTrue(PREC > U.sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > S.sub(Matrix.create(1.0, 1.0).T()).normF());
+    assertTrue(PREC > V.sub(Matrix.eye(2)).normF());
+
+    m2x2.set(1, 1, 22.0);
+    USV = m2x2.compactSVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    assertTrue(PREC > U.sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > S.sub(Matrix.create(1.0, 22.0).T()).normF());
+    assertTrue(PREC > V.sub(Matrix.eye(2)).normF());
+  }
+
+  public void testCompactSVD2() { // full rank tests
     Matrix m2x2 = Matrix.create(1.0, 0.0, NR,
                                 2.0, 3.0);
     Matrix U = Matrix.create(2,2);
@@ -824,13 +850,15 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(3)).normF());
     assertTrue(PREC > U.mul(U.T()).sub(Matrix.eye(3)).normF());
     assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(3)).normF());
+  }
 
+  public void testCompactSVD3() { // low rank tests
     Matrix m4x3 = Matrix.create(1, 2, 3, 4, NR,
                                 2, 4, 6, 8, NR,
                                 8, 7, 6, 5).T();
-    U = Matrix.create(4,3);
-    S = Matrix.create(3,1);
-    V = Matrix.create(3,3);
+    Matrix U = Matrix.create(4,3);
+    Matrix S = Matrix.create(3,1);
+    Matrix V = Matrix.create(3,3);
     assertEquals(2, m4x3.compactSVD(U, S, V));
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m4x3).normF());
     U = U.getMat(0, 3, 0, 1);

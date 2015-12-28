@@ -7,7 +7,7 @@ Allow result = null settings eerywhere.
 -------------------------------------------------------------------------------
 Functionality:
 
-thinSVD
+ThisSVD, SVD
 
 spectral norm computation
   - power method
