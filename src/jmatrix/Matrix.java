@@ -1,6 +1,5 @@
 package jmatrix;
 
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -2291,6 +2290,7 @@ public abstract class Matrix {
    * Compact singular value decomposition. The zero singular values in
    * <code>S</code> are placed last and their corresponding vectors in
    * <code>U</code> and <code>V</code> are set to zero.
+   * The nonzero singular values are not ordered.
    *
    * Implementation:
    * J. Demmel, K. Veselic, Jacobi's method is more accurate than QR,
@@ -2313,27 +2313,23 @@ public abstract class Matrix {
     assert (S != null && S.rows() == cols && S.cols() == 1);
     assert (V != null && V.rows() == cols && V.cols() == cols);
 
+    // initialization
     copy(U);
     V.setToEye();
-    S.setToOnes();
 
     // scaling
-    {
-      double maxv = 1.0;
+    double scale = 0.0;
+    for (int i = 0; i < cols; ++i) {
+      for (int k = 0; k < rows; ++k) {
+        double s = Math.abs(U.get(k,i));
+        if (s > scale) { scale = s; }
+      }
+    }
+    if (scale > 0.0) {
+      double recscale = 1.0 / scale;
       for (int i = 0; i < cols; ++i) {
         for (int k = 0; k < rows; ++k) {
-          double v = Math.abs(U.get(k,i));
-          if (v > maxv) { maxv = v; }
-        }
-      }
-
-      if (maxv > 1.0) {
-        double recmaxv = 1.0 / maxv;
-        for (int i = 0; i < cols; ++i) {
-          S.set(i, 0, maxv);
-          for (int k = 0; k < rows; ++k) {
-            U.set(k, i, U.get(k,i) * recmaxv);
-          }
+          U.set(k, i, U.get(k,i) * recscale);
         }
       }
     }
@@ -2358,8 +2354,8 @@ public abstract class Matrix {
           double ba = 0.5*(b-a);
           double t = 1.0;
           if (ba < 0.0) { t = -t; ba = -ba; }
-          if (ba <= TOL) { continue; }
           if (c < 0.0) { t = -t; c = -c; }
+          if (ba <= TOL && c <= TOL) { continue; }
           t *= c / (ba + stable2norm(c, ba));
           double cs = 1.0 / stable2norm(1.0, t);
           double sn = cs * t;
@@ -2398,17 +2394,17 @@ public abstract class Matrix {
       }
       sigma = Math.sqrt(sigma);
 
-      S.set(i, 0, S.get(i,0) * sigma);
+      S.set(i, 0, sigma * scale);
       if (sigma > TOL) {
         ++rank;
-        double t = 1.0 / sigma;
+        double recsigma = 1.0 / sigma;
         for (int k = 0; k < rows; ++k) {
-          U.set(k, i, U.get(k,i) * t);
+          U.set(k, i, U.get(k,i) * recsigma);
         }
       }
     }
 
-    // push zero singular values to the back
+    // move zero singular values to the back
     if (rank < cols) {
       int p = cols-1;
       int i = 0;
@@ -2441,11 +2437,12 @@ public abstract class Matrix {
   }
 
   /**
-   * Compact singular value decomposition. The zero singular values in
-   * <code>S</code> are placed last and their corresponding vectors in
-   * <code>U</code> and <code>V</code> are set to zero.
+   * Compact singular value decomposition.
+   * Zero singular values and their singular vectors are omitted.
+   * The nonzero singular values are not ordered.
    *
-   * @return array of three matrices: {U, S, V}
+   * @return array of three matrices {U, S, V}
+   *         with size rows x rank, rank x 1, and cols x rank, respectively
    * @see Matrix#compactSVD(Matrix, Matrix, Matrix)
    */
   public Matrix[] compactSVD() {

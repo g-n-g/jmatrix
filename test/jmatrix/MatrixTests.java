@@ -2,6 +2,7 @@ package jmatrix;
 
 import java.util.Random;
 import static jmatrix.Matrix.NR;
+import static jmatrix.Matrix.TOL;
 import static jmatrix.BasicUnaryOperation.*;
 import static jmatrix.BasicBinaryOperation.*;
 
@@ -811,6 +812,30 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > U.sub(Matrix.eye(2)).normF());
     assertTrue(PREC > S.sub(Matrix.create(1.0, 22.0).T()).normF());
     assertTrue(PREC > V.sub(Matrix.eye(2)).normF());
+
+    m2x2 = Matrix.create(1.0, 2.0, NR,
+                         2.0, 1.0);
+    USV = m2x2.compactSVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m2x2).normF());
+    assertTrue(PREC > S.sub(Matrix.create(1.0, 3.0).T()).normF());
+    assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > U.mul(U.T()).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > V.mul(V.T()).sub(Matrix.eye(2)).normF());
+
+    m2x2 = Matrix.create(4.0, 4.0, NR,
+                         -3.0, 3.0);
+    USV = m2x2.compactSVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m2x2).normF());
+    assertTrue(PREC > S.sub(Matrix.create(3.0, 4.0).T().mul(Math.sqrt(2.0))).normF());
+    assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > U.mul(U.T()).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(2)).normF());
+    assertTrue(PREC > V.mul(V.T()).sub(Matrix.eye(2)).normF());
   }
 
   public void testCompactSVD2() { // full rank tests
@@ -894,6 +919,36 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m5x9save).normF());
     assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(3)).normF());
     assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(3)).normF());
+  }
+
+  public void testCompactSVD4() { // "random" tests with scaling
+    Random rng = new Random(19273);
+    final int repeats = 10;
+    for (int rep = 0; rep < repeats; ++rep) {
+      int rows = 1+rng.nextInt(50);
+      int cols = 1+rng.nextInt(50);
+      Matrix A1 = Matrix.randN(rows, cols, rng);
+      Matrix[] USV = A1.compactSVD();
+      Matrix U1 = USV[0], S1 = USV[1], V1 = USV[2];
+      assertTrue(PREC > U1.ewb(MUL, S1.T()).mul(V1.T()).sub(A1).normF());
+      int rank1 = S1.rows();
+      assertTrue(PREC > U1.T().mul(U1).sub(Matrix.eye(rank1)).normF());
+      assertTrue(PREC > V1.T().mul(V1).sub(Matrix.eye(rank1)).normF());
+
+      Matrix A2 = A1.mul(TOL);
+      USV = A2.compactSVD();
+      Matrix U2 = USV[0], S2 = USV[1], V2 = USV[2];
+      assertTrue(PREC > U2.sub(U1).normF());
+      assertTrue(PREC > V2.sub(V1).normF());
+      assertTrue(PREC > S2.div(TOL).sub(S1).normF());
+
+      Matrix A3 = A1.div(TOL);
+      USV = A3.compactSVD();
+      Matrix U3 = USV[0], S3 = USV[1], V3 = USV[2];
+      assertTrue(PREC > U3.sub(U1).normF());
+      assertTrue(PREC > V3.sub(V1).normF());
+      assertTrue(PREC > S3.mul(TOL).sub(S1).normF());
+    }
   }
 
   //---------------------------------------------------------------------------
