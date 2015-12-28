@@ -842,9 +842,9 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > Math.abs(0.0 - m5x5.T().det(r.setToRand(RNG))));
   }
 
-  public void testCompactSVD1() { // basic tests
+  public void testReducedSVD1() { // basic tests
     Matrix m2x2 = Matrix.zeros(2,2);
-    Matrix[] USV = m2x2.compactSVD();
+    Matrix[] USV = m2x2.reducedSVD();
     assertEquals(3, USV.length);
     Matrix U = USV[0], S = USV[1], V = USV[2];
     assertTrue(U.isEmpty());
@@ -852,7 +852,7 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(V.isEmpty());
 
     m2x2.setToEye();
-    USV = m2x2.compactSVD();
+    USV = m2x2.reducedSVD();
     assertEquals(3, USV.length);
     U = USV[0]; S = USV[1]; V = USV[2];
     assertTrue(PREC > U.sub(Matrix.eye(2)).normF());
@@ -860,7 +860,7 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > V.sub(Matrix.eye(2)).normF());
 
     m2x2.set(1, 1, 22.0);
-    USV = m2x2.compactSVD();
+    USV = m2x2.reducedSVD();
     assertEquals(3, USV.length);
     U = USV[0]; S = USV[1]; V = USV[2];
     assertTrue(PREC > U.sub(Matrix.eye(2)).normF());
@@ -869,7 +869,7 @@ public class MatrixTests extends AssertionBaseTest {
 
     m2x2 = Matrix.create(1.0, 2.0, NR,
                          2.0, 1.0);
-    USV = m2x2.compactSVD();
+    USV = m2x2.reducedSVD();
     assertEquals(3, USV.length);
     U = USV[0]; S = USV[1]; V = USV[2];
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m2x2).normF());
@@ -881,7 +881,7 @@ public class MatrixTests extends AssertionBaseTest {
 
     m2x2 = Matrix.create(4.0, 4.0, NR,
                          -3.0, 3.0);
-    USV = m2x2.compactSVD();
+    USV = m2x2.reducedSVD();
     assertEquals(3, USV.length);
     U = USV[0]; S = USV[1]; V = USV[2];
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m2x2).normF());
@@ -892,13 +892,13 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > V.mul(V.T()).sub(Matrix.eye(2)).normF());
   }
 
-  public void testCompactSVD2() { // full rank tests
+  public void testReducedSVD2() { // full rank tests
     Matrix m2x2 = Matrix.create(1.0, 0.0, NR,
                                 2.0, 3.0);
     Matrix U = Matrix.create(2,2);
     Matrix S = Matrix.create(2,1);
     Matrix V = Matrix.create(2,2);
-    assertEquals(2, m2x2.compactSVD(U, S, V));
+    assertEquals(2, m2x2.reducedSVD(U, S, V));
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m2x2).normF());
     assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(2)).normF());
     assertTrue(PREC > U.mul(U.T()).sub(Matrix.eye(2)).normF());
@@ -912,7 +912,7 @@ public class MatrixTests extends AssertionBaseTest {
     U = Matrix.create(4,2);
     S = Matrix.create(2,1);
     V = Matrix.create(2,2);
-    assertEquals(2, m4x2.compactSVD(U, S, V));
+    assertEquals(2, m4x2.reducedSVD(U, S, V));
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m4x2).normF());
     assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(2)).normF());
     assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(2)).normF());
@@ -924,21 +924,21 @@ public class MatrixTests extends AssertionBaseTest {
     U = Matrix.create(3,3);
     S = Matrix.create(3,1);
     V = Matrix.create(4,3);
-    assertEquals(3, m3x4.compactSVD(U, S, V));
+    assertEquals(3, m3x4.reducedSVD(U, S, V));
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m3x4).normF());
     assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(3)).normF());
     assertTrue(PREC > U.mul(U.T()).sub(Matrix.eye(3)).normF());
     assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(3)).normF());
   }
 
-  public void testCompactSVD3() { // low rank tests
+  public void testReducedSVD3() { // low rank tests
     Matrix m4x3 = Matrix.create(1, 2, 3, 4, NR,
                                 2, 4, 6, 8, NR,
                                 8, 7, 6, 5).T();
     Matrix U = Matrix.create(4,3);
     Matrix S = Matrix.create(3,1);
     Matrix V = Matrix.create(3,3);
-    assertEquals(2, m4x3.compactSVD(U, S, V));
+    assertEquals(2, m4x3.reducedSVD(U, S, V));
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m4x3).normF());
     U = U.getMat(0, 3, 0, 1);
     S = S.getMat(0, 1, 0, 0);
@@ -953,7 +953,7 @@ public class MatrixTests extends AssertionBaseTest {
                                 -6, -132,  50, 85,  19, -25, -102, 29, -88, NR,
                                 33,    8,  18, 59,  81,  54,   45, 33,  39);
 
-    Matrix[] USV = m5x9.compactSVD();
+    Matrix[] USV = m5x9.reducedSVD();
     assertEquals(3, USV.length);
     U = USV[0]; S = USV[1]; V = USV[2];
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m5x9).normF());
@@ -965,7 +965,7 @@ public class MatrixTests extends AssertionBaseTest {
     U = Matrix.create(5,5);
     S = Matrix.create(5,1);
     V = m5x9.T();
-    assertEquals(3, m5x9.compactSVD(U, S, V));
+    assertEquals(3, m5x9.reducedSVD(U, S, V));
     assertTrue(PREC > U.mul(Matrix.diag(S)).mul(V.T()).sub(m5x9save).normF());
     U = U.getMat(0, 4, 0, 2);
     S = S.getMat(0, 2, 0, 0);
@@ -975,7 +975,7 @@ public class MatrixTests extends AssertionBaseTest {
     assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(3)).normF());
   }
 
-  public void testCompactSVD4() { // "random" tests with scaling
+  public void testReducedSVD4() { // "random" tests with scaling
     Random rng = new Random(19273);
     final int repeats = nRandomTests;
     for (int rep = 0; rep < repeats; ++rep) {
@@ -983,7 +983,7 @@ public class MatrixTests extends AssertionBaseTest {
       int cols = 1+rng.nextInt(50);
       // System.out.println("rows = " + rows + ", cols = " + cols);
       Matrix A1 = Matrix.randN(rows, cols, rng);
-      Matrix[] USV = A1.compactSVD();
+      Matrix[] USV = A1.reducedSVD();
       Matrix U1 = USV[0], S1 = USV[1], V1 = USV[2];
       assertTrue(PREC > U1.ewb(MUL, S1.T()).mul(V1.T()).sub(A1).normF());
       int rank1 = S1.rows();
@@ -991,14 +991,14 @@ public class MatrixTests extends AssertionBaseTest {
       assertTrue(PREC > V1.T().mul(V1).sub(Matrix.eye(rank1)).normF());
 
       Matrix A2 = A1.mul(TOL);
-      USV = A2.compactSVD();
+      USV = A2.reducedSVD();
       Matrix U2 = USV[0], S2 = USV[1], V2 = USV[2];
       assertTrue(PREC > U2.sub(U1).normF());
       assertTrue(PREC > V2.sub(V1).normF());
       assertTrue(PREC > S2.div(TOL).sub(S1).normF());
 
       Matrix A3 = A1.div(TOL);
-      USV = A3.compactSVD();
+      USV = A3.reducedSVD();
       Matrix U3 = USV[0], S3 = USV[1], V3 = USV[2];
       assertTrue(PREC > U3.sub(U1).normF());
       assertTrue(PREC > V3.sub(V1).normF());

@@ -2287,7 +2287,7 @@ public abstract class Matrix {
   }
 
   /**
-   * Compact singular value decomposition. The zero singular values in
+   * Reduced singular value decomposition. The zero singular values in
    * <code>S</code> are placed last and their corresponding vectors in
    * <code>U</code> and <code>V</code> are set to zero.
    * The nonzero singular values are not ordered.
@@ -2303,9 +2303,9 @@ public abstract class Matrix {
    *        (size: cols x min(rows,cols), can be set to <code>this.T()</code>)
    * @return rank of <code>this</code> matrix
    */
-  public int compactSVD(Matrix U, Matrix S, Matrix V) {
+  public int reducedSVD(Matrix U, Matrix S, Matrix V) {
     if (rows() < cols()) {
-      return T().compactSVD(V, S, U);
+      return T().reducedSVD(V, S, U);
     }
     final int rows = rows(), cols = cols();
     assert (rows >= cols);
@@ -2437,15 +2437,15 @@ public abstract class Matrix {
   }
 
   /**
-   * Compact singular value decomposition.
+   * Reduced singular value decomposition.
    * Zero singular values and their singular vectors are omitted.
    * The nonzero singular values are not ordered.
    *
    * @return array of three matrices {U, S, V}
    *         with size rows x rank, rank x 1, and cols x rank, respectively
-   * @see Matrix#compactSVD(Matrix, Matrix, Matrix)
+   * @see Matrix#reducedSVD(Matrix, Matrix, Matrix)
    */
-  public Matrix[] compactSVD() {
+  public Matrix[] reducedSVD() {
     final int rows = rows(), cols = cols();
     int m = Math.min(rows, cols);
 
@@ -2453,7 +2453,7 @@ public abstract class Matrix {
     Matrix S = Matrix.create(m, 1);
     Matrix V = Matrix.create(cols, m);
 
-    int rank = compactSVD(U, S, V);
+    int rank = reducedSVD(U, S, V);
     if (rank < m) {
       if (rank == 0) {
         U = create(rows, 0);

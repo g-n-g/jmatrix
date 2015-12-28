@@ -2,7 +2,6 @@ Refactoring:
 
 Workflow warning in README.
 Allow result = null settings everywhere.
-Rename compactSVD -> reducedSVD.
 
 -------------------------------------------------------------------------------
 Functionality:
