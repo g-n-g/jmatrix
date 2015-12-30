@@ -56,6 +56,14 @@ public class MatrixAssert {
   }
 
   /**
+   * Asserts that matrix is diagonal.
+   */
+  public static void assertMatrixDiag(Matrix m, double tol) {
+    assertMatrixLT(m, tol);
+    assertMatrixUT(m, tol);
+  }
+
+  /**
    * Asserts that matrix is orthogonal.
    */
   public static void assertMatrixOrtho(Matrix m, double tol) {

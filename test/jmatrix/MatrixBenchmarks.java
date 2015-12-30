@@ -7,7 +7,12 @@ import java.util.LinkedList;
 
 import org.junit.Test;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
 import static jmatrix.MatrixAssert.assertMatrixEquals;
+import static jmatrix.MatrixAssert.assertMatrixUnitLT;
+import static jmatrix.MatrixAssert.assertMatrixLT;
+import static jmatrix.MatrixAssert.assertMatrixUT;
+import static jmatrix.MatrixAssert.assertMatrixDiag;
 import static jmatrix.MatrixAssert.assertMatrixOrtho;
 import static jmatrix.MatrixAssert.assertMatrixOrthoCols;
 
@@ -30,7 +35,8 @@ public class MatrixBenchmarks {
 
   private interface Bench
   {
-    void run(Matrix A);
+    void compute(Matrix A);
+    void check(Matrix A);
   }
 
   private class Result
@@ -48,7 +54,7 @@ public class MatrixBenchmarks {
   }
   private static List<Result> results = new LinkedList<Result>();
 
-  private void bench(String name, Bench test) {
+  private void bench(String name, Bench test, boolean isPsd) {
     Random rng = new Random(SEED);
 
     long[] times = new long[REPEAT_COUNT];
@@ -57,10 +63,12 @@ public class MatrixBenchmarks {
       int cols = MINSIZE+rng.nextInt(MAXSIZE-MINSIZE);
       // System.out.println("rows = " + rows + ", cols = " + cols);
       Matrix A = Matrix.randN(rows, cols, rng);
+      if (isPsd) { A = A.mul(A.T()).add(Matrix.eye(rows).mul(2*TOL)); }
 
       long ts = System.currentTimeMillis();
-      test.run(A);
+      test.compute(A.copy());
       times[repeat] = System.currentTimeMillis() - ts;
+      test.check(A);
     }
 
     long min = Long.MAX_VALUE, max = 0, avg = 0;
@@ -96,44 +104,103 @@ public class MatrixBenchmarks {
 
   //---------------------------------------------------------------------------
 
-  @Test public void QR() { bench("QR", new BenchQR()); }
-  @Test public void reducedSVD() { bench("SVD (reduced)", new BenchReducedSVD()); }
+  @Test public void LU() { bench("LU", new BenchLU(), false); }
+  @Test public void QR() { bench("QR", new BenchQR(), false); }
+  @Test public void CholeskyL() { bench("Cholesky L",
+                                        new BenchCholeskyL(),
+                                        true); }
+  @Test public void CholeskyLD() { bench("Cholesky LD",
+                                         new BenchCholeskyLD(),
+                                         true); }
+  @Test public void reducedSVD() { bench("SVD (reduced)",
+                                         new BenchReducedSVD(),
+                                         false); }
 
   //---------------------------------------------------------------------------
 
+  private class BenchLU implements Bench
+  {
+    public void compute(Matrix A) {
+      Matrix[] LUP = A.LU();
+      L = LUP[0];
+      U = LUP[1];
+      P = LUP[2];
+    }
+
+    public void check(Matrix A) {
+      assertMatrixEquals(A, P.T().mul(L).mul(U), TOL);
+      assertMatrixUnitLT(L, TOL);
+      assertMatrixUT(U, TOL);
+    }
+
+    private Matrix L, U, P;
+  }
+
   private class BenchQR implements Bench
   {
-    public void run(Matrix A) {
+    public void compute(Matrix A) {
       Matrix[] QR = A.QR();
-      Matrix Q = QR[0]; Matrix R = QR[1];
+      Q = QR[0];
+      R = QR[1];
+    }
+
+    public void check(Matrix A) {
       assertMatrixEquals(A, Q.mul(R), TOL);
       assertMatrixOrtho(Q, TOL);
+      assertMatrixUT(R, TOL);
     }
+
+    private Matrix Q, R;
+  }
+
+  private class BenchCholeskyL implements Bench
+  {
+    public void compute(Matrix A) {
+      L = A.choleskyL();
+    }
+
+    public void check(Matrix A) {
+      assertEquals(L.rows(), L.cols());
+      assertMatrixEquals(A, L.mul(L.T()), TOL);
+      assertMatrixLT(L, TOL);
+    }
+
+    private Matrix L;
+  }
+
+  private class BenchCholeskyLD implements Bench
+  {
+    public void compute(Matrix A) {
+      Matrix[] LD = A.choleskyLD();
+      L = LD[0];
+      D = LD[1];
+    }
+
+    public void check(Matrix A) {
+      assertEquals(L.rows(), L.cols());
+      assertMatrixEquals(A, L.mul(D).mul(L.T()), TOL);
+      assertMatrixLT(L, TOL);
+      assertMatrixDiag(D, TOL);
+    }
+
+    private Matrix L, D;
   }
 
   private class BenchReducedSVD implements Bench
   {
-    public void run(Matrix A) {
+    public void compute(Matrix A) {
       Matrix[] USV = A.reducedSVD();
-      Matrix U = USV[0], S = USV[1], V = USV[2];
+      U = USV[0];
+      S = USV[1];
+      V = USV[2];
+    }
+
+    public void check(Matrix A) {
       assertMatrixEquals(A, U.ewb(MUL, S.T()).mul(V.T()), TOL);
-      int rank = S.rows();
       assertMatrixOrthoCols(U, TOL);
       assertMatrixOrthoCols(V, TOL);
-
-      Matrix A1 = A.div(TOL);
-      USV = A1.reducedSVD();
-      Matrix U1 = USV[0], S1 = USV[1], V1 = USV[2];
-      assertMatrixEquals(U, U1, TOL);
-      assertMatrixEquals(V, V1, TOL);
-      assertMatrixEquals(S, S1.mul(TOL), TOL);
-
-      Matrix A2 = A.mul(TOL);
-      USV = A2.reducedSVD();
-      Matrix U2 = USV[0], S2 = USV[1], V2 = USV[2];
-      assertMatrixEquals(U, U2, TOL);
-      assertMatrixEquals(V, V2, TOL);
-      assertMatrixEquals(S, S2.div(TOL), TOL);
     }
+
+    private Matrix U, S, V;
   }
 }

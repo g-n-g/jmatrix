@@ -15,7 +15,7 @@ spectral norm computation
 -------------------------------------------------------------------------------
 Performance:
 
-LU decomposition benchmark.
+Initial reducedQR to improve reducedSVD performance.
 Matrix multiplication benchmark.
 
 Blocked versions:
@@ -25,7 +25,5 @@ Blocked versions:
    http://www.netlib.org/utk/papers/siam-review93/node13.html
  - others (e.g. Cholesky factorization)
    http://www.netlib.org/utk/papers/siam-review93/node9.html
-
-Initial reducedQR to improve reducedSVD performance.
 
 Benchmarking against other matrix libraries.

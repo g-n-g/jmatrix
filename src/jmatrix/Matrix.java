@@ -1617,8 +1617,8 @@ public abstract class Matrix {
    * The <code>L</code> matrix should have the same size as <code>this</code>.
    * The diagonal elements of <code>L</code> will be set to one.
    * Matrix <code>L</code> can be set to <code>this</code> supporting in-place
-   * operation. The length of vector D has to be equal to the row/column number
-   * of <code>this</code> matrix.
+   * operation. The length of column vector D has to be equal to the row/column
+   * number of <code>this</code> matrix.
    *
    * @param L the lower triangular LDL factor (not <code>null</code>)
    * @param D the diagonal factor as a vector (not <code>null</code>)
@@ -1628,9 +1628,7 @@ public abstract class Matrix {
     final int n = rows();
     assert (cols() == n);
     assert (L != null && L.rows() == n && L.cols() == n);
-    assert (D != null);
-    if (D.cols() > 1) { D = D.T(); }
-    assert (D.rows() == n && D.cols() == 1);
+    assert (D != null && D.rows() == n && D.cols() == 1);
     double Dj, Lij, v;
     for (int j = 0; j < n; ++j) {
       Dj = get(j,j);
@@ -1797,6 +1795,7 @@ public abstract class Matrix {
 
   /**
    * P'LU decomposition of an arbitrary matrix with partial pivoting.
+   * This implementation is the Doolittle algorithm.
    *
    * Matrix <code>L</code> will be set to the unit lower triangular factor
    * and matrix <code>U</code> will be set to the upper triangular factor.
