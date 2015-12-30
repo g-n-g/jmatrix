@@ -7,7 +7,9 @@ import java.util.LinkedList;
 
 import org.junit.Test;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertTrue;
+import static jmatrix.MatrixAssert.assertMatrixEquals;
+import static jmatrix.MatrixAssert.assertMatrixOrtho;
+import static jmatrix.MatrixAssert.assertMatrixOrthoCols;
 
 import static jmatrix.Matrix.NR;
 import static jmatrix.Matrix.TOL;
@@ -105,9 +107,8 @@ public class MatrixBenchmarks {
     public void run(Matrix A) {
       Matrix[] QR = A.QR();
       Matrix Q = QR[0]; Matrix R = QR[1];
-      assertTrue(PREC > A.sub(Q.mul(R)).norm1());
-      assertTrue(PREC > Matrix.eye(A.rows()).sub(Q.T().mul(Q)).norm1());
-      assertTrue(PREC > Matrix.eye(A.rows()).sub(Q.mul(Q.T())).norm1());
+      assertMatrixEquals(A, Q.mul(R), PREC);
+      assertMatrixOrtho(Q, PREC);
     }
   }
 
@@ -116,24 +117,24 @@ public class MatrixBenchmarks {
     public void run(Matrix A) {
       Matrix[] USV = A.reducedSVD();
       Matrix U = USV[0], S = USV[1], V = USV[2];
-      assertTrue(PREC > U.ewb(MUL, S.T()).mul(V.T()).sub(A).normF());
+      assertMatrixEquals(A, U.ewb(MUL, S.T()).mul(V.T()), PREC);
       int rank = S.rows();
-      assertTrue(PREC > U.T().mul(U).sub(Matrix.eye(rank)).normF());
-      assertTrue(PREC > V.T().mul(V).sub(Matrix.eye(rank)).normF());
+      assertMatrixOrthoCols(U, PREC);
+      assertMatrixOrthoCols(V, PREC);
 
       Matrix A1 = A.div(TOL);
       USV = A1.reducedSVD();
       Matrix U1 = USV[0], S1 = USV[1], V1 = USV[2];
-      assertTrue(PREC > U1.sub(U).normF());
-      assertTrue(PREC > V1.sub(V).normF());
-      assertTrue(PREC > S1.mul(TOL).sub(S).normF());
+      assertMatrixEquals(U, U1, PREC);
+      assertMatrixEquals(V, V1, PREC);
+      assertMatrixEquals(S, S1.mul(TOL), PREC);
 
       Matrix A2 = A.mul(TOL);
       USV = A2.reducedSVD();
       Matrix U2 = USV[0], S2 = USV[1], V2 = USV[2];
-      assertTrue(PREC > U2.sub(U).normF());
-      assertTrue(PREC > V2.sub(V).normF());
-      assertTrue(PREC > S2.div(TOL).sub(S).normF());
+      assertMatrixEquals(U, U2, PREC);
+      assertMatrixEquals(V, V2, PREC);
+      assertMatrixEquals(S, S2.div(TOL), PREC);
     }
   }
 }

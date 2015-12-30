@@ -13,7 +13,7 @@ public abstract class Matrix {
   public final static double NR = Double.NaN;
 
   /**
-   * Tolerance value for various calculations (e.g. singular values).
+   * Tolerance value.
    */
   public final static double TOL = 2e-8;
 
@@ -1796,8 +1796,7 @@ public abstract class Matrix {
   // LU decomposition
 
   /**
-   * P'LU decomposition of an arbitrary matrix
-   * using Doolittle's method with partial pivoting.
+   * P'LU decomposition of an arbitrary matrix with partial pivoting.
    *
    * Matrix <code>L</code> will be set to the unit lower triangular factor
    * and matrix <code>U</code> will be set to the upper triangular factor.
@@ -1817,32 +1816,33 @@ public abstract class Matrix {
    * @return the number of row swaps (permutations)
    */
   public int LU(Matrix L, Matrix U, Permutation P) {
-    assert (P != null);
-    return LU(L, U, P, true);
-  }
-
-  private int LU(Matrix L, Matrix U, Permutation P, boolean isRowPivot) {
     final int rows = rows(), cols = cols();
+
+    int minrc = 0;
+    Matrix A = null;
     if (rows > cols) {
-      return T().LU(U.T(), L.T(), P, false);
+      minrc = cols;
+      A = L;
+    }
+    else {
+      minrc = rows;
+      A = U;
     }
 
-    assert (L != null && L.rows() == rows && L.cols() == rows);
-    assert (U != null && U.rows() == rows && U.cols() == cols);
+    assert (L != null && L.rows() == rows && L.cols() == minrc);
+    assert (U != null && U.rows() == minrc && U.cols() == cols);
+    assert(P == null || P.length() == rows); // (P == null) is for internal use only
 
-    copy(U);
+    copy(A);
     if (P != null) { P.setToEye(); }
-    Matrix V = isRowPivot ? U : U.T(); // pivot matrix (sharing data with U)
-    final int Vcols = V.cols();
-    assert(P == null || P.length() == V.rows()); // (P == null) is for internal use only
 
     int nperms = 0;
-    for (int i = 0; i < rows; ++i) {
-      // find the pivot
+    for (int i = 0; i < minrc; ++i) {
+      // find the row pivot
       int p = i;
-      double pval = V.get(i,i);
+      double pval = Math.abs(A.get(i,i));
       for (int k = i+1; k < rows; ++k) {
-        double val = V.get(k,i);
+        double val = Math.abs(A.get(k,i));
         if (val > pval) {
           p = k;
           pval = val;
@@ -1850,46 +1850,48 @@ public abstract class Matrix {
       }
 
       // skip the column if the pivot is zero
-      if (pval == 0.0) { continue; }
+      if (pval <= TOL) { continue; }
 
       // swap rows if necessary
       if (p != i) {
-        for (int j = 0; j < Vcols; ++j) {
-          double val = V.get(i,j);
-          V.set(i, j, V.get(p,j));
-          V.set(p, j, val);
+        int j = 0;
+        if (A != L) {
+          while (j < i) {
+            double val = L.get(i,j);
+            L.set(i, j, L.get(p,j));
+            L.set(p, j, val);
+            ++j;
+          }
+        }
+        while (j < cols) {
+          double val = A.get(i,j);
+          A.set(i, j, A.get(p,j));
+          A.set(p, j, val);
+          ++j;
         }
         ++nperms;
         if (P != null) { P.swap(i, p); }
       }
 
-      // update below the diagonal: Lij = Aij - sum_k(Lik*Ukj)
-      for (int j = 0; j < i; ++j) {
-        double sum = U.get(i,j);
-        for (int k = 0; k < j; ++k) {
-          sum -= L.get(i,k) * U.get(k,j);
+      // update L and A
+      pval = 1.0 / A.get(i,i);
+      for (int k = i+1; k < rows; ++k) {
+        double Lki = A.get(k,i) * pval;
+        for (int j = i+1; j < cols; ++j) {
+          A.set(k, j, A.get(k,j)-Lki*A.get(i,j));
         }
-        L.set(i, j, sum / U.get(j,j));
-      }
-
-      // update above the diagonal: Uij = Aij - sum_k(Lik*Ukj)
-      for (int j = i; j < cols; ++j) {
-        double sum = U.get(i,j);
-        for (int k = 0; k < i; ++k) {
-          sum -= L.get(i,k) * U.get(k,j);
-        }
-        U.set(i, j, sum);
+        L.set(k, i, Lki);
       }
     }
 
     if (L != U) { // ensure U is upper triangular and L is unit lower triangular
-      for (int i = 0; i < rows; ++i) {
+      for (int i = 0; i < minrc; ++i) {
         for (int j = 0; j < i; ++j) { U.set(i, j, 0.0); }
-        L.set(i, i, 1.0);
+        for (int j = i; j < cols; ++j) { U.set(i, j, A.get(i,j)); }
         for (int k = 0; k < i; ++k) { L.set(k, i, 0.0); }
+        L.set(i, i, 1.0);
       }
     }
-
     return nperms;
   }
 
@@ -2065,7 +2067,7 @@ public abstract class Matrix {
                  + get(0,2) * (get(1,0)*get(2,1) - get(1,1)*get(2,0));
     default:
       assert (tmpLU.rows() == rows && tmpLU.cols() == rows);
-      int nperms = LU(tmpLU, tmpLU, null, true);
+      int nperms = LU(tmpLU, tmpLU, null);
       double det = tmpLU.prodDiag();
       if ((nperms & 1) != 0) { det = -det; }
       return det;
@@ -2151,7 +2153,7 @@ public abstract class Matrix {
       tmpM.invLT(result, false); // inv(L)
       tmpM.T().invLT(result.T(), true); // inv(U)
       result.mulUL(tmpM); // tmpM = inv(U)*inv(L)
-      tmpM.mul(tmpP, result); // result = tmpM*tmpP
+      tmpM.mul(tmpP.inv(), result); // result = tmpM*inv(tmpP)
     }
     return result;
   }
