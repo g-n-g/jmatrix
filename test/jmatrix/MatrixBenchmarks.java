@@ -21,7 +21,6 @@ import static jmatrix.BasicBinaryOperation.*;
  */
 public class MatrixBenchmarks {
 
-  public static final double PREC = 1e-8;
   public static final int REPEAT_COUNT = 100;
   public static final int SEED = 19273;
   public static final int MINSIZE = 50;
@@ -107,8 +106,8 @@ public class MatrixBenchmarks {
     public void run(Matrix A) {
       Matrix[] QR = A.QR();
       Matrix Q = QR[0]; Matrix R = QR[1];
-      assertMatrixEquals(A, Q.mul(R), PREC);
-      assertMatrixOrtho(Q, PREC);
+      assertMatrixEquals(A, Q.mul(R), TOL);
+      assertMatrixOrtho(Q, TOL);
     }
   }
 
@@ -117,24 +116,24 @@ public class MatrixBenchmarks {
     public void run(Matrix A) {
       Matrix[] USV = A.reducedSVD();
       Matrix U = USV[0], S = USV[1], V = USV[2];
-      assertMatrixEquals(A, U.ewb(MUL, S.T()).mul(V.T()), PREC);
+      assertMatrixEquals(A, U.ewb(MUL, S.T()).mul(V.T()), TOL);
       int rank = S.rows();
-      assertMatrixOrthoCols(U, PREC);
-      assertMatrixOrthoCols(V, PREC);
+      assertMatrixOrthoCols(U, TOL);
+      assertMatrixOrthoCols(V, TOL);
 
       Matrix A1 = A.div(TOL);
       USV = A1.reducedSVD();
       Matrix U1 = USV[0], S1 = USV[1], V1 = USV[2];
-      assertMatrixEquals(U, U1, PREC);
-      assertMatrixEquals(V, V1, PREC);
-      assertMatrixEquals(S, S1.mul(TOL), PREC);
+      assertMatrixEquals(U, U1, TOL);
+      assertMatrixEquals(V, V1, TOL);
+      assertMatrixEquals(S, S1.mul(TOL), TOL);
 
       Matrix A2 = A.mul(TOL);
       USV = A2.reducedSVD();
       Matrix U2 = USV[0], S2 = USV[1], V2 = USV[2];
-      assertMatrixEquals(U, U2, PREC);
-      assertMatrixEquals(V, V2, PREC);
-      assertMatrixEquals(S, S2.div(TOL), PREC);
+      assertMatrixEquals(U, U2, TOL);
+      assertMatrixEquals(V, V2, TOL);
+      assertMatrixEquals(S, S2.div(TOL), TOL);
     }
   }
 }
