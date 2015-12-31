@@ -6,6 +6,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+
 import static jmatrix.MatrixAssert.assertMatrixEquals;
 import static jmatrix.MatrixAssert.assertMatrixLT;
 import static jmatrix.MatrixAssert.assertMatrixUnitLT;
@@ -567,6 +568,11 @@ public class MatrixTests {
     assertMatrixOrtho(Q, TOL);
     assertMatrixUT(R, TOL);
 
+    R.setToZeros();
+    M1.QR(null, R, Matrix.create(2,1));
+    assertMatrixEquals(M1, Q.mul(R), TOL);
+    assertMatrixUT(R, TOL);
+
     Matrix M2 = Matrix.eye(2);
     QR = M1.QR();
     Q = QR[0];
@@ -631,7 +637,7 @@ public class MatrixTests {
     assertMatrixOrtho(Q, TOL);
     assertMatrixUT(R, TOL);
 
-    Matrix M5 = Matrix.create(  0,   0, NR, // size: 3x2
+    Matrix M5 = Matrix.create(  0,   0, NR,
                                10,  20, NR,
                               200, 100);
     Q = Matrix.create(3, 3);
@@ -641,7 +647,7 @@ public class MatrixTests {
     assertMatrixOrtho(Q, TOL);
     assertMatrixUT(R, TOL);
 
-    Matrix M6 = Matrix.create(0, 10, NR, // size: 3x2
+    Matrix M6 = Matrix.create(0, 10, NR,
                               0, 20, NR,
                               0, 30);
     Q = Matrix.create(3, 3);
@@ -651,12 +657,132 @@ public class MatrixTests {
     assertMatrixOrtho(Q, TOL);
     assertMatrixUT(R, TOL);
 
-    Matrix M7 = Matrix.create(1, 2, 3, 4, NR, // size: 3x4
+    Matrix M7 = Matrix.create(1, 2, 3, 4, NR,
                               2, 4, 6, 8, NR,
                               8, 7, 6, 5);
     Q = Matrix.ones(3, 3);
     R = Matrix.ones(3, 4);
     M7.QR(Q, R, Matrix.ones(1, 2));
+    assertMatrixEquals(M7, Q.mul(R), TOL);
+    assertMatrixOrtho(Q, TOL);
+    assertMatrixUT(R, TOL);
+  }
+
+  @Test public void inplaceQR() {
+    Matrix M1 = Matrix.create(1, 2, NR,
+                              4, 1);
+    Matrix Q = Matrix.create(2,2);
+    Matrix R = M1.copy();
+    R.QR(Q, R, Matrix.create(2,1));
+    assertMatrixEquals(M1, Q.mul(R), TOL);
+    assertMatrixOrtho(Q, TOL);
+    assertMatrixUT(R, TOL);
+
+    Matrix M2 = Matrix.create(17, 24,  1,  8, 15, NR,
+                              23,  5,  7, 14, 16, NR,
+                               4,  6, 13, 20, 22, NR,
+                              10, 12, 19, 21,  3, NR,
+                              11, 18, 25,  2,  9);
+    Q = Matrix.create(5,5);
+    R = M2.copy();
+    R.QR(Q, R, Matrix.create(5,1));
+    assertMatrixEquals(M2, Q.mul(R), TOL);
+    assertMatrixOrtho(Q, TOL);
+    assertMatrixUT(R, TOL);
+
+    Matrix M6 = Matrix.create(0, 10, NR,
+                              0, 20, NR,
+                              0, 30);
+    Q = Matrix.create(3, 3);
+    R = M6.copy();
+    R.QR(Q, R, Matrix.create(10, 1));
+    assertMatrixEquals(M6, Q.mul(R), TOL);
+    assertMatrixOrtho(Q, TOL);
+    assertMatrixUT(R, TOL);
+
+    Matrix M7 = Matrix.create(1, 2, 3, 4, NR,
+                              2, 4, 6, 8, NR,
+                              8, 7, 6, 5);
+    Q = Matrix.ones(3, 3);
+    R = M7.copy();
+    R.QR(Q, R, Matrix.ones(1, 2));
+    assertMatrixEquals(M7, Q.mul(R), TOL);
+    assertMatrixOrtho(Q, TOL);
+    assertMatrixUT(R, TOL);
+  }
+
+  @Test public void fullrankReducedQR() {
+    Matrix M1 = Matrix.create(1, 2, NR,
+                              4, 1);
+    Matrix[] QR = M1.reducedQR();
+    Matrix Q = QR[0];
+    Matrix R = QR[1];
+    assertMatrixEquals(M1, Q.mul(R), TOL);
+    assertMatrixOrtho(Q, TOL);
+    assertMatrixUT(R, TOL);
+
+    Matrix M2 = Matrix.create(17, 24,  1,  8, 15, NR,
+                              23,  5,  7, 14, 16, NR,
+                               4,  6, 13, 20, 22, NR,
+                              10, 12, 19, 21,  3, NR,
+                              11, 18, 25,  2,  9);
+    QR = M2.reducedQR();
+    Q = QR[0];
+    R = QR[1];
+    assertMatrixEquals(M2, Q.mul(R), TOL);
+    assertMatrixOrtho(Q, TOL);
+    assertMatrixUT(R, TOL);
+  }
+
+  @Test public void lowrankReducedQR() {
+    Matrix M3 = Matrix.create(+1, +2, NR,
+                              -3, +4, NR,
+                              +5, -6, NR,
+                              -7, -8);
+    Matrix Q = Matrix.create(4, 2);
+    Matrix R = Matrix.create(2, 2);
+    M3.reducedQR(Q, R, Matrix.create(4, 1));
+    assertMatrixEquals(M3, Q.mul(R), TOL);
+    assertMatrixOrthoCols(Q, TOL);
+    assertMatrixUT(R, TOL);
+
+    Matrix M4 = Matrix.create(+1, +2, NR,
+                              -0, +0, NR,
+                              +0, -6, NR,
+                              -7, -8);
+    Q = Matrix.ones(4, 2);
+    R = Matrix.ones(2, 2);
+    M4.reducedQR(Q, R, Matrix.ones(4, 1));
+    assertMatrixEquals(M4, Q.mul(R), TOL);
+    assertMatrixOrthoCols(Q, TOL);
+    assertMatrixUT(R, TOL);
+
+    Matrix M5 = Matrix.create(  0,   0, NR,
+                               10,  20, NR,
+                              200, 100);
+    Q = Matrix.create(3, 2);
+    R = Matrix.create(2, 2);
+    M5.reducedQR(Q, R, Matrix.create(10, 1));
+    assertMatrixEquals(M5, Q.mul(R), TOL);
+    assertMatrixOrthoCols(Q, TOL);
+    assertMatrixUT(R, TOL);
+
+    Matrix M6 = Matrix.create(0, 10, NR,
+                              0, 20, NR,
+                              0, 30);
+    Q = Matrix.create(3, 2);
+    R = Matrix.create(2, 2);
+    M6.reducedQR(Q, R, Matrix.create(10, 1));
+    assertMatrixEquals(M6, Q.mul(R), TOL);
+    assertMatrixOrthoCols(Q, TOL);
+    assertMatrixUT(R, TOL);
+
+    Matrix M7 = Matrix.create(1, 2, 3, 4, NR,
+                              2, 4, 6, 8, NR,
+                              8, 7, 6, 5);
+    Q = Matrix.ones(3, 3);
+    R = Matrix.ones(3, 4);
+    M7.reducedQR(Q, R, Matrix.ones(1, 3));
     assertMatrixEquals(M7, Q.mul(R), TOL);
     assertMatrixOrtho(Q, TOL);
     assertMatrixUT(R, TOL);

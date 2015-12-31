@@ -7,7 +7,10 @@ import java.util.LinkedList;
 
 import org.junit.Test;
 import org.junit.AfterClass;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 import static org.junit.Assert.assertEquals;
+
 import static jmatrix.MatrixAssert.assertMatrixEquals;
 import static jmatrix.MatrixAssert.assertMatrixUnitLT;
 import static jmatrix.MatrixAssert.assertMatrixLT;
@@ -24,6 +27,7 @@ import static jmatrix.BasicBinaryOperation.*;
 /**
  * Benchmarks for the matrix class.
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MatrixBenchmarks {
 
   public static final int REPEAT_COUNT = 100;
@@ -57,12 +61,16 @@ public class MatrixBenchmarks {
   private void bench(String name, Bench test, boolean isPsd) {
     Random rng = new Random(SEED);
 
+    Matrix A;
     long[] times = new long[REPEAT_COUNT];
     for (int repeat = 0; repeat < REPEAT_COUNT; ++repeat) {
+      A = null;
+      System.gc();
+
       int rows = MINSIZE+rng.nextInt(MAXSIZE-MINSIZE);
       int cols = MINSIZE+rng.nextInt(MAXSIZE-MINSIZE);
       // System.out.println("rows = " + rows + ", cols = " + cols);
-      Matrix A = Matrix.randN(rows, cols, rng);
+      A = Matrix.randN(rows, cols, rng);
       if (isPsd) { A = A.mul(A.T()).add(Matrix.eye(rows).mul(2*TOL)); }
 
       long ts = System.currentTimeMillis();
@@ -106,15 +114,11 @@ public class MatrixBenchmarks {
 
   @Test public void LU() { bench("LU", new BenchLU(), false); }
   @Test public void QR() { bench("QR", new BenchQR(), false); }
-  @Test public void CholeskyL() { bench("Cholesky L",
-                                        new BenchCholeskyL(),
-                                        true); }
-  @Test public void CholeskyLD() { bench("Cholesky LD",
-                                         new BenchCholeskyLD(),
-                                         true); }
-  @Test public void reducedSVD() { bench("SVD (reduced)",
-                                         new BenchReducedSVD(),
-                                         false); }
+  @Test public void reducedQR() { bench("QR (reduced)", new BenchReducedQR(), false); }
+  @Test public void noQQR() { bench("QR (noQ)", new BenchNoQQR(), false); }
+  @Test public void CholeskyL() { bench("Cholesky L", new BenchCholeskyL(), true); }
+  @Test public void CholeskyLD() { bench("Cholesky LD", new BenchCholeskyLD(), true); }
+  @Test public void reducedSVD() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
 
   //---------------------------------------------------------------------------
 
@@ -151,6 +155,47 @@ public class MatrixBenchmarks {
     }
 
     private Matrix Q, R;
+  }
+
+  private class BenchReducedQR implements Bench
+  {
+    public void compute(Matrix A) {
+      Matrix[] QR = A.reducedQR();
+      Q = QR[0];
+      R = QR[1];
+    }
+
+    public void check(Matrix A) {
+      assertMatrixEquals(A, Q.mul(R), TOL);
+      if (A.rows() > A.cols()) {
+        assertMatrixOrthoCols(Q, TOL);
+      }
+      else {
+        assertMatrixOrtho(Q, TOL);
+      }
+      assertMatrixUT(R, TOL);
+    }
+
+    private Matrix Q, R;
+  }
+
+  private class BenchNoQQR implements Bench
+  {
+    public void compute(Matrix A) {
+      R = Matrix.create(A.rows(), A.cols());
+      final int t = Math.min(A.rows()-1, A.cols());
+      A.QR(null, R, Matrix.create(t,1));
+    }
+
+    public void check(Matrix A) {
+      assertMatrixUT(R, TOL);
+      Matrix[] QR = A.QR();
+      Matrix Q = QR[0];
+      assertMatrixEquals(A, Q.mul(R), TOL);
+      assertMatrixOrtho(Q, TOL);
+    }
+
+    private Matrix R;
   }
 
   private class BenchCholeskyL implements Bench

@@ -29,8 +29,12 @@
 
   <!-- compilation targets -->
 
-  <target name="compile" description="Compile the jmatrix package.">
+  <target name="compile" description="Compile the jmatrix package without debug info.">
     <javac srcdir="${src}/jmatrix" destdir="${bin}"/>
+  </target>
+
+  <target name="compile-debug" description="Compile the jmatrix package with debug info.">
+    <javac srcdir="${src}/jmatrix" destdir="${bin}" debug="true"/>
   </target>
 
   <target name="jar" description="Make a jar file." depends="compile">
@@ -47,9 +51,9 @@
 
   <target name="test-compile"
           description="Compile the test cases."
-          depends="compile">
+          depends="compile-debug">
     <mkdir dir="${bin}/test"/>
-    <javac srcdir="${test}/jmatrix" destdir="${bin}/test">
+    <javac srcdir="${test}/jmatrix" destdir="${bin}/test" debug="true">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
@@ -63,6 +67,7 @@
           depends="test-compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="jmatrix.MatrixTests"/>
+      <jvmarg value="-ea"/>
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
@@ -78,6 +83,7 @@
           depends="test-compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="jmatrix.PermutationTests"/>
+      <jvmarg value="-ea"/>
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>

@@ -458,11 +458,9 @@ public abstract class Matrix {
    * @return <code>this</code> matrix
    */
   public Matrix setToEye() {
-    final int rows = rows(), cols = cols();
-    for (int i = 0; i < rows; ++i) {
-      for (int j = 0; j < cols; ++j) {
-        set(i, j, i==j ? 1.0 : 0.0);
-      }
+    setToZeros();
+    for (int i = 0; i < Math.min(rows(), cols()); ++i) {
+      set(i, i, 1.0);
     }
     return this;
   }
@@ -1678,106 +1676,179 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
   // QR decomposition
 
-  /**
-   * QR decomposition of an arbitrary matrix using Hauseholder transformations.
-   *
-   * Matrix <code>Q</code> can be <code>null</code> in which case its computation
-   * is omitted. Otherwise, <code>Q</code> has to be a square matrix of size
-   * <code>rows()</code>. Matrix <code>R</code> has to have the same size as
-   * <code>this</code> and can be set to <code>this</code> providing in-place
-   * operation. Vector <code>tmpV</code> is a temporary storage with length not
-   * smaller than <code>min(rows()-1, cols())</code>.
-   * Matrices <code>Q</code> and <code>R</code> cannot be the same.
-   *
-   * @param Q will be set to the orthogonal factor
-   *          (<code>null</code> or with size <code>rows()</code> x <code>rows()</code>)
-   * @param R will be set to the upper-triangular factor
-   *          (not <code>null</code> with size <code>rows()</code> x <code>cols()</code>
-   * @param tmpV temporary vector
-   *             (not <code>null</code> with size >= <code>min(rows()-1, cols())</code>
+  /* Computes reduced or full QR decompositions of an arbitrary matrix
+   * using Hauseholder transformations.
    */
-  public void QR(Matrix Q, Matrix R, Matrix tmpV) {
+  private void QR(Matrix Q, Matrix R, Matrix tmpW, boolean isReduced) {
     final int rows = rows(), cols = cols();
-    assert (Q == null || (Q.rows() == rows && Q.cols() == rows));
-    assert (R != null && R != Q && R.rows() == rows && R.cols() == cols);
+    final int midrc = isReduced ? Math.min(rows, cols) : rows;
+
+    assert ((Q == null && !isReduced) || (Q.rows() == rows && Q.cols() == midrc));
+    assert (R != null && R != Q && R.rows() == midrc && R.cols() == cols);
+    if (midrc == 0) { return; }
+    assert (tmpW != null && tmpW != Q && tmpW != R);
 
     final int t = Math.min(rows-1, cols);
-    if (tmpV.cols() > tmpV.rows()) { tmpV = tmpV.T(); }
-    assert (t <= tmpV.rows());
+    if (tmpW.cols() > tmpW.rows()) { tmpW = tmpW.T(); }
+    assert (isReduced ? tmpW.rows() >= rows : tmpW.rows() >= t);
 
-    copy(R); // this -> R
+    final Matrix A = (isReduced && rows > cols) ? Q : R;
+    copy(A);
+
     for (int k = 0; k < t; ++k) {
+      double maxAik = 0.0, r;
+      for (int i = k; i < rows; ++i) {
+        r = Math.abs(A.get(i,k));
+        if (r > maxAik) { maxAik = r; }
+      }
       double norm = 0.0;
-      for (int i = k; i < rows; ++i) { norm = hypot(norm, R.get(i, k)); }
+      if (maxAik > TOL) {
+        for (int i = k; i < rows; ++i) {
+          r = A.get(i,k) / maxAik;
+          norm += r*r;
+        }
+        norm = maxAik * Math.sqrt(norm);
+        if (A.get(k,k) < 0) norm = -norm;
 
-      if (norm != 0.0) {
-        if (R.get(k, k) < 0) norm = -norm;
-
-        for (int i = k; i < rows; ++i) { R.set(i, k, R.get(i, k) / norm); }
-        R.set(k, k, R.get(k, k) + 1.0); // 1 <= R[k,k] <= 2
+        for (int i = k; i < rows; ++i) { A.set(i, k, A.get(i,k) / norm); }
+        A.set(k, k, A.get(k,k) + 1.0); // 1 <= A[k,k] <= 2
 
         for (int j = k+1; j < cols; ++j) {
           double s = 0.0;
           for (int i = k; i < rows; ++i) {
-            s += R.get(i, k) * R.get(i, j);
-          }
-          s = -s / R.get(k, k);
+            s += A.get(i,k) * A.get(i,j);
+          }          s = -s / A.get(k,k);
           for (int i = k; i < rows; ++i) {
-            R.set(i, j, R.get(i, j) + s*R.get(i, k));
+            A.set(i, j, A.get(i,j) + s*A.get(i,k));
           }
         }
       }
-      tmpV.set(k, 0, -norm);
+
+      norm = -norm;
+      if (A == R) { tmpW.set(k, 0, norm); } else { R.set(k, k, norm); }
+    }
+
+    if (isReduced && A == Q) {
+      for (int i = 0; i < midrc; ++i) {
+        for (int j = i+1; j < cols; ++j) {
+          R.set(i, j, A.get(i,j));
+        }
+      }
     }
 
     if (Q != null) { // compute Q only if requested
-      Q.setToEye();
-      for (int k = t-1; k >= 0; --k) {
-        for (int j = k; j < rows; ++j) {
-          if (R.get(k, k) != 0.0) {
-            double s = 0.0;
-            for (int i = k; i < rows; ++i) {
-              s += R.get(i, k) * Q.get(i, j);
-            }
-            s = -s / R.get(k, k);
-            for (int i = k; i < rows; ++i) {
-              Q.set(i, j, Q.get(i, j) + s*R.get(i, k));
-            }
+      Matrix T = null;
+      int j = midrc-1, jj = 0;
+      if (A == Q) {
+        T = tmpW;
+        tmpW.setToZeros();
+        tmpW.set(j, 0, 1.0);
+      }
+      else {
+        Q.setToEye();
+        T = Q;
+        jj = j;
+      }
+
+      while (true) {
+        for (int k = Math.min(t-1,j); k >= 0; --k) {
+          if (Math.abs(A.get(k,k)) <= TOL) { continue; }
+
+          double s = 0.0;
+          for (int i = k; i < rows; ++i) {
+            s += A.get(i,k) * T.get(i,jj);
           }
+          s = -s / A.get(k,k);
+          
+          for (int i = k; i < rows; ++i) {
+            T.set(i, jj, T.get(i,jj) + s*A.get(i,k));
+          }
+        }
+
+        if (T == tmpW) {
+          for (int i = 0; i < rows; ++i) {
+            Q.set(i, j, tmpW.get(i,0));
+          }
+          if (j == 0) { break; }
+          --j;
+          tmpW.setToZeros();
+          tmpW.set(j, 0, 1.0);
+        }
+        else {
+          if (j == 0) { break; }
+          --j;
+          jj = j;
         }
       }
     }
 
+    if (A == R) {
+      for (int k = 0; k < t; ++k) { R.set(k, k, tmpW.get(k,0)); }
+    }
+
+    // ensure R is upper triangular
     for (int k = 0; k < t; ++k) {
-      R.set(k, k, tmpV.get(k,0));
-
-      // ensure R is upper triangular
-      for (int i = k+1; i < rows; ++i) { R.set(i, k, 0.0); }
+      for (int i = k+1; i < midrc; ++i) { R.set(i, k, 0.0); }
     }
   }
 
   /**
-   * Computes the hypotenuse of a right triangle
-   * having legs <code>x</code> and <code>y</code>.
+   * Reduced QR decomposition of an arbitrary matrix
+   * using Hauseholder transformations.
+   *
+   * Either <code>Q</code> or <code>R</code> can be <code>this</code> for in-place operation.
+   * Matrices <code>Q</code>, <code>R</code>, <code>tmpW</code>
+   * and <code>tmpW</code> have to be different.
+   *
+   * @param Q will be set to the semi-orthogonal factor
+   *          (not <code>null</code> with size <code>rows</code> x <code>min(rows,cols)</code>)
+   * @param R will be set to the upper-triangular factor
+   *          (not <code>null</code> with size <code>min(rows,cols)</code> x <code>cols</code>)
+   * @param tmpW temporary vector
+   *             (not <code>null</code> with size >= <code>rows</code>)
    */
-  private static double hypot(double x, double y) {
-    final double absX = Math.abs(x);
-    final double absY = Math.abs(y);
-
-    double r = 0.0;
-    if (absX > absY) {
-      r = y/x;
-      r = absX * Math.sqrt(1.0 + r*r);
-    }
-    else if (y != 0.0) {
-      r = x/y;
-      r = absY * Math.sqrt(1.0 + r*r);
-    }
-    return r;
+  public void reducedQR(Matrix Q, Matrix R, Matrix tmpW) {
+    QR(Q, R, tmpW, true);
   }
 
   /**
-   * QR decomposition of an arbitrary matrix using Hauseholder transformations.
+   * Reduced QR decomposition of an arbitrary matrix
+   * using Hauseholder transformations.
+   *
+   * @return <code>{Q,R}</code> matrices, where <code>Q</code> is the semi-orthogonal
+   *         and <code>R</code> is the upper-triangular factor
+   */
+  public Matrix[] reducedQR() {
+    final int rows = rows(), cols = cols();
+    int minrc = Math.min(rows, cols);
+    Matrix Q = create(rows, minrc);
+    Matrix R = create(minrc, cols);
+    reducedQR(Q, R, Matrix.create(rows, 1));
+    return new Matrix[]{Q, R};
+  }
+
+  /**
+   * Full QR decomposition of an arbitrary matrix
+   * using Hauseholder transformations.
+   *
+   * Matrix <code>Q</code> can be <code>null</code> in order to omit its computation.
+   * Matrix <code>R</code> can be <code>this</code> for in-place operation.
+   * Matrices <code>Q</code>, <code>R</code> and <code>tmpW</code> have to be different.
+   *
+   * @param Q will be set to the orthogonal factor
+   *          (<code>null</code> or with size <code>rows</code> x <code>rows</code>)
+   * @param R will be set to the upper-triangular factor
+   *          (not <code>null</code> with size <code>rows</code> x <code>cols</code>
+   * @param tmpW temporary vector
+   *             (not <code>null</code> with size >= <code>min(rows-1, cols)</code>
+   */
+  public void QR(Matrix Q, Matrix R, Matrix tmpW) {
+    QR(Q, R, tmpW, false);
+  }
+
+  /**
+   * Full QR decomposition of an arbitrary matrix
+   * using Hauseholder transformations.
    *
    * @return <code>{Q,R}</code> matrices, where <code>Q</code> is the orthogonal
    *         and <code>R</code> is the upper-triangular factor
@@ -2274,19 +2345,6 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
   // singular value decomposition
 
-  private double stable2norm(double x, double y) {
-    double r = 0.0, s = 0.0;
-    if (x >= y) {
-      r = y/x;
-      s = x;
-    }
-    else {
-      r = x/y;
-      s = y;
-    }
-    return s * Math.sqrt(1.0 + r*r);
-  }
-
   /**
    * Reduced singular value decomposition. The zero singular values in
    * <code>S</code> are placed last and their corresponding vectors in
@@ -2327,10 +2385,9 @@ public abstract class Matrix {
       }
     }
     if (scale > 0.0) {
-      double recscale = 1.0 / scale;
       for (int i = 0; i < cols; ++i) {
         for (int k = 0; k < rows; ++k) {
-          U.set(k, i, U.get(k,i) * recscale);
+          U.set(k, i, U.get(k,i) / scale);
         }
       }
     }
@@ -2357,8 +2414,8 @@ public abstract class Matrix {
           if (ba < 0.0) { t = -t; ba = -ba; }
           if (c < 0.0) { t = -t; c = -c; }
           if (ba <= TOL && c <= TOL) { continue; }
-          t *= c / (ba + stable2norm(c, ba));
-          double cs = 1.0 / stable2norm(1.0, t);
+          t *= c / (ba + hypot(c, ba));
+          double cs = 1.0 / hypot(1.0, t);
           double sn = cs * t;
 
           // update terminal condition
@@ -2398,9 +2455,8 @@ public abstract class Matrix {
       S.set(i, 0, sigma * scale);
       if (sigma > TOL) {
         ++rank;
-        double recsigma = 1.0 / sigma;
         for (int k = 0; k < rows; ++k) {
-          U.set(k, i, U.get(k,i) * recsigma);
+          U.set(k, i, U.get(k,i) / sigma);
         }
       }
     }
@@ -2499,5 +2555,26 @@ public abstract class Matrix {
     }
     str += "]";
     return str;
+  }
+
+  //----------------------------------------------------------------------------
+
+  /* Computes the hypotenuse of a right triangle
+   * having legs <code>x</code> and <code>y</code>.
+   */
+  private final static double hypot(double x, double y) {
+    final double absX = Math.abs(x);
+    final double absY = Math.abs(y);
+
+    double r = 0.0;
+    if (absX > absY) {
+      r = y/x;
+      r = absX * Math.sqrt(1.0 + r*r);
+    }
+    else if (y != 0.0) {
+      r = x/y;
+      r = absY * Math.sqrt(1.0 + r*r);
+    }
+    return r;
   }
 }
