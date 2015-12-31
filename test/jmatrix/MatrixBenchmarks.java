@@ -33,82 +33,9 @@ public class MatrixBenchmarks {
   public static final int REPEAT_COUNT = 100;
   public static final int SEED = 19273;
   public static final int MINSIZE = 50;
-  public static final int MAXSIZE = 100;
-
-  //---------------------------------------------------------------------------
-
-  private interface Bench
-  {
-    void compute(Matrix A);
-    void check(Matrix A);
-  }
-
-  private class Result
-  {
-    Result(String name, long min, long max, long avg, long std) {
-      this.name = name;
-      this.min = min;
-      this.max = max;
-      this.avg = avg;
-      this.std = std;
-    }
-
-    String name;
-    long min, max, avg, std;
-  }
-  private static List<Result> results = new LinkedList<Result>();
-
-  private void bench(String name, Bench test, boolean isPsd) {
-    Random rng = new Random(SEED);
-
-    Matrix A;
-    long[] times = new long[REPEAT_COUNT];
-    for (int repeat = 0; repeat < REPEAT_COUNT; ++repeat) {
-      A = null;
-      System.gc();
-
-      int rows = MINSIZE+rng.nextInt(MAXSIZE-MINSIZE);
-      int cols = MINSIZE+rng.nextInt(MAXSIZE-MINSIZE);
-      // System.out.println("rows = " + rows + ", cols = " + cols);
-      A = Matrix.randN(rows, cols, rng);
-      if (isPsd) { A = A.mul(A.T()).add(Matrix.eye(rows).mul(2*TOL)); }
-
-      long ts = System.currentTimeMillis();
-      test.compute(A.copy());
-      times[repeat] = System.currentTimeMillis() - ts;
-      test.check(A);
-    }
-
-    long min = Long.MAX_VALUE, max = 0, avg = 0;
-    for (int repeat = 0; repeat < REPEAT_COUNT; ++repeat) {
-      long time = times[repeat];
-      if (min > time) { min = time; }
-      if (max < time) { max = time; }
-      avg += time;
-    }
-    avg /= REPEAT_COUNT;
-
-    long std = 0;
-    for (int repeat = 0; repeat < REPEAT_COUNT; ++repeat) {
-      long diff = times[repeat] - avg;
-      std += diff*diff;
-    }
-    std /= REPEAT_COUNT-1;
-    std = (long)Math.sqrt((double)std);
-
-    results.add(new Result(name, min, max, avg, std));
-  }
-
-  @AfterClass
-  public static void logResults() {
-    System.out.println("\n");
-    System.out.println("Times (ms):");
-    System.out.println();
-    for (Result result : results) {
-      System.out.format("  %-15s : %5d | %5d +- %5d | %5d\n", result.name,
-                        result.min, result.avg, result.std, result.max);
-    }
-  }
+  public static final int MAXSIZE = 150;
+  public static final double SCALE = 100.0;
+  public static final double NNZ_RATIO = 0.2;
 
   //---------------------------------------------------------------------------
 
@@ -121,6 +48,12 @@ public class MatrixBenchmarks {
   @Test public void reducedSVD() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
 
   //---------------------------------------------------------------------------
+
+  private interface Bench
+  {
+    void compute(Matrix A);
+    void check(Matrix A);
+  }
 
   private class BenchLU implements Bench
   {
@@ -247,5 +180,187 @@ public class MatrixBenchmarks {
     }
 
     private Matrix U, S, V;
+  }
+
+  //---------------------------------------------------------------------------
+
+  private class Result
+  {
+    Result(String name, long min, long max, long avg, long std) {
+      this.name = name;
+      this.min = min;
+      this.max = max;
+      this.avg = avg;
+      this.std = std;
+    }
+
+    String name;
+    long min, max, avg, std;
+  }
+  private static List<Result> results = new LinkedList<Result>();
+
+  private static Matrix genA(Random rng) {
+    int Arows = MINSIZE+rng.nextInt(MAXSIZE-MINSIZE);
+    int Acols = MINSIZE+rng.nextInt(MAXSIZE-MINSIZE);
+    // System.out.println("rows = " + rows + ", cols = " + cols);
+    Matrix A = Matrix.randN(Arows, Acols, rng).mul(rng.nextDouble()*SCALE);
+    if (NNZ_RATIO > 0) {
+      int nnz = (int)Math.round(NNZ_RATIO*(Arows*Acols));
+      for (int k = 0; k < nnz; ++k) {
+        int i = rng.nextInt(Arows);
+        int j = rng.nextInt(Acols);
+        A.set(i, j, (2.0*rng.nextDouble()-1.0)*TOL);
+      }
+    }
+    return A;
+  }
+
+  private void bench(String name, Bench test, boolean isPsd) {
+    Random rng = new Random(SEED);
+
+    final double nrepeats = REPEAT_COUNT;
+    long times_min = Long.MAX_VALUE, times_max = 0;
+    double times_avg = 0, times_std = 0;
+
+    for (int repeat = 0; repeat < REPEAT_COUNT; ++repeat) {
+      System.gc();
+
+      Matrix A = genA(rng);
+      if (isPsd) { A = A.mul(A.T()).add(Matrix.eye(A.rows()).mul(2*TOL)); }
+
+      long ts = System.currentTimeMillis();
+      test.compute(A.copy());
+      ts = System.currentTimeMillis() - ts;
+      test.check(A);
+
+      if (ts < times_min) { times_min = ts; }
+      if (ts > times_max) { times_max = ts; }
+      times_avg += ts / nrepeats;
+      times_std += ts*ts / nrepeats;
+    }
+    times_std = Math.ceil(Math.sqrt(times_std - times_avg*times_avg));
+
+    results.add(new Result(name, times_min, times_max,
+                           (long)times_avg, (long)times_std));
+  }
+
+  private static int countDec(long n) {
+    return (int)Math.ceil(Math.log10((double)n+1));
+  }
+
+  private static int maximum(int... values) {
+    int maxi = Integer.MIN_VALUE;
+    for (int i : values) {
+      if (i > maxi) { maxi = i; }
+    }
+    return maxi;
+  }
+
+  private static double cmputStd(double avgsum, double stdsum, int count) {
+    double avg = avgsum / count;
+    return Math.sqrt((stdsum - avg*avg) / (count-1));
+  }
+
+  @AfterClass
+  public static void logResults() {
+    System.out.println("\n");
+    {
+      System.out.println("Matrix statistics:");
+      System.out.println();
+
+      final double nrepeats = REPEAT_COUNT;
+      int rowmin = Integer.MAX_VALUE, rowmax = 0; double rowavg = 0, rowstd = 0;
+      int colmin = Integer.MAX_VALUE, colmax = 0; double colavg = 0, colstd = 0;
+      int sizmin = Integer.MAX_VALUE, sizmax = 0; double sizavg = 0, sizstd = 0;
+      int nnzmin = Integer.MAX_VALUE, nnzmax = 0; double nnzavg = 0, nnzstd = 0;
+      Random rng = new Random(SEED);
+      for (int repeat = 0; repeat < REPEAT_COUNT; ++repeat) {
+        Matrix A = genA(rng);
+
+        int rows = A.rows(), cols = A.cols();
+        int size = rows * cols;
+        int nnz = 0;
+        for (int i = 0; i < rows; ++i) {
+          for (int j = 0; j < cols; ++j) {
+            if (Math.abs(A.get(i,j)) < TOL) { ++nnz; }
+          }
+        }
+
+        rowmin = Math.min(rowmin, rows);
+        rowmax = Math.max(rowmax, rows);
+        rowavg += rows / nrepeats;
+        rowstd += rows*rows / nrepeats;
+
+        colmin = Math.min(colmin, cols);
+        colmax = Math.max(colmax, cols);
+        colavg += cols / nrepeats;
+        colstd += cols*cols / nrepeats;
+
+        sizmin = Math.min(sizmin, size);
+        sizmax = Math.max(sizmax, size);
+        sizavg += size / nrepeats;
+        sizstd += size*size / nrepeats;
+
+        nnzmin = Math.min(nnzmin, nnz);
+        nnzmax = Math.max(nnzmax, nnz);
+        nnzavg += nnz / nrepeats;
+        nnzstd += nnz*nnz / nrepeats;
+      }
+      rowstd = Math.ceil(Math.sqrt(rowstd - rowavg*rowavg));
+      colstd = Math.ceil(Math.sqrt(colstd - colavg*colavg));
+      sizstd = Math.ceil(Math.sqrt(sizstd - sizavg*sizavg));
+      nnzstd = Math.ceil(Math.sqrt(nnzstd - nnzavg*nnzavg));
+      rowavg = Math.ceil(rowavg);
+      colavg = Math.ceil(colavg);
+      sizavg = Math.ceil(sizavg);
+      nnzavg = Math.ceil(nnzavg);
+
+      int max1 = maximum(countDec(rowmin), countDec(colmin),
+                         countDec(sizmin), countDec(nnzmin));
+      int max2 = maximum(countDec((int)rowavg), countDec((int)colavg),
+                         countDec((int)sizavg), countDec((int)nnzavg));
+      int max3 = maximum(countDec((int)rowstd), countDec((int)colstd),
+                         countDec((int)sizstd), countDec((int)nnzstd));
+      int max4 = maximum(countDec(rowmax), countDec(colmax),
+                         countDec(sizmax), countDec(nnzmax));
+      String fmt =
+        " %" + max1 + "d"
+        + " | %" + max2 + "d"
+        + " +- %" + max3 + "d"
+        + " | %" + max4 + "d"
+        + "\n";
+
+      System.out.format("  rows      :" + fmt, rowmin, (int)rowavg, (int)rowstd, rowmax);
+      System.out.format("  columns   :" + fmt, colmin, (int)colavg, (int)colstd, colmax);
+      System.out.format("  entries   :" + fmt, sizmin, (int)sizavg, (int)sizstd, sizmax);
+      System.out.format("  non-zeros :" + fmt, nnzmin, (int)nnzavg, (int)nnzstd, nnzmax);
+    }
+    System.out.println();
+    {
+      System.out.println("Running times (ms):");
+      System.out.println();
+
+      int namecmax = 0, mincmax = 0, avgcmax = 0, stdcmax = 0, maxcmax = 0;
+      for (Result result : results) {
+        namecmax = Math.max(namecmax, result.name.length());
+        mincmax = Math.max(mincmax, countDec(result.min));
+        avgcmax = Math.max(avgcmax, countDec(result.avg));
+        stdcmax = Math.max(stdcmax, countDec(result.std));
+        maxcmax = Math.max(maxcmax, countDec(result.max));
+      }
+
+      for (Result result : results) {
+        System.out.format("  %-" + namecmax + "s :"
+                          + " %" + mincmax + "d" +
+                          " | %" + avgcmax + "d" +
+                          " +- %" + stdcmax + "d" +
+                          " | %" + maxcmax + "d\n",
+                          result.name,
+                          result.min,
+                          result.avg,
+                          result.std,
+                          result.max);
+      }
+    }
   }
 }
