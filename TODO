@@ -15,7 +15,6 @@ spectral norm computation
 Performance:
 
 Initial reducedQR to improve reducedSVD performance.
-Matrix multiplication benchmark.
 
 Blocked versions:
  - matrix multiplication

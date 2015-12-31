@@ -88,4 +88,16 @@ public class MatrixAssert {
     Matrix I = Matrix.eye(m.cols());
     assertMatrixEquals(I, m.T().mul(m), tol);
   }
+
+  /**
+   * Asserts that matrix is symmetric.
+   */
+  public static void assertMatrixSymmetric(Matrix m, double tol) {
+    assertEquals(m.rows(), m.cols());
+    for (int i = 0; i < m.rows(); ++i) {
+      for (int j = 0; j < i; ++j) {
+        assertEquals(m.get(i,j), m.get(j,i), tol);
+      }
+    }
+  }
 }

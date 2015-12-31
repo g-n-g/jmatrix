@@ -18,6 +18,7 @@ import static jmatrix.MatrixAssert.assertMatrixUT;
 import static jmatrix.MatrixAssert.assertMatrixDiag;
 import static jmatrix.MatrixAssert.assertMatrixOrtho;
 import static jmatrix.MatrixAssert.assertMatrixOrthoCols;
+import static jmatrix.MatrixAssert.assertMatrixSymmetric;
 
 import static jmatrix.Matrix.NR;
 import static jmatrix.Matrix.TOL;
@@ -39,6 +40,8 @@ public class MatrixBenchmarks {
 
   //---------------------------------------------------------------------------
 
+  @Test public void MatMulAtA() { bench("MatMul (AtA)", new BenchMatMulAtA(), false); }
+  @Test public void MatMulAAt() { bench("MatMul (AAt)", new BenchMatMulAAt(), false); }
   @Test public void LU() { bench("LU", new BenchLU(), false); }
   @Test public void QR() { bench("QR", new BenchQR(), false); }
   @Test public void reducedQR() { bench("QR (reduced)", new BenchReducedQR(), false); }
@@ -53,6 +56,32 @@ public class MatrixBenchmarks {
   {
     void compute(Matrix A);
     void check(Matrix A);
+  }
+
+  private class BenchMatMulAtA implements Bench
+  {
+    public void compute(Matrix A) {
+      M = A.T().mul(A);
+    }
+
+    public void check(Matrix A) {
+      assertMatrixSymmetric(M, TOL);
+    }
+
+    private Matrix M;
+  }
+
+  private class BenchMatMulAAt implements Bench
+  {
+    public void compute(Matrix A) {
+      M = A.mul(A.T());
+    }
+
+    public void check(Matrix A) {
+      assertMatrixSymmetric(M, TOL);
+    }
+
+    private Matrix M;
   }
 
   private class BenchLU implements Bench
