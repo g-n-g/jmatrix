@@ -10,94 +10,131 @@ public class MatrixAssert {
   /**
    * Asserts that two matrices are equal.
    */
-  public static void assertMatrixEquals(Matrix a, Matrix b, double tol) {
-    assertEquals(a.rows(), b.rows());
-    assertEquals(a.cols(), b.cols());
-    for (int i = 0; i < a.rows(); ++i) {
-      for (int j = 0; j < a.cols(); ++j) {
-        assertEquals(a.get(i,j), b.get(i,j), tol);
+  public static double assertMatrixEquals(Matrix A, Matrix B, double tol) {
+    final int rows = A.rows(), cols = A.cols();
+    assertEquals(rows, B.rows());
+    assertEquals(cols, B.cols());
+    double err = 0.0;
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        double Aij = A.get(i,j);
+        double Bij = B.get(i,j);
+        double diff = Math.abs(Aij - Bij);
+        if (diff > err) { err = diff; }
+        assertEquals(Aij, Bij, tol);
       }
     }
+    return err;
   }
 
   /**
    * Asserts that matrix is lower triangular.
    */
-  public static void assertMatrixLT(Matrix m, double tol) {
-    for (int i = 0; i < m.rows(); ++i) {
-      for (int j = i+1; j < m.cols(); ++j) {
-        assertEquals(0.0, m.get(i,j), tol);
+  public static double assertMatrixLT(Matrix M, double tol) {
+    final int rows = M.rows(), cols = M.cols();
+    double err = 0.0;
+    for (int i = 0; i < rows; ++i) {
+      for (int j = i+1; j < cols; ++j) {
+        double Mij = M.get(i,j);
+        double diff = Math.abs(Mij);
+        if (diff > err) { err = diff; }
+        assertEquals(0.0, Mij, tol);
       }
     }
+    return err;
   }
 
   /**
    * Asserts that matrix is unit lower triangular.
    */
-  public static void assertMatrixUnitLT(Matrix m, double tol) {
-    assertMatrixLT(m, tol);
-    for (int i = 0; i < Math.min(m.rows(), m.cols()); ++i) {
-      assertEquals(1.0, m.get(i,i), tol);
+  public static double assertMatrixUnitLT(Matrix M, double tol) {
+    double err = assertMatrixLT(M, tol);
+    for (int i = 0; i < Math.min(M.rows(), M.cols()); ++i) {
+      double Mii = M.get(i,i);
+      double diff = Math.abs(1.0 - Mii);
+      if (diff > err) { err = diff; }
+      assertEquals(1.0, Mii, tol);
     }
+    return err;
   }
 
   /**
    * Asserts that matrix is upper triangular.
    */
-  public static void assertMatrixUT(Matrix m, double tol) {
-    assertMatrixLT(m.T(), tol);
+  public static double assertMatrixUT(Matrix M, double tol) {
+    return assertMatrixLT(M.T(), tol);
   }
 
   /**
    * Asserts that matrix is unit upper triangular.
    */
-  public static void assertMatrixUnitUT(Matrix m, double tol) {
-    assertMatrixUnitLT(m.T(), tol);
+  public static double assertMatrixUnitUT(Matrix M, double tol) {
+    return assertMatrixUnitLT(M.T(), tol);
   }
 
   /**
    * Asserts that matrix is diagonal.
    */
-  public static void assertMatrixDiag(Matrix m, double tol) {
-    assertMatrixLT(m, tol);
-    assertMatrixUT(m, tol);
+  public static double assertMatrixDiag(Matrix M, double tol) {
+    double errLT = assertMatrixLT(M, tol);
+    double errUT = assertMatrixUT(M, tol);
+    return Math.max(errLT, errUT);
+  }
+
+  /**
+   * Asserts that matrix is identity.
+   */
+  public static double assertMatrixEye(Matrix M, double tol) {
+    assertEquals(M.rows(), M.cols());
+    double err = assertMatrixDiag(M, tol);
+    for (int i = 0; i < M.rows(); ++i) {
+      double Mii = M.get(i,i);
+      double diff = Math.abs(1.0 - Mii);
+      if (diff > err) { err = diff; }
+      assertEquals(1.0, Mii, tol);
+    }
+    return err;
   }
 
   /**
    * Asserts that matrix is orthogonal.
    */
-  public static void assertMatrixOrtho(Matrix m, double tol) {
-    assertEquals(m.rows(), m.cols());
-    Matrix I = Matrix.eye(m.rows());
-    assertMatrixEquals(I, m.mul(m.T()), tol);
-    assertMatrixEquals(I, m.T().mul(m), tol);
+  public static double assertMatrixOrtho(Matrix M, double tol) {
+    assertEquals(M.rows(), M.cols());
+    double errMMt = assertMatrixEye(M.mul(M.T()), tol);
+    double errMtM = assertMatrixEye(M.T().mul(M), tol);
+    return Math.max(errMMt, errMtM);
   }
 
   /**
    * Asserts that matrix has orthogonal rows.
    */
-  public static void assertMatrixOrthoRows(Matrix m, double tol) {
-    Matrix I = Matrix.eye(m.rows());
-    assertMatrixEquals(I, m.mul(m.T()), tol);
+  public static double assertMatrixOrthoRows(Matrix M, double tol) {
+    return assertMatrixEye(M.mul(M.T()), tol);
   }
 
   /**
    * Asserts that matrix has orthogonal columns.
    */
-  public static void assertMatrixOrthoCols(Matrix m, double tol) {
-    Matrix I = Matrix.eye(m.cols());
-    assertMatrixEquals(I, m.T().mul(m), tol);
+  public static double assertMatrixOrthoCols(Matrix M, double tol) {
+    return assertMatrixEye(M.T().mul(M), tol);
   }
 
   /**
    * Asserts that matrix is symmetric.
    */
-  public static void assertMatrixSymmetric(Matrix m, double tol) {
-    assertEquals(m.rows(), m.cols());
-    for (int i = 0; i < m.rows(); ++i) {
+  public static double assertMatrixSymmetric(Matrix M, double tol) {
+    assertEquals(M.rows(), M.cols());
+    double err = 0.0;
+    for (int i = 0; i < M.rows(); ++i) {
       for (int j = 0; j < i; ++j) {
-        assertEquals(m.get(i,j), m.get(j,i), tol);
+        double Mij = M.get(i,j);
+        double Mji = M.get(j,i);
+        double diff = Math.abs(Mij - Mji);
+        if (diff > err) { err = diff; }
+        assertEquals(Mij, Mji, tol);
       }
     }
+    return err;
   }
 }

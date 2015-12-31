@@ -16,6 +16,7 @@ import static jmatrix.MatrixAssert.assertMatrixUnitLT;
 import static jmatrix.MatrixAssert.assertMatrixLT;
 import static jmatrix.MatrixAssert.assertMatrixUT;
 import static jmatrix.MatrixAssert.assertMatrixDiag;
+import static jmatrix.MatrixAssert.assertMatrixEye;
 import static jmatrix.MatrixAssert.assertMatrixOrtho;
 import static jmatrix.MatrixAssert.assertMatrixOrthoCols;
 import static jmatrix.MatrixAssert.assertMatrixSymmetric;
@@ -56,17 +57,17 @@ public class MatrixBenchmarks {
   private interface Bench
   {
     void compute(Matrix A);
-    void check(Matrix A);
+    double check(Matrix A);
   }
 
   private class BenchMatMul implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       M = A.mul(A.T());
     }
 
-    public void check(Matrix A) {
-      assertMatrixSymmetric(M, TOL);
+    @Override public double check(Matrix A) {
+      return assertMatrixSymmetric(M, TOL);
     }
 
     private Matrix M;
@@ -74,13 +75,14 @@ public class MatrixBenchmarks {
 
   private class BenchMatInv implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       Ainv = A.inv();
     }
 
-    public void check(Matrix A) {
-      assertMatrixEquals(Matrix.eye(A.rows()), A.mul(Ainv), TOL);
-      assertMatrixEquals(Matrix.eye(A.rows()), Ainv.mul(A), TOL);
+    @Override public double check(Matrix A) {
+      double err = assertMatrixEye(A.mul(Ainv), TOL);
+      err = Math.max(err, assertMatrixEye(Ainv.mul(A), TOL));
+      return err;
     }
 
     private Matrix Ainv;
@@ -88,13 +90,14 @@ public class MatrixBenchmarks {
 
   private class BenchMatInvPsd implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       Ainv = A.invPsd();
     }
 
-    public void check(Matrix A) {
-      assertMatrixEquals(Matrix.eye(A.rows()), A.mul(Ainv), TOL);
-      assertMatrixEquals(Matrix.eye(A.rows()), Ainv.mul(A), TOL);
+    @Override public double check(Matrix A) {
+      double err = assertMatrixEye(A.mul(Ainv), TOL);
+      err = Math.max(err, assertMatrixEye(Ainv.mul(A), TOL));
+      return err;
     }
 
     private Matrix Ainv;
@@ -102,17 +105,18 @@ public class MatrixBenchmarks {
 
   private class BenchLU implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       Matrix[] LUP = A.LU();
       L = LUP[0];
       U = LUP[1];
       P = LUP[2];
     }
 
-    public void check(Matrix A) {
-      assertMatrixEquals(A, P.T().mul(L).mul(U), TOL);
-      assertMatrixUnitLT(L, TOL);
-      assertMatrixUT(U, TOL);
+    @Override public double check(Matrix A) {
+      double err = assertMatrixEquals(A, P.T().mul(L).mul(U), TOL);
+      err = Math.max(err, assertMatrixUnitLT(L, TOL));
+      err = Math.max(err, assertMatrixUT(U, TOL));
+      return err;
     }
 
     private Matrix L, U, P;
@@ -120,16 +124,17 @@ public class MatrixBenchmarks {
 
   private class BenchQR implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       Matrix[] QR = A.QR();
       Q = QR[0];
       R = QR[1];
     }
 
-    public void check(Matrix A) {
-      assertMatrixEquals(A, Q.mul(R), TOL);
-      assertMatrixOrtho(Q, TOL);
-      assertMatrixUT(R, TOL);
+    @Override public double check(Matrix A) {
+      double err = assertMatrixEquals(A, Q.mul(R), TOL);
+      err = Math.max(err, assertMatrixOrtho(Q, TOL));
+      err = Math.max(err, assertMatrixUT(R, TOL));
+      return err;
     }
 
     private Matrix Q, R;
@@ -137,21 +142,22 @@ public class MatrixBenchmarks {
 
   private class BenchReducedQR implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       Matrix[] QR = A.reducedQR();
       Q = QR[0];
       R = QR[1];
     }
 
-    public void check(Matrix A) {
-      assertMatrixEquals(A, Q.mul(R), TOL);
+    @Override public double check(Matrix A) {
+      double err = assertMatrixEquals(A, Q.mul(R), TOL);
       if (A.rows() > A.cols()) {
-        assertMatrixOrthoCols(Q, TOL);
+        err = Math.max(err, assertMatrixOrthoCols(Q, TOL));
       }
       else {
-        assertMatrixOrtho(Q, TOL);
+        err = Math.max(err, assertMatrixOrtho(Q, TOL));
       }
-      assertMatrixUT(R, TOL);
+      err = Math.max(err, assertMatrixUT(R, TOL));
+      return err;
     }
 
     private Matrix Q, R;
@@ -159,18 +165,19 @@ public class MatrixBenchmarks {
 
   private class BenchNoQQR implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       R = Matrix.create(A.rows(), A.cols());
       final int t = Math.min(A.rows()-1, A.cols());
       A.QR(null, R, Matrix.create(t,1));
     }
 
-    public void check(Matrix A) {
-      assertMatrixUT(R, TOL);
+    @Override public double check(Matrix A) {
+      double err = assertMatrixUT(R, TOL);
       Matrix[] QR = A.QR();
       Matrix Q = QR[0];
-      assertMatrixEquals(A, Q.mul(R), TOL);
-      assertMatrixOrtho(Q, TOL);
+      err = Math.max(err, assertMatrixEquals(A, Q.mul(R), TOL));
+      err = Math.max(err, assertMatrixOrtho(Q, TOL));
+      return err;
     }
 
     private Matrix R;
@@ -178,14 +185,15 @@ public class MatrixBenchmarks {
 
   private class BenchCholeskyL implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       L = A.choleskyL();
     }
 
-    public void check(Matrix A) {
+    @Override public double check(Matrix A) {
       assertEquals(L.rows(), L.cols());
-      assertMatrixEquals(A, L.mul(L.T()), TOL);
-      assertMatrixLT(L, TOL);
+      double err = assertMatrixEquals(A, L.mul(L.T()), TOL);
+      err = Math.max(err, assertMatrixLT(L, TOL));
+      return err;
     }
 
     private Matrix L;
@@ -193,17 +201,18 @@ public class MatrixBenchmarks {
 
   private class BenchCholeskyLD implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       Matrix[] LD = A.choleskyLD();
       L = LD[0];
       D = LD[1];
     }
 
-    public void check(Matrix A) {
+    @Override public double check(Matrix A) {
       assertEquals(L.rows(), L.cols());
-      assertMatrixEquals(A, L.mul(D).mul(L.T()), TOL);
-      assertMatrixLT(L, TOL);
-      assertMatrixDiag(D, TOL);
+      double err = assertMatrixEquals(A, L.mul(D).mul(L.T()), TOL);
+      err = Math.max(err, assertMatrixLT(L, TOL));
+      err = Math.max(err, assertMatrixDiag(D, TOL));
+      return err;
     }
 
     private Matrix L, D;
@@ -211,17 +220,18 @@ public class MatrixBenchmarks {
 
   private class BenchReducedSVD implements Bench
   {
-    public void compute(Matrix A) {
+    @Override public void compute(Matrix A) {
       Matrix[] USV = A.reducedSVD();
       U = USV[0];
       S = USV[1];
       V = USV[2];
     }
 
-    public void check(Matrix A) {
-      assertMatrixEquals(A, U.ewb(MUL, S.T()).mul(V.T()), TOL);
-      assertMatrixOrthoCols(U, TOL);
-      assertMatrixOrthoCols(V, TOL);
+    @Override public double check(Matrix A) {
+      double err = assertMatrixEquals(A, U.ewb(MUL, S.T()).mul(V.T()), TOL);
+      err = Math.max(err, assertMatrixOrthoCols(U, TOL));
+      err = Math.max(err, assertMatrixOrthoCols(V, TOL));
+      return err;
     }
 
     private Matrix U, S, V;
@@ -231,16 +241,18 @@ public class MatrixBenchmarks {
 
   private class Result
   {
-    Result(String name, long min, long max, long avg, long std) {
+    Result(String name, long min, long max, long avg, long std, double err) {
       this.name = name;
       this.min = min;
       this.max = max;
       this.avg = avg;
       this.std = std;
+      this.err = err;
     }
 
     String name;
     long min, max, avg, std;
+    double err;
   }
   private static List<Result> results = new LinkedList<Result>();
 
@@ -266,6 +278,7 @@ public class MatrixBenchmarks {
     final double nrepeats = REPEAT_COUNT;
     long times_min = Long.MAX_VALUE, times_max = 0;
     double times_avg = 0, times_std = 0;
+    double max_err = 0.0;
 
     for (int repeat = 0; repeat < REPEAT_COUNT; ++repeat) {
       System.gc();
@@ -280,7 +293,9 @@ public class MatrixBenchmarks {
       long ts = System.currentTimeMillis();
       test.compute(A.copy());
       ts = System.currentTimeMillis() - ts;
-      test.check(A);
+
+      double err = test.check(A);
+      if (err > max_err) { max_err = err; }
 
       if (ts < times_min) { times_min = ts; }
       if (ts > times_max) { times_max = ts; }
@@ -290,7 +305,8 @@ public class MatrixBenchmarks {
     times_std = Math.ceil(Math.sqrt(times_std - times_avg*times_avg));
 
     results.add(new Result(name, times_min, times_max,
-                           (long)times_avg, (long)times_std));
+                           (long)times_avg, (long)times_std,
+                           max_err));
   }
 
   private static int countDec(long n) {
@@ -372,13 +388,25 @@ public class MatrixBenchmarks {
                          countDec((int)sizstd), countDec((int)nnzstd));
       int max4 = maximum(countDec(rowmax), countDec(colmax),
                          countDec(sizmax), countDec(nnzmax));
+
+      System.out.format("            : %" + max1 + "s" +
+                        " | %" + max2 + "s" +
+                        " +- %-" + max3 + "s" +
+                        " | %" + max4 + "s\n",
+                        "min", "avg", "std", "max");
+      int ccount = 12 + max1 + 3 + max2 + 4 + max3 + 3 + max4;
+      System.out.print("  ");
+      for (int i = 0; i < ccount; ++i) {
+        System.out.print("-");
+      }
+      System.out.println();
+
       String fmt =
         " %" + max1 + "d"
         + " | %" + max2 + "d"
         + " +- %" + max3 + "d"
         + " | %" + max4 + "d"
         + "\n";
-
       System.out.format("  rows      :" + fmt, rowmin, (int)rowavg, (int)rowstd, rowmax);
       System.out.format("  columns   :" + fmt, colmin, (int)colavg, (int)colstd, colmax);
       System.out.format("  entries   :" + fmt, sizmin, (int)sizavg, (int)sizstd, sizmax);
@@ -386,10 +414,10 @@ public class MatrixBenchmarks {
     }
     System.out.println();
     {
-      System.out.println("Running times (ms):");
+      System.out.println("Running times (ms) and numerical errors:");
       System.out.println();
 
-      int namecmax = 0, mincmax = 0, avgcmax = 0, stdcmax = 0, maxcmax = 0;
+      int namecmax = 3, mincmax = 3, avgcmax = 3, stdcmax = 3, maxcmax = 3;
       for (Result result : results) {
         namecmax = Math.max(namecmax, result.name.length());
         mincmax = Math.max(mincmax, countDec(result.min));
@@ -398,17 +426,33 @@ public class MatrixBenchmarks {
         maxcmax = Math.max(maxcmax, countDec(result.max));
       }
 
+      System.out.format("  %" + namecmax + "s" +
+                        " : %" + mincmax + "s" +
+                        " | %" + avgcmax + "s" +
+                        " +- %-" + stdcmax + "s" +
+                        " | %" + maxcmax + "s" +
+                        " ,    max error\n",
+                        " ", "min", "avg", "std", "max");
+      int ccount = namecmax + 3 + mincmax + 3 + avgcmax + 4 + stdcmax + 3 + maxcmax + 15;
+      System.out.print("  ");
+      for (int i = 0; i < ccount; ++i) {
+        System.out.print("-");
+      }
+      System.out.println();
       for (Result result : results) {
-        System.out.format("  %-" + namecmax + "s :"
-                          + " %" + mincmax + "d" +
+        System.out.format("  %-" + namecmax + "s" +
+                          " : %" + mincmax + "d" +
                           " | %" + avgcmax + "d" +
                           " +- %" + stdcmax + "d" +
-                          " | %" + maxcmax + "d\n",
+                          " | %" + maxcmax + "d" +
+                          " , %e" +
+                          "\n",
                           result.name,
                           result.min,
                           result.avg,
                           result.std,
-                          result.max);
+                          result.max,
+                          result.err);
       }
     }
   }
