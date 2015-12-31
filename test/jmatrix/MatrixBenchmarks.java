@@ -21,7 +21,6 @@ import static jmatrix.MatrixAssert.assertMatrixOrthoCols;
 import static jmatrix.MatrixAssert.assertMatrixSymmetric;
 
 import static jmatrix.Matrix.NR;
-import static jmatrix.Matrix.TOL;
 import static jmatrix.BasicUnaryOperation.*;
 import static jmatrix.BasicBinaryOperation.*;
 
@@ -31,6 +30,7 @@ import static jmatrix.BasicBinaryOperation.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MatrixBenchmarks {
 
+  public static final double TOL = 1e-6;
   public static final int REPEAT_COUNT = 100;
   public static final int SEED = 19273;
   public static final int MINSIZE = 50;
@@ -40,8 +40,9 @@ public class MatrixBenchmarks {
 
   //---------------------------------------------------------------------------
 
-  @Test public void MatMulAtA() { bench("MatMul (AtA)", new BenchMatMulAtA(), false); }
-  @Test public void MatMulAAt() { bench("MatMul (AAt)", new BenchMatMulAAt(), false); }
+  @Test public void MatMul() { bench("MatMul", new BenchMatMul(), false); }
+  @Test public void MatInv() { bench("MatInv", new BenchMatInv(), true); }
+  @Test public void MatInvPsd() { bench("MatInv (psd)", new BenchMatInvPsd(), true); }
   @Test public void LU() { bench("LU", new BenchLU(), false); }
   @Test public void QR() { bench("QR", new BenchQR(), false); }
   @Test public void reducedQR() { bench("QR (reduced)", new BenchReducedQR(), false); }
@@ -58,20 +59,7 @@ public class MatrixBenchmarks {
     void check(Matrix A);
   }
 
-  private class BenchMatMulAtA implements Bench
-  {
-    public void compute(Matrix A) {
-      M = A.T().mul(A);
-    }
-
-    public void check(Matrix A) {
-      assertMatrixSymmetric(M, TOL);
-    }
-
-    private Matrix M;
-  }
-
-  private class BenchMatMulAAt implements Bench
+  private class BenchMatMul implements Bench
   {
     public void compute(Matrix A) {
       M = A.mul(A.T());
@@ -82,6 +70,34 @@ public class MatrixBenchmarks {
     }
 
     private Matrix M;
+  }
+
+  private class BenchMatInv implements Bench
+  {
+    public void compute(Matrix A) {
+      Ainv = A.inv();
+    }
+
+    public void check(Matrix A) {
+      assertMatrixEquals(Matrix.eye(A.rows()), A.mul(Ainv), TOL);
+      assertMatrixEquals(Matrix.eye(A.rows()), Ainv.mul(A), TOL);
+    }
+
+    private Matrix Ainv;
+  }
+
+  private class BenchMatInvPsd implements Bench
+  {
+    public void compute(Matrix A) {
+      Ainv = A.invPsd();
+    }
+
+    public void check(Matrix A) {
+      assertMatrixEquals(Matrix.eye(A.rows()), A.mul(Ainv), TOL);
+      assertMatrixEquals(Matrix.eye(A.rows()), Ainv.mul(A), TOL);
+    }
+
+    private Matrix Ainv;
   }
 
   private class BenchLU implements Bench
@@ -255,7 +271,11 @@ public class MatrixBenchmarks {
       System.gc();
 
       Matrix A = genA(rng);
-      if (isPsd) { A = A.mul(A.T()).add(Matrix.eye(A.rows()).mul(2*TOL)); }
+      if (isPsd) {
+        A.div(Math.sqrt(A.cols()*SCALE), A);
+        A = A.mul(A.T());
+        A.add(Matrix.eye(A.rows()).mul(10*TOL), A);
+      }
 
       long ts = System.currentTimeMillis();
       test.compute(A.copy());

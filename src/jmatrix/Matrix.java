@@ -2377,20 +2377,7 @@ public abstract class Matrix {
     V.setToEye();
 
     // scaling
-    double scale = 0.0;
-    for (int i = 0; i < cols; ++i) {
-      for (int k = 0; k < rows; ++k) {
-        double s = Math.abs(U.get(k,i));
-        if (s > scale) { scale = s; }
-      }
-    }
-    if (scale > 0.0) {
-      for (int i = 0; i < cols; ++i) {
-        for (int k = 0; k < rows; ++k) {
-          U.set(k, i, U.get(k,i) / scale);
-        }
-      }
-    }
+    double scale = scaling(U);
 
     boolean isUpdated = true;
     while (isUpdated) {
@@ -2576,5 +2563,29 @@ public abstract class Matrix {
       r = absY * Math.sqrt(1.0 + r*r);
     }
     return r;
+  }
+
+  /* Scaling the matrix by the reciproc of its maximum absolute entry.
+   */
+  private final static double scaling(Matrix M) {
+    final int rows = M.rows(), cols = M.cols();
+
+    double scale = 0.0;
+    for (int i = 0; i < cols; ++i) {
+      for (int k = 0; k < rows; ++k) {
+        double s = Math.abs(M.get(k,i));
+        if (s > scale) { scale = s; }
+      }
+    }
+
+    if (scale > 0.0) {
+      for (int i = 0; i < cols; ++i) {
+        for (int k = 0; k < rows; ++k) {
+          M.set(k, i, M.get(k,i) / scale);
+        }
+      }
+    }
+
+    return scale;
   }
 }
