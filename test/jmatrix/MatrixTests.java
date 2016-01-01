@@ -1114,6 +1114,56 @@ public class MatrixTests {
   }
 
   //---------------------------------------------------------------------------
+  // orthonormalization
+
+  @Test public void basicOrthoNorm() {
+    Matrix m2x2 = Matrix.zeros(2,2);
+    assertMatrixEquals(m2x2, m2x2.orthonormalize(), TOL);
+    assertMatrixEquals(m2x2, m2x2.orthonormalize(1), TOL);
+
+    m2x2.setToEye();
+    assertMatrixEquals(m2x2, m2x2.orthonormalize(), TOL);
+    assertMatrixEquals(m2x2, m2x2.orthonormalize(1), TOL);
+
+    Matrix I2 = Matrix.eye(2);
+    m2x2.set(1, 1, 22.0);
+    assertMatrixEquals(I2, m2x2.orthonormalize(), TOL);
+    assertMatrixEquals(I2, m2x2.orthonormalize(1), TOL);
+
+    m2x2 = Matrix.create(4.0, 4.0, NR,
+                         -3.0, 3.0);
+    assertMatrixOrtho(m2x2.orthonormalize(), TOL);
+  }
+
+  @Test public void squareOrthoNorm() {
+    Matrix m5x5 = Matrix.create(17, 24,  1,  8, 15, NR,
+                                23,  5,  7, 14, 16, NR,
+                                4,  6, 13, 20, 22, NR,
+                                10, 12, 19, 21,  3, NR,
+                                11, 18, 25,  2,  9);
+    assertMatrixOrthoCols(m5x5.orthonormalize(), TOL);
+    assertMatrixOrthoCols(m5x5.T().orthonormalize(), TOL);
+
+    m5x5.orthonormalize(m5x5); // in-place
+    assertMatrixOrthoCols(m5x5, TOL);
+  }
+
+  @Test public void rectOrthoNorm() {
+    Matrix m4x2 = Matrix.create(+1, +2, NR,
+                                -3, +4, NR,
+                                +5, -6, NR,
+                                -7, -8);
+    assertMatrixOrthoCols(m4x2.orthonormalize(), TOL);
+    assertMatrixOrthoCols(m4x2.T().orthonormalize(), true, TOL);
+
+    Matrix m3x4 = Matrix.create(1, 2, 3, 4, NR,
+                                2, 4, 7, 8, NR,
+                                8, 7, 6, 5);
+    assertMatrixOrthoCols(m3x4.orthonormalize(), true, TOL);
+    assertMatrixOrthoCols(m3x4.T().orthonormalize(), TOL);
+  }
+
+  //---------------------------------------------------------------------------
   // singular value decomposition tests
 
   @Test public void basicReducedSVD() {

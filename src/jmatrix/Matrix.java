@@ -2000,11 +2000,12 @@ public abstract class Matrix {
    * the diagonal elements are ignored too.
    *
    * @param b right hand side vector
+   *        (not <code>null</code>, can be equal to <code>x</code>)
    * @param isUnitDiag unit diagonal indicator
    * @param result storage of the result (not <code>null</code>)
    * @return x as the solution for L*x = b
    */
-  Matrix backsL(Matrix b, boolean isUnitDiag, Matrix result) {
+  public Matrix backsL(Matrix b, boolean isUnitDiag, Matrix result) {
     final int rows = rows(), cols = cols();
     assert (rows == cols);
     assert (b != null && b.rows() == rows && b.cols() == 1);
@@ -2029,10 +2030,11 @@ public abstract class Matrix {
    * the diagonal elements are ignored too.
    *
    * @param b right hand side vector
+   *        (not <code>null</code>, can be equal to <code>x</code>)
    * @param isUnitDiag unit diagonal indicator
    * @return x as the solution for L*x = b
    */
-  Matrix backsL(Matrix b, boolean isUnitDiag) {
+  public Matrix backsL(Matrix b, boolean isUnitDiag) {
     return backsL(b, isUnitDiag, create(rows(), 1));
   }
 
@@ -2046,7 +2048,7 @@ public abstract class Matrix {
    * @param b right hand side vector
    * @return x as the solution for L*x = b
    */
-  Matrix backsL(Matrix b) {
+  public Matrix backsL(Matrix b) {
     return backsL(b, false, create(rows(), 1));
   }
 
@@ -2060,11 +2062,12 @@ public abstract class Matrix {
    * the diagonal elements are ignored too.
    *
    * @param b right hand side vector
+   *        (not <code>null</code>, can be equal to <code>x</code>)
    * @param isUnitDiag unit diagonal indicator
    * @param result storage of the result (not <code>null</code>)
    * @return x as the solution for U*x = b
    */
-  Matrix backsU(Matrix b, boolean isUnitDiag, Matrix result) {
+  public Matrix backsU(Matrix b, boolean isUnitDiag, Matrix result) {
     final int rows = rows(), cols = cols();
     assert (rows == cols);
     assert (b != null && b.rows() == rows && b.cols() == 1);
@@ -2089,10 +2092,11 @@ public abstract class Matrix {
    * the diagonal elements are ignored too.
    *
    * @param b right hand side vector
+   *        (not <code>null</code>, can be equal to <code>x</code>)
    * @param isUnitDiag unit diagonal indicator
    * @return x as the solution for U*x = b
    */
-  Matrix backsU(Matrix b, boolean isUnitDiag) {
+  public Matrix backsU(Matrix b, boolean isUnitDiag) {
     return backsU(b, isUnitDiag, create(rows(), 1));
   }
 
@@ -2104,10 +2108,11 @@ public abstract class Matrix {
    * The lower triangular part of matrix <code>this</code> is always ignored.
    *
    * @param b right hand side vector
+   *        (not <code>null</code>, can be equal to <code>x</code>)
    * @param isUnitDiag unit diagonal indicator
    * @return x as the solution for U*x = b
    */
-  Matrix backsU(Matrix b) {
+  public Matrix backsU(Matrix b) {
     return backsU(b, false, create(rows(), 1));
   }
 
@@ -2340,6 +2345,106 @@ public abstract class Matrix {
    */
   public Matrix invPsd() {
     return invPsd(create(rows(), cols()));
+  }
+
+  //----------------------------------------------------------------------------
+  // orthogonalization
+
+  /**
+   * Orthonormalising the columns of the matrix.
+   * When <code>startColIdx</code> is greater than zero,
+   * columns <code>0..startColIdx-1</code> is assumed to be orthonormalized.
+   * Linearly dependent columns are set to zero.
+   *
+   * Implementation: Gram-Schmidt process.
+   *
+   * @param startColIdx index of column at which
+   *                    the orthonormalising process is started
+   * @param result storage of the result
+   *               (not <code>null</code> with the same size as <code>this</code> matrix)
+   * @return matrix <code>result</code> having orthonormalized columns
+   */
+  public Matrix orthonormalize(int startColIdx, Matrix result) {
+    final int rows = rows(), cols = cols();
+    assert (0 <= startColIdx && startColIdx <= cols);
+    assert (result != null && result.rows() == rows && result.cols() == cols);
+
+    copy(result);
+    for (int j = startColIdx; j < cols; ++j) {
+      for (int k = 0; k < j; ++k) {
+        double dp = 0.0;
+        for (int i = 0; i < rows; ++i) {
+          dp += result.get(i,j) * result.get(i,k);
+        }
+
+        for (int i = 0; i < rows; ++i) {
+          result.set(i, j, result.get(i,j) - dp*result.get(i,k));
+        }
+      }
+
+      double maxr = 0.0;
+      for (int i = 0; i < rows; ++i) {
+        double r = Math.abs(result.get(i,j));
+        if (r > maxr) { maxr = r; }
+      }
+
+      if (maxr <= TOL) {
+        for (int i = 0; i < rows; ++i) {
+          result.set(i, j, 0.0);
+        }
+      }
+      else {
+        double norm = 0.0;
+        for (int i = 0; i < rows; ++i) {
+          double r = result.get(i,j) / maxr;
+          norm += r*r;
+        }
+        norm = maxr * Math.sqrt(norm);
+        for (int i = 0; i < rows; ++i) {
+          result.set(i, j, result.get(i,j) / norm);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Orthonormalising the columns of the matrix.
+   * When <code>startColIdx</code> is greater than zero,
+   * columns <code>0..startColIdx-1</code> is assumed to be orthonormalized.
+   *
+   * Implementation: Gram-Schmidt process.
+   *
+   * @param startColIdx index of column at which
+   *                    the orthonormalising process is started
+   * @return new matrix having orthonormalized columns
+   */
+  public Matrix orthonormalize(int startColIdx) {
+    return orthonormalize(startColIdx, Matrix.create(rows(), cols()));
+  }
+
+  /**
+   * Orthonormalising the columns of the matrix.
+   *
+   * Implementation: Gram-Schmidt process.
+   *
+   * @param result storage of the result
+   *               (not <code>null</code> with the same size as <code>this</code> matrix)
+   * @return matrix <code>result</code> having orthonormalized columns
+   */
+  public Matrix orthonormalize(Matrix result) {
+    return orthonormalize(0, result);
+  }
+
+  /**
+   * Orthonormalising the columns of the matrix.
+   *
+   * Implementation: Gram-Schmidt process.
+   *
+   * @return new matrix having orthonormalized columns
+   */
+  public Matrix orthonormalize() {
+    return orthonormalize(0);
   }
 
   //----------------------------------------------------------------------------

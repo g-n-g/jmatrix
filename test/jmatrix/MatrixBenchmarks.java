@@ -44,13 +44,16 @@ public class MatrixBenchmarks {
   @Test public void MatMul() { bench("MatMul", new BenchMatMul(), false); }
   @Test public void MatInv() { bench("MatInv", new BenchMatInv(), true); }
   @Test public void MatInvPsd() { bench("MatInv (psd)", new BenchMatInvPsd(), true); }
+  @Test public void SolveEqn() { bench("SolveEqn", new BenchSolveEqn(), true); }
+  @Test public void SolveEqnPsd() { bench("SolveEqn (psd)", new BenchSolveEqnPsd(), true); }
   @Test public void LU() { bench("LU", new BenchLU(), false); }
   @Test public void QR() { bench("QR", new BenchQR(), false); }
-  @Test public void reducedQR() { bench("QR (reduced)", new BenchReducedQR(), false); }
-  @Test public void noQQR() { bench("QR (noQ)", new BenchNoQQR(), false); }
+  @Test public void QRreduced() { bench("QR (reduced)", new BenchReducedQR(), false); }
+  @Test public void QRnoQ() { bench("QR (noQ)", new BenchNoQQR(), false); }
   @Test public void CholeskyL() { bench("Cholesky L", new BenchCholeskyL(), true); }
   @Test public void CholeskyLD() { bench("Cholesky LD", new BenchCholeskyLD(), true); }
-  @Test public void reducedSVD() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
+  @Test public void OrthoNorm() { bench("OrthoNorm", new BenchOrthoNorm(), false); }
+  @Test public void SVDreduced() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
 
   //---------------------------------------------------------------------------
 
@@ -101,6 +104,38 @@ public class MatrixBenchmarks {
     }
 
     private Matrix Ainv;
+  }
+
+  private class BenchSolveEqn implements Bench
+  {
+    @Override public void compute(Matrix A) {
+      b = Matrix.ones(A.rows(), 1);
+      Matrix[] LU = A.LU();
+      Matrix y = LU[0].backsL(b, true);
+      x = LU[1].backsU(y, false, y);
+    }
+
+    @Override public double check(Matrix A) {
+      return assertMatrixEquals(b, A.mul(x), TOL);
+    }
+
+    private Matrix x, b;
+  }
+
+  private class BenchSolveEqnPsd implements Bench
+  {
+    @Override public void compute(Matrix A) {
+      b = Matrix.ones(A.rows(), 1);
+      Matrix L = A.choleskyL();
+      Matrix y = L.backsL(b, false);
+      x = L.T().backsU(y, false, y);
+    }
+
+    @Override public double check(Matrix A) {
+      return assertMatrixEquals(b, A.mul(x), TOL);
+    }
+
+    private Matrix x, b;
   }
 
   private class BenchLU implements Bench
@@ -216,6 +251,19 @@ public class MatrixBenchmarks {
     }
 
     private Matrix L, D;
+  }
+
+  private class BenchOrthoNorm implements Bench
+  {
+    @Override public void compute(Matrix A) {
+      M = A.orthonormalize();
+    }
+
+    @Override public double check(Matrix A) {
+      return assertMatrixOrthoCols(M, true, TOL);
+    }
+
+    private Matrix M;
   }
 
   private class BenchReducedSVD implements Bench

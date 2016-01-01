@@ -82,42 +82,76 @@ public class MatrixAssert {
   }
 
   /**
-   * Asserts that matrix is identity.
+   * Asserts that matrix is identity (might allow zeros on the diagonal).
    */
-  public static double assertMatrixEye(Matrix M, double tol) {
+  public static double assertMatrixEye(Matrix M, boolean allowZero, double tol) {
     assertEquals(M.rows(), M.cols());
     double err = assertMatrixDiag(M, tol);
     for (int i = 0; i < M.rows(); ++i) {
       double Mii = M.get(i,i);
       double diff = Math.abs(1.0 - Mii);
+      if (allowZero) {
+        diff = Math.min(diff, Mii);
+        assertEquals(0.0, diff, tol);
+      }
+      else {
+        assertEquals(1.0, Mii, tol);
+      }
       if (diff > err) { err = diff; }
-      assertEquals(1.0, Mii, tol);
     }
     return err;
+  }
+
+  /**
+   * Asserts that matrix is identity.
+   */
+  public static double assertMatrixEye(Matrix M, double tol) {
+    return assertMatrixEye(M, false, tol);
+  }
+
+  /**
+   * Asserts that matrix is orthogonal (might allow zeros on the diagonal).
+   */
+  public static double assertMatrixOrtho(Matrix M, boolean allowZero, double tol) {
+    assertEquals(M.rows(), M.cols());
+    double errMMt = assertMatrixEye(M.mul(M.T()), allowZero, tol);
+    double errMtM = assertMatrixEye(M.T().mul(M), allowZero, tol);
+    return Math.max(errMMt, errMtM);
   }
 
   /**
    * Asserts that matrix is orthogonal.
    */
   public static double assertMatrixOrtho(Matrix M, double tol) {
-    assertEquals(M.rows(), M.cols());
-    double errMMt = assertMatrixEye(M.mul(M.T()), tol);
-    double errMtM = assertMatrixEye(M.T().mul(M), tol);
-    return Math.max(errMMt, errMtM);
+    return assertMatrixOrtho(M, false, tol);
+  }
+
+  /**
+   * Asserts that matrix has orthogonal rows (might allow zeros on the diagonal).
+   */
+  public static double assertMatrixOrthoRows(Matrix M, boolean allowZero, double tol) {
+    return assertMatrixEye(M.mul(M.T()), allowZero, tol);
   }
 
   /**
    * Asserts that matrix has orthogonal rows.
    */
   public static double assertMatrixOrthoRows(Matrix M, double tol) {
-    return assertMatrixEye(M.mul(M.T()), tol);
+    return assertMatrixOrthoRows(M, false, tol);
+  }
+
+  /**
+   * Asserts that matrix has orthogonal columns (might allow zeros on the diagonal).
+   */
+  public static double assertMatrixOrthoCols(Matrix M, boolean allowZero, double tol) {
+    return assertMatrixEye(M.T().mul(M), allowZero, tol);
   }
 
   /**
    * Asserts that matrix has orthogonal columns.
    */
   public static double assertMatrixOrthoCols(Matrix M, double tol) {
-    return assertMatrixEye(M.T().mul(M), tol);
+    return assertMatrixOrthoCols(M, false, tol);
   }
 
   /**
