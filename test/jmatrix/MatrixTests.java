@@ -11,6 +11,8 @@ import static jmatrix.MatrixAssert.assertMatrixEquals;
 import static jmatrix.MatrixAssert.assertMatrixLT;
 import static jmatrix.MatrixAssert.assertMatrixUnitLT;
 import static jmatrix.MatrixAssert.assertMatrixUT;
+import static jmatrix.MatrixAssert.assertMatrixEye;
+import static jmatrix.MatrixAssert.assertMatrixZero;
 import static jmatrix.MatrixAssert.assertMatrixOrtho;
 import static jmatrix.MatrixAssert.assertMatrixOrthoCols;
 
@@ -521,7 +523,7 @@ public class MatrixTests {
   }
 
   //---------------------------------------------------------------------------
-  // Cholesky decomposition tests
+  // Cholesky decomposition
 
   @Test public void CholeskyDecomposition() {
     Matrix m = Matrix.create(2.0, 1.0, 1.0, NR,
@@ -557,7 +559,7 @@ public class MatrixTests {
   }
 
   //---------------------------------------------------------------------------
-  // QR decomposition tests
+  // QR decomposition
 
   @Test public void basicQR() {
     Matrix M1 = Matrix.zeros(2, 2);
@@ -789,7 +791,7 @@ public class MatrixTests {
   }
 
   //---------------------------------------------------------------------------
-  // LU decomposition tests
+  // LU decomposition
 
   @Test public void basicLU() {
     Matrix M, L, U, P;
@@ -964,7 +966,7 @@ public class MatrixTests {
   }
 
   //---------------------------------------------------------------------------
-  // back substitution tests
+  // back substitution
 
   @Test public void backs() {
     Matrix A = Matrix.create(0.275186, 0.492146, 0.967304, 0.027302, NR,
@@ -987,7 +989,7 @@ public class MatrixTests {
   }
 
   //---------------------------------------------------------------------------
-  // matrix inverse tests
+  // matrix inverse
 
   @Test public void inverseSmallMatrix() {
     Matrix i2 = Matrix.eye(2);
@@ -1071,7 +1073,7 @@ public class MatrixTests {
   }
 
   //---------------------------------------------------------------------------
-  // determinant tests
+  // determinant
 
   @Test public void determinant() {
     Random rng = new Random(7);
@@ -1144,7 +1146,7 @@ public class MatrixTests {
     assertMatrixOrthoCols(m5x5.orthonormalize(), TOL);
     assertMatrixOrthoCols(m5x5.T().orthonormalize(), TOL);
 
-    m5x5.orthonormalize(m5x5); // in-place
+    m5x5.orthonormalize(0, m5x5); // in-place
     assertMatrixOrthoCols(m5x5, TOL);
   }
 
@@ -1164,7 +1166,7 @@ public class MatrixTests {
   }
 
   //---------------------------------------------------------------------------
-  // singular value decomposition tests
+  // singular value decomposition
 
   @Test public void basicReducedSVD() {
     Matrix m2x2 = Matrix.zeros(2,2);
@@ -1179,17 +1181,17 @@ public class MatrixTests {
     USV = m2x2.reducedSVD();
     assertEquals(3, USV.length);
     U = USV[0]; S = USV[1]; V = USV[2];
-    assertMatrixEquals(Matrix.eye(2), U, TOL);
+    assertMatrixEye(U, TOL);
     assertMatrixEquals(Matrix.create(1.0, 1.0).T(), S, TOL);
-    assertMatrixEquals(Matrix.eye(2), V, TOL);
+    assertMatrixEye(V, TOL);
 
     m2x2.set(1, 1, 22.0);
     USV = m2x2.reducedSVD();
     assertEquals(3, USV.length);
     U = USV[0]; S = USV[1]; V = USV[2];
-    assertMatrixEquals(Matrix.eye(2), U, TOL);
+    assertMatrixEye(U, TOL);
     assertMatrixEquals(Matrix.create(1.0, 22.0).T(), S, TOL);
-    assertMatrixEquals(Matrix.eye(2), V, TOL);
+    assertMatrixEye(V, TOL);
 
     m2x2 = Matrix.create(1.0, 2.0, NR,
                          2.0, 1.0);
@@ -1263,6 +1265,19 @@ public class MatrixTests {
     assertMatrixOrthoCols(U, TOL);
     assertMatrixOrthoCols(V, TOL);
 
+    Matrix m4x3save = m4x3.copy();
+    U = m4x3; // in-place test
+    S = Matrix.create(3,1);
+    V = Matrix.create(3,3);
+    assertEquals(2, m4x3.reducedSVD(U, S, V));
+    assertMatrixEquals(m4x3save, U.mul(Matrix.diag(S)).mul(V.T()), TOL);
+    U = U.getMat(0, 3, 0, 1);
+    S = S.getMat(0, 1, 0, 0);
+    V = V.getMat(0, 2, 0, 1);
+    assertMatrixEquals(m4x3save, U.mul(Matrix.diag(S)).mul(V.T()), TOL);
+    assertMatrixOrthoCols(U, TOL);
+    assertMatrixOrthoCols(V, TOL);
+
     Matrix m5x9 = Matrix.create(61,   88,   2, 36,  32,  73,   99, 25,  80, NR,
                                 83,   36,  36, 98,   2,  67,   51, 46,  33, NR,
                                 89,  168, -14, 13, -17,  92,  153, 17, 121, NR,
@@ -1279,7 +1294,7 @@ public class MatrixTests {
     Matrix m5x9save = m5x9.copy();
     U = Matrix.create(5,5);
     S = Matrix.create(5,1);
-    V = m5x9.T();
+    V = m5x9.T(); // in-place test
     assertEquals(3, m5x9.reducedSVD(U, S, V));
     assertMatrixEquals(m5x9save, U.mul(Matrix.diag(S)).mul(V.T()), TOL);
     U = U.getMat(0, 4, 0, 2);
@@ -1288,5 +1303,138 @@ public class MatrixTests {
     assertMatrixEquals(m5x9save, U.mul(Matrix.diag(S)).mul(V.T()), TOL);
     assertMatrixOrthoCols(U, TOL);
     assertMatrixOrthoCols(V, TOL);
+  }
+
+  @Test public void basicSVD() {
+    Matrix m2x2 = Matrix.zeros(2,2);
+    Matrix[] USV = m2x2.SVD();
+    assertEquals(3, USV.length);
+    Matrix U = USV[0], S = USV[1], V = USV[2];
+    assertMatrixEye(U, TOL);
+    assertMatrixZero(S, TOL);
+    assertMatrixEye(V, TOL);
+
+    m2x2.setToEye();
+    USV = m2x2.SVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    assertMatrixEye(U, TOL);
+    assertMatrixEquals(Matrix.create(1.0, 1.0).T(), S, TOL);
+    assertMatrixEye(V, TOL);
+
+    m2x2.set(1, 1, 22.0);
+    USV = m2x2.SVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    assertMatrixEye(U, TOL);
+    assertMatrixEquals(Matrix.create(1.0, 22.0).T(), S, TOL);
+    assertMatrixEye(V, TOL);
+
+    m2x2 = Matrix.create(1.0, 2.0, NR,
+                         2.0, 1.0);
+    USV = m2x2.SVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    assertMatrixEquals(m2x2, U.mul(Matrix.diag(S)).mul(V.T()), TOL);
+    assertMatrixEquals(Matrix.create(1.0, 3.0).T(), S, TOL);
+    assertMatrixOrtho(U, TOL);
+    assertMatrixOrtho(V, TOL);
+
+    m2x2 = Matrix.create(4.0, 4.0, NR,
+                         -3.0, 3.0);
+    USV = m2x2.SVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    assertMatrixEquals(m2x2, U.mul(Matrix.diag(S)).mul(V.T()), TOL);
+    assertMatrixEquals(Matrix.create(3.0, 4.0).T().mul(Math.sqrt(2.0)), S, TOL);
+    assertMatrixOrtho(U, TOL);
+    assertMatrixOrtho(V, TOL);
+  }
+
+  @Test public void fullrankSVD() {
+    Matrix m2x2 = Matrix.create(1.0, 0.0, NR,
+                                2.0, 3.0);
+    Matrix U = Matrix.create(2,2);
+    Matrix S = Matrix.create(2,1);
+    Matrix V = Matrix.create(2,2);
+    assertEquals(2, m2x2.SVD(U, S, V));
+    assertMatrixEquals(m2x2, U.mul(Matrix.diag(S)).mul(V.T()), TOL);
+    assertMatrixOrtho(U, TOL);
+    assertMatrixOrtho(V, TOL);
+
+    Matrix m4x2 = Matrix.create(+1, +2, NR,
+                                -3, +4, NR,
+                                +5, -6, NR,
+                                -7, -8);
+    U = Matrix.create(4,4);
+    S = Matrix.create(2,1);
+    V = Matrix.create(2,2);
+    assertEquals(2, m4x2.SVD(U, S, V));
+    S = Matrix.vertcat(Matrix.diag(S), Matrix.zeros(2,2));
+    assertMatrixEquals(m4x2, U.mul(S).mul(V.T()), TOL);
+    assertMatrixOrtho(U, TOL);
+    assertMatrixOrtho(V, TOL);
+
+    Matrix m3x4 = Matrix.create(1, 2, 3, 4, NR,
+                                2, 4, 7, 8, NR,
+                                8, 7, 6, 5);
+    U = Matrix.create(3,3);
+    S = Matrix.create(3,1);
+    V = Matrix.create(4,4);
+    assertEquals(3, m3x4.SVD(U, S, V));
+    S = Matrix.horzcat(Matrix.diag(S), Matrix.zeros(3,1));
+    assertMatrixEquals(m3x4, U.mul(S).mul(V.T()), TOL);
+    assertMatrixOrtho(U, TOL);
+    assertMatrixOrtho(V, TOL);
+  }
+
+  @Test public void lowrankSVD() {
+    Matrix m4x3 = Matrix.create(1, 2, 3, 4, NR,
+                                2, 4, 6, 8, NR,
+                                8, 7, 6, 5).T();
+    Matrix U = Matrix.create(4,4);
+    Matrix S = Matrix.create(3,1);
+    Matrix V = Matrix.create(3,3);
+    assertEquals(2, m4x3.SVD(U, S, V));
+    S = Matrix.vertcat(Matrix.diag(S), Matrix.zeros(1,3));
+    assertMatrixEquals(m4x3, U.mul(S).mul(V.T()), TOL);
+    assertMatrixOrtho(U, TOL);
+    assertMatrixOrtho(V, TOL);
+
+    Matrix m5x9 = Matrix.create(61,   88,   2, 36,  32,  73,   99, 25,  80, NR,
+                                83,   36,  36, 98,   2,  67,   51, 46,  33, NR,
+                                89,  168, -14, 13, -17,  92,  153, 17, 121, NR,
+                                -6, -132,  50, 85,  19, -25, -102, 29, -88, NR,
+                                33,    8,  18, 59,  81,  54,   45, 33,  39);
+    Matrix[] USV = m5x9.SVD();
+    assertEquals(3, USV.length);
+    U = USV[0]; S = USV[1]; V = USV[2];
+    S = Matrix.horzcat(Matrix.diag(S), Matrix.zeros(5,4));
+    assertMatrixEquals(m5x9, U.mul(S).mul(V.T()), TOL);
+    assertMatrixOrtho(U, TOL);
+    assertMatrixOrtho(V, TOL);
+
+    Matrix m5x5 = Matrix.create(1.7, 2.4,  4.8, 0.8, 1.5, NR,
+                                7.1, 9.6, 19.2, 6.6, 5.1, NR,
+                                2.7, 3.6,  7.2, 2.9, 1.8, NR,
+                                1.0, 1.2,  2.4, 2.1, 0.3, NR,
+                                1.1, 1.8,  3.6, 0.2, 0.9);
+    Matrix m5x5save = m5x5.copy();
+    U = m5x5; // in-place test
+    S = Matrix.create(5,1);
+    V = Matrix.create(5,5);
+    assertEquals(3, m5x5.SVD(U, S, V));
+    assertMatrixEquals(m5x5save, U.mul(Matrix.diag(S)).mul(V.T()), TOL);
+    assertMatrixOrtho(U, TOL);
+    assertMatrixOrtho(V, TOL);
+
+    m5x5save.copy(m5x5);
+    U = Matrix.create(5,5);
+    S = Matrix.create(5,1);
+    V = m5x5; // in-place test
+    assertEquals(3, m5x5.SVD(U, S, V));
+    assertMatrixEquals(m5x5save, U.mul(Matrix.diag(S)).mul(V.T()), TOL);
+    assertMatrixOrtho(U, TOL);
+    assertMatrixOrtho(V, TOL);
   }
 }

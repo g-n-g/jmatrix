@@ -2350,27 +2350,21 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
   // orthogonalization
 
-  /**
+  /*
    * Orthonormalising the columns of the matrix.
-   * When <code>startColIdx</code> is greater than zero,
-   * columns <code>0..startColIdx-1</code> is assumed to be orthonormalized.
-   * Linearly dependent columns are set to zero.
    *
    * Implementation: Gram-Schmidt process.
-   *
-   * @param startColIdx index of column at which
-   *                    the orthonormalising process is started
-   * @param result storage of the result
-   *               (not <code>null</code> with the same size as <code>this</code> matrix)
-   * @return matrix <code>result</code> having orthonormalized columns
    */
-  public Matrix orthonormalize(int startColIdx, Matrix result) {
+  private int orthonormalize(int startColIdx, int endColIdx, Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (0 <= startColIdx && startColIdx <= cols);
+    assert (0 <= startColIdx);
+    assert (endColIdx <= cols);
     assert (result != null && result.rows() == rows && result.cols() == cols);
 
     copy(result);
-    for (int j = startColIdx; j < cols; ++j) {
+
+    int zeros = 0;
+    for (int j = startColIdx; j < endColIdx; ++j) {
       for (int k = 0; k < j; ++k) {
         double dp = 0.0;
         for (int i = 0; i < rows; ++i) {
@@ -2392,6 +2386,7 @@ public abstract class Matrix {
         for (int i = 0; i < rows; ++i) {
           result.set(i, j, 0.0);
         }
+        ++zeros;
       }
       else {
         double norm = 0.0;
@@ -2405,7 +2400,25 @@ public abstract class Matrix {
         }
       }
     }
-    return result;
+    return zeros;
+  }
+
+  /**
+   * Orthonormalising the columns of the matrix.
+   * When <code>startColIdx</code> is greater than zero,
+   * columns <code>0..startColIdx-1</code> is assumed to be orthonormalized.
+   * Linearly dependent columns are set to zero.
+   *
+   * Implementation: Gram-Schmidt process.
+   *
+   * @param startColIdx index of column at which
+   *                    the orthonormalising process is started
+   * @param result storage of the result
+   *               (not <code>null</code> with the same size as <code>this</code> matrix)
+   * @return number of columns set to zero
+   */
+  public int orthonormalize(int startColIdx, Matrix result) {
+    return orthonormalize(startColIdx, cols(), result);
   }
 
   /**
@@ -2420,20 +2433,9 @@ public abstract class Matrix {
    * @return new matrix having orthonormalized columns
    */
   public Matrix orthonormalize(int startColIdx) {
-    return orthonormalize(startColIdx, Matrix.create(rows(), cols()));
-  }
-
-  /**
-   * Orthonormalising the columns of the matrix.
-   *
-   * Implementation: Gram-Schmidt process.
-   *
-   * @param result storage of the result
-   *               (not <code>null</code> with the same size as <code>this</code> matrix)
-   * @return matrix <code>result</code> having orthonormalized columns
-   */
-  public Matrix orthonormalize(Matrix result) {
-    return orthonormalize(0, result);
+    Matrix result = Matrix.create(rows(), cols());
+    orthonormalize(startColIdx, result);
+    return result;
   }
 
   /**
@@ -2450,35 +2452,18 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
   // singular value decomposition
 
-  /**
-   * Reduced singular value decomposition. The zero singular values in
-   * <code>S</code> are placed last and their corresponding vectors in
-   * <code>U</code> and <code>V</code> are set to zero.
-   * The nonzero singular values are not ordered.
+  /* Computes full or reduced singular value decomposition.
    *
    * Implementation:
    * J. Demmel, K. Veselic, Jacobi's method is more accurate than QR,
    * Journal on Matrix Analysis and Applications, 1992, Algorithm 4.1.
-   *
-   * @param U left singular vectors
-   *        (size: rows x min(rows,cols), can be set to <code>this</code>)
-   * @param S singular values (size: min(rows,cols) x 1)
-   * @param V right singular vectors
-   *        (size: cols x min(rows,cols), can be set to <code>this.T()</code>)
-   * @return rank of <code>this</code> matrix
    */
-  public int reducedSVD(Matrix U, Matrix S, Matrix V) {
-    if (rows() < cols()) {
-      return T().reducedSVD(V, S, U);
-    }
+  private int cmputSVD(Matrix U, Matrix S, Matrix V, boolean isFull) {
     final int rows = rows(), cols = cols();
-    assert (rows >= cols);
-    assert (U != null && U.rows() == rows && U.cols() == cols);
-    assert (S != null && S.rows() == cols && S.cols() == 1);
-    assert (V != null && V.rows() == cols && V.cols() == cols);
 
     // initialization
     copy(U);
+    S.setToZeros();
     V.setToEye();
 
     // scaling
@@ -2582,7 +2567,64 @@ public abstract class Matrix {
         ++i;
       }
     }
+
+    // compute singular vectors for zero singular values
+    if (isFull) {
+      int j = rank;
+      while (j < rows) {
+        for (int i = 0; i < rows; ++i) { U.set(i, j, 0.0); }
+        ++j;
+      }
+
+      j = rank;
+      int k = rank;
+      while (j < rows) {
+        U.set(k, j, 1.0);
+        if (0 == U.orthonormalize(j, j+1, U)) { ++j; } else { U.set(k, j, 0.0); }
+        k = (k+1) % rows;
+      }
+
+      j = rank;
+      while (j < cols) {
+        for (int i = 0; i < cols; ++i) { V.set(i, j, 0.0); }
+        ++j;
+      }
+
+      j = rank;
+      k = rank;
+      while (j < cols) {
+        V.set(k, j, 1.0);
+        if(0 == V.orthonormalize(j, j+1, V)) { ++j; } else { V.set(k, j, 0.0); }
+        k = (k+1) % cols;
+      }
+    }
+
     return rank;
+  }
+
+  /**
+   * Reduced singular value decomposition. The zero singular values in
+   * <code>S</code> are placed last and their corresponding vectors in
+   * <code>U</code> and <code>V</code> are set to zero.
+   * The nonzero singular values are not ordered.
+   *
+   * @param U left singular vectors
+   *        (size: rows x min(rows,cols), can be set to <code>this</code>)
+   * @param S singular values (size: min(rows,cols) x 1)
+   * @param V right singular vectors
+   *        (size: cols x min(rows,cols), can be set to <code>this.T()</code>)
+   * @return rank of <code>this</code> matrix
+   */
+  public int reducedSVD(Matrix U, Matrix S, Matrix V) {
+    if (rows() < cols()) {
+      return T().reducedSVD(V, S, U);
+    }
+    final int rows = rows(), cols = cols();
+    assert (rows >= cols);
+    assert (U != null && U.rows() == rows && U.cols() == cols);
+    assert (S != null && S.rows() == cols && S.cols() == 1);
+    assert (V != null && V.rows() == cols && V.cols() == cols);
+    return cmputSVD(U, S, V, false);
   }
 
   /**
@@ -2615,6 +2657,46 @@ public abstract class Matrix {
         V = V.getMat(0, cols-1, 0, rank-1);
       }
     }
+    return new Matrix[]{U, S, V};
+  }
+
+  /**
+   * Full singular value decomposition.
+   * The zero singular values in <code>S</code> are placed last.
+   * The nonzero singular values are not ordered.
+   *
+   * @param U left singular vectors (size: rows x rows)
+   * @param S nonzero singular values (size: min(rows,cols) x 1)
+   * @param V right singular vectors (size: cols x cols)
+   * @return rank of <code>this</code> matrix
+   */
+  public int SVD(Matrix U, Matrix S, Matrix V) {
+    if (rows() < cols()) {
+      return T().SVD(V, S, U);
+    }
+    final int rows = rows(), cols = cols();
+    assert (rows >= cols);
+    assert (U != null && U.rows() == rows && U.cols() == rows);
+    assert (S != null && S.rows() == cols && S.cols() == 1);
+    assert (V != null && V.rows() == cols && V.cols() == cols);
+    return cmputSVD(U, S, V, true);
+  }
+
+  /**
+   * Full singular value decomposition.
+   * The zero singular values are placed last.
+   * The nonzero singular values are not ordered.
+   *
+   * @return array of three matrices {U, S, V}
+   *         with size rows x rows, min(rows,cols) x 1, and cols x cols, respectively
+   * @see Matrix#SVD(Matrix, Matrix, Matrix)
+   */
+  public Matrix[] SVD() {
+    final int rows = rows(), cols = cols();
+    Matrix U = Matrix.create(rows, rows);
+    Matrix S = Matrix.create(Math.min(rows, cols), 1);
+    Matrix V = Matrix.create(cols, cols);
+    SVD(U, S, V);
     return new Matrix[]{U, S, V};
   }
 

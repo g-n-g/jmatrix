@@ -32,8 +32,8 @@ import static jmatrix.BasicBinaryOperation.*;
 public class MatrixBenchmarks {
 
   public static final double TOL = 1e-6;
-  public static final int REPEAT_COUNT = 100;
-  public static final int SEED = 19273;
+  public static final int REPEAT_COUNT = 10;
+  public static final long SEED = 19273;
   public static final int MINSIZE = 50;
   public static final int MAXSIZE = 150;
   public static final double SCALE = 100.0;
@@ -41,6 +41,7 @@ public class MatrixBenchmarks {
 
   //---------------------------------------------------------------------------
 
+  /*
   @Test public void MatMul() { bench("MatMul", new BenchMatMul(), false); }
   @Test public void MatInv() { bench("MatInv", new BenchMatInv(), true); }
   @Test public void MatInvPsd() { bench("MatInv (psd)", new BenchMatInvPsd(), true); }
@@ -53,7 +54,13 @@ public class MatrixBenchmarks {
   @Test public void CholeskyL() { bench("Cholesky L", new BenchCholeskyL(), true); }
   @Test public void CholeskyLD() { bench("Cholesky LD", new BenchCholeskyLD(), true); }
   @Test public void OrthoNorm() { bench("OrthoNorm", new BenchOrthoNorm(), false); }
-  @Test public void SVDreduced() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
+  */
+  //@Test public void SVD1reduced() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
+  //@Test public void SVD2reduced() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
+  //@Test public void SVD3reduced() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
+  //@Test public void SVD4reduced() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
+  @Test public void SVD5() { bench("SVD", new BenchSVD(), false); }
+  @Test public void SVD6reduced() { bench("SVD (reduced)", new BenchReducedSVD(), false); }
 
   //---------------------------------------------------------------------------
 
@@ -266,19 +273,50 @@ public class MatrixBenchmarks {
     private Matrix M;
   }
 
-  private class BenchReducedSVD implements Bench
+  private class BenchSVD implements Bench
   {
     @Override public void compute(Matrix A) {
-      Matrix[] USV = A.reducedSVD();
+      Matrix[] USV = A.SVD();
       U = USV[0];
       S = USV[1];
       V = USV[2];
     }
 
     @Override public double check(Matrix A) {
+      final int rows = A.rows(), cols = A.cols();
+
+      S = Matrix.diag(S);
+      if (rows > cols) {
+        S = Matrix.vertcat(S, Matrix.zeros(rows-cols,cols));
+      }
+      else if (rows < cols) {
+        S = Matrix.horzcat(S, Matrix.zeros(rows,cols-rows));
+      }
+
+      double err = assertMatrixEquals(A, U.mul(S).mul(V.T()), TOL);
+      err = Math.max(err, assertMatrixOrtho(U, TOL));
+      err = Math.max(err, assertMatrixOrtho(V, TOL));
+      return err;
+    }
+
+    private Matrix U, S, V;
+  }
+
+  private class BenchReducedSVD implements Bench
+  {
+    @Override public void compute(Matrix A) {
+      final int rows = A.rows(), cols = A.cols();
+      final int minrc = Math.min(rows, cols);
+      U = Matrix.create(rows, minrc);
+      S = Matrix.create(minrc, 1);
+      V = Matrix.create(cols, minrc);
+      A.reducedSVD(U, S, V);
+    }
+
+    @Override public double check(Matrix A) {
       double err = assertMatrixEquals(A, U.ewb(MUL, S.T()).mul(V.T()), TOL);
-      err = Math.max(err, assertMatrixOrthoCols(U, TOL));
-      err = Math.max(err, assertMatrixOrthoCols(V, TOL));
+      err = Math.max(err, assertMatrixOrthoCols(U, true, TOL));
+      err = Math.max(err, assertMatrixOrthoCols(V, true, TOL));
       return err;
     }
 
@@ -328,27 +366,34 @@ public class MatrixBenchmarks {
     double times_avg = 0, times_std = 0;
     double max_err = 0.0;
 
-    for (int repeat = 0; repeat < REPEAT_COUNT; ++repeat) {
-      System.gc();
-
-      Matrix A = genA(rng);
+    Matrix A, Acopy;
+    for (int repeat = 0; repeat < 1+REPEAT_COUNT; ++repeat) {
+      A = genA(rng);
       if (isPsd) {
         A.div(Math.sqrt(A.cols()*SCALE), A);
         A = A.mul(A.T());
         A.add(Matrix.eye(A.rows()).mul(10*TOL), A);
       }
+      Acopy = A.copy();
 
-      long ts = System.currentTimeMillis();
-      test.compute(A.copy());
-      ts = System.currentTimeMillis() - ts;
+      try { Thread.sleep(2); } catch (Exception e) {}
 
-      double err = test.check(A);
+      double ts = System.nanoTime();
+      test.compute(A);
+      ts = (System.nanoTime() - ts) / 1e6;
+      A = null;
+
+      double err = test.check(Acopy);
       if (err > max_err) { max_err = err; }
+      Acopy = null;
 
-      if (ts < times_min) { times_min = ts; }
-      if (ts > times_max) { times_max = ts; }
-      times_avg += ts / nrepeats;
-      times_std += ts*ts / nrepeats;
+      // JIT compilation happens in 1st round, so its time measurement is omitted.
+      if (repeat >= 1) {
+        if (ts < times_min) { times_min = (long)ts; }
+        if (ts > times_max) { times_max = (long)ts; }
+        times_avg += ts / nrepeats;
+        times_std += ts*ts / nrepeats;
+      }
     }
     times_std = Math.ceil(Math.sqrt(times_std - times_avg*times_avg));
 

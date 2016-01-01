@@ -6,17 +6,13 @@ Allow result = null settings everywhere.
 -------------------------------------------------------------------------------
 Functionality:
 
-Full SVD.
-
-spectral norm computation
-  - power method
+spectral norm computation (by power method)
 
 -------------------------------------------------------------------------------
 Performance:
 
 Initial reducedQR to improve reducedSVD performance.
-Benchmark for solving equations.
-Benchmark for SVD.
+Check QR decomposition by Givens rotations.
 
 Blocked versions:
  - matrix multiplication

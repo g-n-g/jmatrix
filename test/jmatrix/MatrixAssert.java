@@ -82,6 +82,22 @@ public class MatrixAssert {
   }
 
   /**
+   * Asserts that matrix is zero.
+   */
+  public static double assertMatrixZero(Matrix M, double tol) {
+    final int rows = M.rows(), cols = M.cols();
+    double err = 0.0;
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        double Mij = M.get(i,j);
+        assertEquals(0.0, Mij, tol);
+        err = Math.max(err, Math.abs(Mij));
+      }
+    }
+    return err;
+  }
+
+  /**
    * Asserts that matrix is identity (might allow zeros on the diagonal).
    */
   public static double assertMatrixEye(Matrix M, boolean allowZero, double tol) {
