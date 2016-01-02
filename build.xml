@@ -104,7 +104,6 @@
           depends="test-compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="jmatrix.MatrixBenchmarks"/>
-      <jvmarg value="-Xbatch -verbose:gc"/>
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>

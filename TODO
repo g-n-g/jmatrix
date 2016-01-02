@@ -11,6 +11,12 @@ spectral norm computation (by power method)
 -------------------------------------------------------------------------------
 Performance:
 
+Use a microbenchmarking tool!
+http://java-performance.info/jmh/
+
+  http://www.oracle.com/technetwork/articles/java/architect-benchmarking-2266277.html
+  http://tutorials.jenkov.com/java-performance/jmh.html
+
 Initial reducedQR to improve reducedSVD performance.
 Check QR decomposition by Givens rotations.
 
@@ -21,5 +27,3 @@ Blocked versions:
    http://www.netlib.org/utk/papers/siam-review93/node13.html
  - others (e.g. Cholesky factorization)
    http://www.netlib.org/utk/papers/siam-review93/node9.html
-
-Benchmarking against other matrix libraries.

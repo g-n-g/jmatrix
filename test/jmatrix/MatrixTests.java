@@ -15,6 +15,7 @@ import static jmatrix.MatrixAssert.assertMatrixEye;
 import static jmatrix.MatrixAssert.assertMatrixZero;
 import static jmatrix.MatrixAssert.assertMatrixOrtho;
 import static jmatrix.MatrixAssert.assertMatrixOrthoCols;
+import static jmatrix.MatrixAssert.assertMatrixOrthoOrZeroCols;
 
 import static jmatrix.Matrix.NR;
 import static jmatrix.Matrix.TOL;
@@ -1156,12 +1157,12 @@ public class MatrixTests {
                                 +5, -6, NR,
                                 -7, -8);
     assertMatrixOrthoCols(m4x2.orthonormalize(), TOL);
-    assertMatrixOrthoCols(m4x2.T().orthonormalize(), true, TOL);
+    assertMatrixOrthoOrZeroCols(m4x2.T().orthonormalize(), TOL);
 
     Matrix m3x4 = Matrix.create(1, 2, 3, 4, NR,
                                 2, 4, 7, 8, NR,
                                 8, 7, 6, 5);
-    assertMatrixOrthoCols(m3x4.orthonormalize(), true, TOL);
+    assertMatrixOrthoOrZeroCols(m3x4.orthonormalize(), TOL);
     assertMatrixOrthoCols(m3x4.T().orthonormalize(), TOL);
   }
 
