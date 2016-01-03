@@ -3,6 +3,7 @@
   <property name="bin" location="bin"/>
   <property name="doc" location="doc"/>
   <property name="test" location="test"/>
+  <property name="bench" location="bench"/>
 
   <!-- properties -->
 
@@ -99,15 +100,28 @@
           depends="test-matrix,test-permutation">
   </target>
 
-  <target name="bench"
-          description="Run benchmarks."
-          depends="test-compile">
-    <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="jmatrix.MatrixBenchmarks"/>
+  <!-- benchmark targets -->
+
+  <target name="bench-compile"
+          description="Compile the benchmarks."
+          depends="compile">
+    <mkdir dir="${bin}/bench"/>
+    <javac srcdir="${bench}/jmatrix" destdir="${bin}/bench">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
-        <pathelement location="${bin}/test"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="bench"
+          description="Run benchmarks."
+          depends="bench-compile">
+    <java classname="jmatrix.BenchmarkRunner">
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${bin}"/>
+        <pathelement location="${bin}/bench"/>
         <pathelement location="${junit}"/>
         <pathelement location="${hamcrest}"/>
       </classpath>
