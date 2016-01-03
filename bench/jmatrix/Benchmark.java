@@ -65,16 +65,39 @@ public abstract class Benchmark
       int narg = 0;
       final long seed = Long.valueOf(args[narg++]);
       final int nwarmups = Integer.valueOf(args[narg++]);
+      if (nwarmups < 0) {
+        throw new BenchmarkException("Invalid nwarmups: " + nwarmups + "!");
+      }
       final int nrepeats = Integer.valueOf(args[narg++]);
+      if (nwarmups <= 0) {
+        throw new BenchmarkException("Invalid nrepeats: " + nrepeats + "!");
+      }
 
       final int minrows = Integer.valueOf(args[narg++]);
       final int maxrows = Integer.valueOf(args[narg++]);
+      if (minrows < 0 || maxrows < 0 || minrows > maxrows) {
+        throw new BenchmarkException("Invalid row spec: "
+                                     + minrows + ", " + maxrows + "!");
+      }
       final int mincols = Integer.valueOf(args[narg++]);
       final int maxcols = Integer.valueOf(args[narg++]);
+      if (mincols < 0 || maxcols < 0 || mincols > maxcols) {
+        throw new BenchmarkException("Invalid col spec: "
+                                     + mincols + ", " + maxcols + "!");
+      }
 
-      final double scale = Double.valueOf(args[narg++]);
       final double nnzratio = Double.valueOf(args[narg++]);
+      if (nnzratio < 0.0 || nnzratio > 1.0) {
+        throw new BenchmarkException("Invalid nnzratio: " + nnzratio + "!");
+      }
+      final double scale = Double.valueOf(args[narg++]);
+      if (scale < 0.0) {
+        throw new BenchmarkException("Invalid scale: " + nnzratio + "!");
+      }
       final double tol = Double.valueOf(args[narg++]);
+      if (tol < 0.0 || tol > 1.0) {
+        throw new BenchmarkException("Invalid tol: " + nnzratio + "!");
+      }
 
       Random rng = new Random(seed);
       reset(tol);

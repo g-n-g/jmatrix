@@ -14,20 +14,33 @@ public class BenchmarkRunner
   private final String CP = "bin:bin" + File.separator + "bench";
 
   private final String[] BENCHMARKS = { // benchmark class names
-    "SvdBenchmark",
-    "SvdReducedBenchmark"
+    // using regular matrices
+    "MatMulBenchmark",
+    "LUBenchmark",
+    "QRBenchmark",
+    "ReducedQRBenchmark",
+    "QRnoQBenchmark",
+    "OrthoNormBenchmark",
+    "SVDBenchmark",
+    "ReducedSVDBenchmark"
+    // using positive definite matrices
   };
 
   private final long SEED = 1927311;
-  private final int NWARMUPS = 5;
-  private final int NREPEATS = 10;
+  private final int NWARMUPS = 10;
+  private final int NREPEATS = 100;
 
-  private final int MINROWS = 100, MAXROWS = 200;
+  private final int MINROWS = 100, MAXROWS = 300;
   private final int MINCOLS =  50, MAXCOLS = 150;
 
   private final double NNZRATIO = 0.2;
-  private final double SCALE = 100.0;
+  private final double SCALE = 1000.0;
   private final double TOL = 1e-6;
+
+  private final boolean DEBUG = false;
+  // Anything printed on standard error within the benchmarks
+  // will be written into the debug file.
+  private final String DEBUG_FILE = "JMATRIX_BENCHMARK_ERROR.txt";
 
   //---------------------------------------------------------------------------
 
@@ -56,18 +69,21 @@ public class BenchmarkRunner
       String classname = BENCHMARKS[b];
       System.out.println("  " + classname);
 
-      Process proc = new ProcessBuilder(JAVA_CMD,
-                                        "-d64", "-Xms512m", "-Xmx512m",
-                                        "-cp", CP,
-                                        "jmatrix." + classname,
-                                        "" + SEED,
-                                        "" + NWARMUPS,
-                                        "" + NREPEATS,
-                                        "" + MINROWS, "" + MAXROWS,
-                                        "" + MINCOLS, "" + MAXCOLS,
-                                        "" + NNZRATIO,
-                                        "" + SCALE,
-                                        "" + TOL).start();
+      ProcessBuilder pb = new ProcessBuilder(JAVA_CMD,
+                                             "-d64", "-Xms512m", "-Xmx512m",
+                                             "-cp", CP,
+                                             "jmatrix." + classname,
+                                             "" + SEED,
+                                             "" + NWARMUPS,
+                                             "" + NREPEATS,
+                                             "" + MINROWS, "" + MAXROWS,
+                                             "" + MINCOLS, "" + MAXCOLS,
+                                             "" + NNZRATIO,
+                                             "" + SCALE,
+                                             "" + TOL);
+      if (DEBUG) { pb.redirectError(new File(DEBUG_FILE)); }
+
+      Process proc = pb.start();
       BufferedReader in =
         new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
@@ -93,7 +109,6 @@ public class BenchmarkRunner
     int colmin = Integer.MAX_VALUE, colmax = 0; double colavg = 0, colstd = 0;
     int sizmin = Integer.MAX_VALUE, sizmax = 0; double sizavg = 0, sizstd = 0;
     int nnzmin = Integer.MAX_VALUE, nnzmax = 0; double nnzavg = 0, nnzstd = 0;
-    //double absmax = 0.0;
 
     System.out.println("Matrix statistics:");
     System.out.println();
@@ -111,7 +126,6 @@ public class BenchmarkRunner
       for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
           double v = Math.abs(A.get(i,j));
-          //absmax = Math.max(absmax, v);
           if (v < TOL) { ++nnz; }
         }
       }

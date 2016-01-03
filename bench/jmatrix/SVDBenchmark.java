@@ -1,7 +1,7 @@
 package jmatrix;
 
-/** SVD benchmark. */
-public final class SvdBenchmark extends Benchmark
+/** Singular value decomposition benchmark. */
+public final class SVDBenchmark extends Benchmark
 {
   private Matrix U, S, V;
 

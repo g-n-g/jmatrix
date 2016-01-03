@@ -2,8 +2,8 @@ package jmatrix;
 
 import static jmatrix.BasicBinaryOperation.MUL;
 
-/** Reduced SVD benchmark. */
-public final class SvdReducedBenchmark extends Benchmark
+/** Reduced singular value decomposition benchmark. */
+public final class ReducedSVDBenchmark extends Benchmark
 {
   private Matrix U, S, V;
 
