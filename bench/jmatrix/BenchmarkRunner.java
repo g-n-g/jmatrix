@@ -13,8 +13,7 @@ public class BenchmarkRunner
   private final String JAVA_CMD = "java";
   private final String CP = "bin:bin" + File.separator + "bench";
 
-  private final String[] BENCHMARKS = { // benchmark class names
-    // using regular matrices
+  private final String[] BENCHMARKS = {
     "MatMulBenchmark",
     "LUBenchmark",
     "QRBenchmark",
@@ -22,8 +21,13 @@ public class BenchmarkRunner
     "QRnoQBenchmark",
     "OrthoNormBenchmark",
     "SVDBenchmark",
-    "ReducedSVDBenchmark"
-    // using positive definite matrices
+    "ReducedSVDBenchmark",
+    "CholeskyLBenchmark",
+    "CholeskyLDBenchmark",
+    "SolveEqnLUBenchmark",
+    "SolveEqnLLBenchmark",
+    "MatInvBenchmark",
+    "MatInvPsdBenchmark"
   };
 
   private final long SEED = 1927311;
@@ -37,6 +41,13 @@ public class BenchmarkRunner
   private final double SCALE = 1000.0;
   private final double TOL = 1e-6;
 
+  private final double MINEIG = 0.0001;
+  private final double MAXEIG = 1000.0;
+
+  // Turns matrix statistics report on/off.
+  private final boolean MATRIX_STAT = true;
+
+  // Turns benchmark debugging on/off.
   private final boolean DEBUG = false;
   // Anything printed on standard error within the benchmarks
   // will be written into the debug file.
@@ -58,10 +69,9 @@ public class BenchmarkRunner
 
   public void run() throws Exception {
     // gather and report matrix statistics
-    reportMatrixStatistics();
+    if (MATRIX_STAT) { reportMatrixStatistics(); }
 
     // run the benchmarks
-    System.out.println();
     System.out.println("Running benchmarks...");
     System.out.println();
     BenchmarkData[] data = new BenchmarkData[BENCHMARKS.length];
@@ -80,7 +90,9 @@ public class BenchmarkRunner
                                              "" + MINCOLS, "" + MAXCOLS,
                                              "" + NNZRATIO,
                                              "" + SCALE,
-                                             "" + TOL);
+                                             "" + TOL,
+                                             "" + MINEIG,
+                                             "" + MAXEIG);
       if (DEBUG) { pb.redirectError(new File(DEBUG_FILE)); }
 
       Process proc = pb.start();
@@ -104,6 +116,8 @@ public class BenchmarkRunner
 
   private void reportMatrixStatistics() {
     Random rng = new Random(SEED);
+
+    // regular matrices
 
     int rowmin = Integer.MAX_VALUE, rowmax = 0; double rowavg = 0, rowstd = 0;
     int colmin = Integer.MAX_VALUE, colmax = 0; double colavg = 0, colstd = 0;
@@ -150,7 +164,6 @@ public class BenchmarkRunner
       nnzavg += nnz / nrepeats;
       nnzstd += nnz*nnz / nrepeats;
     }
-
     rowstd = Math.ceil(Math.sqrt(rowstd - rowavg*rowavg));
     colstd = Math.ceil(Math.sqrt(colstd - colavg*colavg));
     sizstd = Math.ceil(Math.sqrt(sizstd - sizavg*sizavg));
@@ -169,7 +182,7 @@ public class BenchmarkRunner
     int max4 = maximum(countDec(rowmax), countDec(colmax),
                        countDec(sizmax), countDec(nnzmax));
 
-    System.out.format("            : %" + max1 + "s" +
+    System.out.format("  rg        : %" + max1 + "s" +
                       " | %" + max2 + "s" +
                       " +- %-" + max3 + "s" +
                       " | %" + max4 + "s\n",
@@ -191,6 +204,51 @@ public class BenchmarkRunner
     System.out.format("  columns   :" + fmt, colmin, (int)colavg, (int)colstd, colmax);
     System.out.format("  entries   :" + fmt, sizmin, (int)sizavg, (int)sizstd, sizmax);
     System.out.format("  non-zeros :" + fmt, nnzmin, (int)nnzavg, (int)nnzstd, nnzmax);
+    System.out.println();
+
+    // pd matrices
+
+    sizmin = Integer.MAX_VALUE; sizmax = 0; sizavg = 0.0; sizstd = 0.0;
+    final int minsize = (int)Math.ceil(Math.sqrt(MINROWS*MINCOLS));
+    final int maxsize = (int)Math.ceil(Math.sqrt(MAXROWS*MAXCOLS));
+    for (int r = 0; r < nrepeats; ++r) {
+      Matrix A = Benchmark.randPdMatrix(rng,
+                                        minsize, maxsize,
+                                        MINEIG, MAXEIG, TOL);
+      int size = A.rows() * A.cols();
+      sizmin = Math.min(sizmin, size);
+      sizmax = Math.max(sizmax, size);
+      sizavg += size / nrepeats;
+      sizstd += size*size / nrepeats;
+    }
+    sizstd = Math.ceil(Math.sqrt(sizstd - sizavg*sizavg));
+    sizavg = Math.ceil(sizavg);
+
+    max1 = maximum(3, countDec(sizmin));
+    max2 = maximum(3, countDec((int)sizavg));
+    max3 = maximum(3, countDec((int)sizstd));
+    max4 = maximum(3, countDec(sizmax));
+
+    System.out.format("  pd        : %" + max1 + "s" +
+                      " | %" + max2 + "s" +
+                      " +- %-" + max3 + "s" +
+                      " | %" + max4 + "s\n",
+                      "min", "avg", "std", "max");
+    ccount = 12 + max1 + 3 + max2 + 4 + max3 + 3 + max4;
+    System.out.print("  ");
+    for (int i = 0; i < ccount; ++i) {
+      System.out.print("-");
+    }
+    System.out.println();
+
+    fmt =
+      " %" + max1 + "d"
+      + " | %" + max2 + "d"
+      + " +- %" + max3 + "d"
+      + " | %" + max4 + "d"
+      + "\n";
+    System.out.format("  size      :" + fmt, sizmin, (int)sizavg, (int)sizstd, sizmax);
+
     System.out.println();
     System.out.flush();
   }
@@ -236,7 +294,6 @@ public class BenchmarkRunner
                         bd.time_max,
                         bd.delta_max);
     }
-    System.out.println();
   }
 
   //---------------------------------------------------------------------------

@@ -1618,7 +1618,7 @@ public abstract class Matrix {
    * operation. The length of column vector D has to be equal to the row/column
    * number of <code>this</code> matrix.
    *
-   * @param L the lower triangular LDL factor (not <code>null</code>)
+   * @param L the unit lower triangular LDL factor (not <code>null</code>)
    * @param D the diagonal factor as a vector (not <code>null</code>)
    * @throws UnsupportedOperationException if the matrix is not positive-definite
    */

@@ -37,6 +37,6 @@ public final class SVDBenchmark extends Benchmark
   }
 
   public static void main(String[] args) {
-    new SvdBenchmark().run(args);
+    new SVDBenchmark().run(args);
   }
 }

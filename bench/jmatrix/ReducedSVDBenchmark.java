@@ -29,6 +29,6 @@ public final class ReducedSVDBenchmark extends Benchmark
   }
 
   public static void main(String[] args) {
-    new SvdReducedBenchmark().run(args);
+    new ReducedSVDBenchmark().run(args);
   }
 }

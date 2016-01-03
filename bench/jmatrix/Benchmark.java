@@ -2,6 +2,9 @@ package jmatrix;
 
 import java.util.Random;
 
+import static jmatrix.BasicUnaryOperation.SIGN;
+import static jmatrix.BasicBinaryOperation.MUL;
+
 /** General framework for matrix computation benchmarks. */
 public abstract class Benchmark
 {
@@ -25,6 +28,11 @@ public abstract class Benchmark
     delta_max = 0.0;
   }
 
+  /** Switch between regular and positive definite matrix input. */
+  public boolean isPd() {
+    return false;
+  }
+
   //---------------------------------------------------------------------------
 
   /** Returns the name of the benchmark. */
@@ -43,8 +51,8 @@ public abstract class Benchmark
                                   int minrows, int maxrows,
                                   int mincols, int maxcols,
                                   double nnzratio, double scale, double tol) {
-    int Arows = minrows+rng.nextInt(maxrows-minrows);
-    int Acols = mincols+rng.nextInt(maxcols-mincols);
+    int Arows = minrows + rng.nextInt(maxrows-minrows);
+    int Acols = mincols + rng.nextInt(maxcols-mincols);
 
     Matrix A = Matrix.randN(Arows, Acols, rng).mul(rng.nextDouble()*scale);
 
@@ -57,6 +65,31 @@ public abstract class Benchmark
       }
     }
     return A;
+  }
+
+  public static Matrix randPdMatrix(Random rng,
+                                    int minsize, int maxsize,
+                                    double mineig, double maxeig,
+                                    double tol) {
+    int size = minsize + rng.nextInt(maxsize-minsize);
+
+    Matrix M = Matrix.randN(size, size, rng);
+    Matrix Q = null;
+    while (true) {
+      Matrix[] QR = M.QR();
+      Matrix R = QR[1];
+      double minabs = Double.MAX_VALUE;
+      for (int i = 0; i < size; ++i) {
+        minabs = Math.min(minabs, Math.abs(R.get(i,i)));
+      }
+      if (minabs > tol) {
+        Q = QR[0].ewb(MUL, R.getDiag().ewu(SIGN).T());
+        break;
+      }
+    }
+
+    Matrix S = Matrix.rand(size, 1, rng).mul(maxeig-mineig).add(mineig);
+    return Q.ewb(MUL, S.T()).mul(Q.T());
   }
 
   /** Runs the benchmark and saves report data to a file. */
@@ -98,15 +131,31 @@ public abstract class Benchmark
       if (tol < 0.0 || tol > 1.0) {
         throw new BenchmarkException("Invalid tol: " + nnzratio + "!");
       }
+      final double mineig = Double.valueOf(args[narg++]);
+      final double maxeig = Double.valueOf(args[narg++]);
+      if (mineig < 0 || maxeig < 0.0 || mineig > maxeig) {
+        throw new BenchmarkException("Invalid eig spec: "
+                                     + mineig + ", " + maxeig + "!");
+      }
 
       Random rng = new Random(seed);
       reset(tol);
 
+      int minsize = (int)Math.ceil(Math.sqrt(minrows*mincols));
+      int maxsize = (int)Math.ceil(Math.sqrt(maxrows*maxcols));
+
       Matrix A, Acopy;
       for (int r = 0; r < nwarmups+nrepeats; ++r) {
-        A = randMatrix(rng,
-                       minrows, maxrows, mincols, maxcols,
-                       nnzratio, scale, tol);
+        if (isPd()) {
+          A = randPdMatrix(rng,
+                           minsize, maxsize,
+                           mineig, maxeig, tol);
+        }
+        else {
+          A = randMatrix(rng,
+                         minrows, maxrows, mincols, maxcols,
+                         nnzratio, scale, tol);
+        }
         Acopy = A.copy();
 
         try { Thread.sleep(1); } catch (Exception e) {}
