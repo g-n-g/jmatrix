@@ -1294,6 +1294,34 @@ public abstract class Matrix {
   }
 
   /**
+   * Computes the 2-norm (spectral norm).
+   *
+   * @param tmpM temporary matrix
+   *             (not <code>null</code> and has the same size as <code>this</code> matrix)
+   * @param tmpW temporary vector
+   *             (not <code>null</code> with size >= <code>min(rows-1, cols)</code>
+   * @return 2-norm of <code>this</code> matrix
+   */
+  public double norm2(Matrix tmpM, Matrix tmpW) {
+    if (rows() < cols()) {
+      return T().norm2(tmpM.T(), tmpW);
+    }
+    QR(null, tmpM, tmpW, false);
+    tmpM.cmputSVD(tmpM, null, null, false);
+    return tmpM.get(0,0);
+  }
+
+  /**
+   * Computes the 2-norm (spectral norm).
+   *
+   * @return 2-norm of <code>this</code> matrix
+   */
+  public double norm2() {
+    final int t = Math.min(rows(), cols());
+    return norm2(Matrix.create(rows(),cols()), Matrix.create(t,1));
+  }
+
+  /**
    * Computes the infinity-norm (maximum absolute row sum).
    *
    * @return infinity-norm of <code>this</code> matrix
@@ -1310,20 +1338,29 @@ public abstract class Matrix {
   }
 
   /**
-   * Computes the Frobenius norm (maximum absolute row sum).
+   * Computes the Frobenius norm.
    *
    * @return Frobenius norm of <code>this</code> matrix
    */
   public double normF() {
     final int rows = rows(), cols = cols();
-    double s = 0.0;
+    double s = 0.0, maxabsv = Double.MIN_VALUE;
     for (int i = 0; i < rows; ++i) {
       for (int j = 0; j < cols; ++j) {
-        double v = get(i,j);
-        s += v * v;
+        double absv = Math.abs(get(i,j));
+        if (absv > maxabsv) {
+          double r = maxabsv/absv;
+          maxabsv = absv;
+          s *= r*r;
+          s += 1.0;
+        }
+        else {
+          double r = absv / maxabsv;
+          s += r*r;
+        }
       }
     }
-    return Math.sqrt(s);
+    return maxabsv * Math.sqrt(s);
   }
 
   //----------------------------------------------------------------------------
@@ -2460,11 +2497,14 @@ public abstract class Matrix {
    */
   private int cmputSVD(Matrix U, Matrix S, Matrix V, boolean isFull) {
     final int rows = rows(), cols = cols();
+    assert (rows >= cols);
+    assert (U != null);
+    // (S == V == null) is for 2-norm computation
+    assert ((S != null && V != null) || (S == null && V == null));
 
     // initialization
     copy(U);
-    S.setToZeros();
-    V.setToEye();
+    if (V != null) { V.setToEye(); }
 
     // scaling
     double scale = scaling(U);
@@ -2509,14 +2549,31 @@ public abstract class Matrix {
           }
 
           // rotate columns of V
-          for (int k = 0; k < cols; ++k) {
-            double u = V.get(k,i);
-            double v = V.get(k,j);
-            V.set(k, i, cs*u - sn*v);
-            V.set(k, j, sn*u + cs*v);
+          if (V != null) {
+            for (int k = 0; k < cols; ++k) {
+              double u = V.get(k,i);
+              double v = V.get(k,j);
+              V.set(k, i, cs*u - sn*v);
+              V.set(k, j, sn*u + cs*v);
+            }
           }
         }
       }
+    }
+
+    if (V == null) { // compute the largest singular value only
+      double maxsigma = 0.0;
+      for (int i = 0; i < cols; ++i) {
+        double sigma = 0.0;
+        for (int k = 0; k < rows; ++k) {
+          double t = U.get(k,i);
+          sigma += t*t;
+        }
+        sigma = Math.sqrt(sigma);
+        if (sigma > maxsigma) { maxsigma = sigma; }
+      }
+      U.set(0, 0, maxsigma * scale);
+      return 0; // largest singular value is returned in U(0,0) 
     }
 
     // compute singular values and left singular vectors
@@ -2699,6 +2756,11 @@ public abstract class Matrix {
     SVD(U, S, V);
     return new Matrix[]{U, S, V};
   }
+
+  //----------------------------------------------------------------------------
+  // eigenvalues and eigenvectors
+
+  // TODO
 
   //----------------------------------------------------------------------------
 

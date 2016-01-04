@@ -1,21 +1,15 @@
 Refactoring:
 
-Workflow warning in README.
 Allow result = null settings everywhere.
 
 -------------------------------------------------------------------------------
 Functionality:
 
-spectral norm computation (by power method)
+eigenvalue and eigenvector computations
+zero replacement for Cholesky decomposition
 
 -------------------------------------------------------------------------------
 Performance:
-
-Use a microbenchmarking tool!
-http://java-performance.info/jmh/
-
-  http://www.oracle.com/technetwork/articles/java/architect-benchmarking-2266277.html
-  http://tutorials.jenkov.com/java-performance/jmh.html
 
 Initial reducedQR to improve reducedSVD performance.
 Check QR decomposition by Givens rotations.

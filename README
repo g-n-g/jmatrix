@@ -1,16 +1,15 @@
 
-A small dense matrix library which allows user caching of the
-results and the intermediate computations to avoid garbage collection.
+JMatrix is a dense matrix library which allows user caching of the results
+and the intermediate computations to avoid garbage collection.
 
-This is a work in progress, expect API changes...
+This is a work in progress, expect minor API changes...
 
-Alternatives:
+Supported matrix decompositions:
 
-    Apache Commons Math / Linear Algebra
-    http://commons.apache.org/proper/commons-math/userguide/linear.html
-
-    Java Matrix Package (JAMA)
-    http://math.nist.gov/javanumerics/jama/
+  LU decomposition
+  QR decomposition (both full and reduced forms)
+  SVD: singular value decomposition (both full and reduced forms)
+  Cholesky decomposition (both LL and LDL forms)
 
 -------------------------------------------------------------------------------
 

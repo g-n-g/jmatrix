@@ -50,10 +50,17 @@ public class MatrixTests {
   }
 
   @Test public void norms() {
+    Matrix z = Matrix.zeros(2,2);
+    assertEquals(0.0, z.norm1(), TOL);
+    assertEquals(0.0, z.norm2(), TOL);
+    assertEquals(0.0, z.normI(), TOL);
+    assertEquals(0.0, z.normF(), TOL);
+
     Matrix m = Matrix.create(1.0, 1.5, -0.5, 1.5, NR,
                              2.0, 4.0, -4.0, 0.0, NR,
                              0.5, 3.0, -3.0, 2.0);
     assertEquals(8.5, m.norm1(), TOL);
+    assertEquals(7.65588128316469, m.norm2(), TOL);
     assertEquals(10.0, m.normI(), TOL);
     assertEquals(8.0, m.normF(), TOL);
 
@@ -61,10 +68,31 @@ public class MatrixTests {
         new double[]{1.0, 1.5, -0.5, 1.5},
         new double[]{2.0, 4.0, -4.0, 0.0},
         new double[]{0.5, 3.0, -3.0, 2.0}
-      });
-    assertEquals(8.5, m.norm1(), TOL);
-    assertEquals(10.0, m.normI(), TOL);
+      }).T();
+    assertEquals(10.0, m.norm1(), TOL);
+    assertEquals(7.65588128316469, m.norm2(), TOL);
+    assertEquals(8.5, m.normI(), TOL);
     assertEquals(8.0, m.normF(), TOL);
+  }
+
+  @Test public void scalingNorms() {
+    Matrix m = Matrix.create(1.0, 1.5, -0.5, 1.5, NR,
+                             2.0, 4.0, -4.0, 0.0, NR,
+                             0.5, 3.0, -3.0, 2.0);
+
+    double scale = 1.0/TOL;
+    Matrix ms = m.mul(scale);
+    assertEquals(8.5, ms.norm1()/scale, TOL);
+    assertEquals(7.65588128316469, ms.norm2()/scale, TOL);
+    assertEquals(10.0, ms.normI()/scale, TOL);
+    assertEquals(8.0, ms.normF()/scale, TOL);
+
+    scale = TOL;
+    ms = m.mul(scale);
+    assertEquals(8.5, ms.norm1()/scale, TOL);
+    assertEquals(7.65588128316469, ms.norm2()/scale, TOL);
+    assertEquals(10.0, ms.normI()/scale, TOL);
+    assertEquals(8.0, ms.normF()/scale, TOL);
   }
 
   @Test public void checkNaNandInf() {

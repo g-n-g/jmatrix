@@ -15,6 +15,7 @@ public class BenchmarkRunner
 
   private final String[] BENCHMARKS = {
     "MatMulBenchmark",
+    "Norm2Benchmark",
     "LUBenchmark",
     "QRBenchmark",
     "ReducedQRBenchmark",
@@ -30,7 +31,7 @@ public class BenchmarkRunner
     "MatInvPsdBenchmark"
   };
 
-  private final long SEED = 1927311;
+  private final long SEED = 0; // 0 means auto generated
   private final int NWARMUPS = 10;
   private final int NREPEATS = 100;
 
@@ -45,7 +46,7 @@ public class BenchmarkRunner
   private final double MAXEIG = 1000.0;
 
   // Turns matrix statistics report on/off.
-  private final boolean MATRIX_STAT = true;
+  private final boolean MATRIX_STAT = false;
 
   // Turns benchmark debugging on/off.
   private final boolean DEBUG = false;
@@ -68,8 +69,16 @@ public class BenchmarkRunner
   }
 
   public void run() throws Exception {
+    // determine random seed
+    long seed = SEED;
+    if (0 == seed) {
+      seed = new Random().nextLong();
+    }
+    System.out.println("Random seed: " + seed);
+    System.out.println();
+
     // gather and report matrix statistics
-    if (MATRIX_STAT) { reportMatrixStatistics(); }
+    if (MATRIX_STAT) { reportMatrixStatistics(seed); }
 
     // run the benchmarks
     System.out.println("Running benchmarks...");
@@ -83,7 +92,7 @@ public class BenchmarkRunner
                                              "-d64", "-Xms512m", "-Xmx512m",
                                              "-cp", CP,
                                              "jmatrix." + classname,
-                                             "" + SEED,
+                                             "" + seed,
                                              "" + NWARMUPS,
                                              "" + NREPEATS,
                                              "" + MINROWS, "" + MAXROWS,
@@ -114,8 +123,8 @@ public class BenchmarkRunner
     reportBenchmarkResults(data);
   }
 
-  private void reportMatrixStatistics() {
-    Random rng = new Random(SEED);
+  private void reportMatrixStatistics(long seed) {
+    Random rng = new Random(seed);
 
     // regular matrices
 

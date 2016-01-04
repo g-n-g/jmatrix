@@ -185,7 +185,7 @@ public abstract class Benchmark
       System.out.flush();
     }
     catch (Exception e) {
-      System.out.println(new BenchmarkData(name(), 0, 0, 0, 0, 0.0));
+      System.out.println(new BenchmarkData(name(), 0, 0, 0, 0, Double.NaN));
       System.out.flush();
       e.printStackTrace();
     }
