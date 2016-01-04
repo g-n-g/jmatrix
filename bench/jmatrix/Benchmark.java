@@ -51,8 +51,11 @@ public abstract class Benchmark
                                   int minrows, int maxrows,
                                   int mincols, int maxcols,
                                   double nnzratio, double scale, double tol) {
-    int Arows = minrows + rng.nextInt(maxrows-minrows);
-    int Acols = mincols + rng.nextInt(maxcols-mincols);
+    int Arows = (minrows == maxrows) ?
+      minrows : minrows + rng.nextInt(maxrows-minrows);
+
+    int Acols = (mincols == maxcols) ?
+      mincols : mincols + rng.nextInt(maxcols-mincols);
 
     Matrix A = Matrix.randN(Arows, Acols, rng).mul(rng.nextDouble()*scale);
 
