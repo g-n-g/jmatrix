@@ -11,7 +11,7 @@ public final class LUBenchmark extends Benchmark
   }
 
   @Override
-  protected void compute(Matrix A) {
+  protected void compute(Matrix A, Matrix bB) throws BenchmarkException {
     Matrix[] LU = A.LU();
     L = LU[0];
     U = LU[1];
@@ -19,16 +19,12 @@ public final class LUBenchmark extends Benchmark
   }
 
   @Override
-  protected double check(Matrix A) throws BenchmarkException {
+  protected double check(Matrix A, Matrix bB) throws BenchmarkException {
     double delta = checkMatrixEquals(A, P.T().mul(L).mul(U));
     delta = Math.max(delta, checkMatrixUnitLT(L));
     delta = Math.max(delta, checkMatrixUT(U));
     delta = Math.max(delta, checkMatrixEye(P.T().mul(P)));
     delta = Math.max(delta, checkMatrixEye(P.mul(P.T())));
     return delta;
-  }
-
-  public static void main(String[] args) {
-    new LUBenchmark().run(args);
   }
 }

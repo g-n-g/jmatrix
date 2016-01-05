@@ -1789,13 +1789,14 @@ public abstract class Matrix {
 
       while (true) {
         for (int k = Math.min(t-1,j); k >= 0; --k) {
-          if (Math.abs(A.get(k,k)) <= TOL) { continue; }
+          double Akk = A.get(k,k);
+          if (Math.abs(Akk) <= TOL) { continue; }
 
           double s = 0.0;
           for (int i = k; i < rows; ++i) {
             s += A.get(i,k) * T.get(i,jj);
           }
-          s = -s / A.get(k,k);
+          s = -s / Akk;
           
           for (int i = k; i < rows; ++i) {
             T.set(i, jj, T.get(i,jj) + s*A.get(i,k));

@@ -11,12 +11,12 @@ public final class Norm2Benchmark extends Benchmark
   }
 
   @Override
-  protected void compute(Matrix A) {
+  protected void compute(Matrix A, Matrix bB) throws BenchmarkException {
     norm2 = A.norm2();
   }
 
   @Override
-  protected double check(Matrix A) throws BenchmarkException {
+  protected double check(Matrix A, Matrix bB) throws BenchmarkException {
     final int rows = A.rows(), cols = A.cols();
     // check distance from Gershgorin discs
     double delta = Double.MAX_VALUE;
@@ -41,9 +41,5 @@ public final class Norm2Benchmark extends Benchmark
 
   private double distance(double norm2, double c, double r) {
     return Math.max(0.0, Math.abs(norm2 - c) - r);
-  }
-
-  public static void main(String[] args) {
-    new Norm2Benchmark().run(args);
   }
 }

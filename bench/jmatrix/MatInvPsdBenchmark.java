@@ -11,23 +11,19 @@ public final class MatInvPsdBenchmark extends Benchmark
   }
 
   @Override
-  public boolean isPd() {
-    return true;
+  protected BenchmarkType type() {
+    return BenchmarkType.A_PD;
   }
 
   @Override
-  protected void compute(Matrix A) {
+  protected void compute(Matrix A, Matrix bB) throws BenchmarkException {
     Ainv = A.invPsd();
   }
 
   @Override
-  protected double check(Matrix A) throws BenchmarkException {
+  protected double check(Matrix A, Matrix bB) throws BenchmarkException {
     double delta = checkMatrixEye(A.mul(Ainv));
     delta = Math.max(delta, checkMatrixEye(Ainv.mul(A)));
     return delta;
-  }
-
-  public static void main(String[] args) {
-    new MatInvPsdBenchmark().run(args);
   }
 }

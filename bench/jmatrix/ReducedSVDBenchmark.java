@@ -13,7 +13,7 @@ public final class ReducedSVDBenchmark extends Benchmark
   }
 
   @Override
-  protected void compute(Matrix A) {
+  protected void compute(Matrix A, Matrix bB) throws BenchmarkException {
     Matrix[] USV = A.reducedSVD();
     U = USV[0];
     S = USV[1];
@@ -21,14 +21,10 @@ public final class ReducedSVDBenchmark extends Benchmark
   }
 
   @Override
-  protected double check(Matrix A) throws BenchmarkException {
+  protected double check(Matrix A, Matrix bB) throws BenchmarkException {
     double delta = checkMatrixEquals(A, U.ewb(MUL, S.T()).mul(V.T()));
     delta = Math.max(delta, checkMatrixOrthoOrZeroCols(U));
     delta = Math.max(delta, checkMatrixOrthoOrZeroCols(V));
     return delta;
-  }
-
-  public static void main(String[] args) {
-    new ReducedSVDBenchmark().run(args);
   }
 }

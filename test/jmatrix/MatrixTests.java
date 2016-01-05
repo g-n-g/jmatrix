@@ -1002,7 +1002,7 @@ public class MatrixTests {
                              0.889619, 0.760571, 0.496819, 0.499948, NR,
                              0.913949, 0.246029, 0.510040, 0.411547, NR,
                              0.769612, 0.280185, 0.554000, 0.086159);
-    Matrix b = Matrix.create(0.71099, 0.78331, 0.53646, 0.28704).T();
+    Matrix b = Matrix.create(0.71099, 0.38331, 0.03646, 0.28704).T();
     Matrix[] LU = A.LU();
     Matrix y = LU[0].backsL(LU[2].mul(b));
     Matrix x = LU[1].backsU(y);
@@ -1015,6 +1015,13 @@ public class MatrixTests {
     y = L.backsL(P.mul(b), true);
     x = U.backsU(y, false);
     assertMatrixEquals(b, A.mul(x), TOL);
+
+    Matrix bcopy = b.copy();
+    x.setToZeros();
+    b = P.mul(b);
+    y = L.backsL(b, true, b); // in-place
+    x = U.backsU(y, false, y); // in-place
+    assertMatrixEquals(bcopy, A.mul(x), TOL);
   }
 
   //---------------------------------------------------------------------------

@@ -14,7 +14,8 @@ public class BenchmarkRunner
   private final String CP = "bin:bin" + File.separator + "bench";
 
   private final String[] BENCHMARKS = {
-    "MatMulBenchmark",
+    "MatMulAtABenchmark",
+    "MatMulAtBBenchmark",
     "Norm2Benchmark",
     "LUBenchmark",
     "QRBenchmark",
@@ -32,8 +33,8 @@ public class BenchmarkRunner
   };
 
   private final long SEED = 0; // 0 means auto generated
-  private final int NWARMUPS = 10;
-  private final int NREPEATS = 100;
+  private final int NWARMUPS = 20;
+  private final int NREPEATS = 200;
 
   private final int MINROWS = 100, MAXROWS = 300;
   private final int MINCOLS =  50, MAXCOLS = 150;
@@ -51,8 +52,8 @@ public class BenchmarkRunner
   // Turns benchmark debugging on/off.
   private final boolean DEBUG = false;
   // Anything printed on standard error within the benchmarks
-  // will be written into the debug file.
-  private final String DEBUG_FILE = "JMATRIX_BENCHMARK_ERROR.txt";
+  // will be written into the debug files with this prefix.
+  private final String DEBUG_FILE = "JMATRIX_BENCHMARK_ERROR_";
 
   //---------------------------------------------------------------------------
 
@@ -91,7 +92,9 @@ public class BenchmarkRunner
       ProcessBuilder pb = new ProcessBuilder(JAVA_CMD,
                                              "-d64", "-Xms512m", "-Xmx512m",
                                              "-cp", CP,
+                                             "jmatrix.Benchmark",
                                              "jmatrix." + classname,
+                                             "" + DEBUG,
                                              "" + seed,
                                              "" + NWARMUPS,
                                              "" + NREPEATS,
@@ -102,7 +105,7 @@ public class BenchmarkRunner
                                              "" + TOL,
                                              "" + MINEIG,
                                              "" + MAXEIG);
-      if (DEBUG) { pb.redirectError(new File(DEBUG_FILE)); }
+      if (DEBUG) { pb.redirectError(new File(DEBUG_FILE + b)); }
 
       Process proc = pb.start();
       BufferedReader in =
@@ -293,15 +296,20 @@ public class BenchmarkRunner
                         " : %" + mincmax + "d" +
                         " | %" + avgcmax + "d" +
                         " +- %" + stdcmax + "d" +
-                        " | %" + maxcmax + "d" +
-                        " , %e" +
-                        "\n",
+                        " | %" + maxcmax + "d",
                         bd.name,
                         bd.time_min,
                         bd.time_avg,
                         bd.time_std,
-                        bd.time_max,
-                        bd.delta_max);
+                        bd.time_max);
+
+      if (Double.isNaN(bd.delta_max)) {
+        System.out.print(" , error!");
+      }
+      else if (bd.delta_max >= 0.0) {
+        System.out.format(" , %e", bd.delta_max);
+      }
+      System.out.println();
     }
   }
 

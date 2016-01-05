@@ -8,6 +8,7 @@ import static jmatrix.BasicBinaryOperation.MUL;
 /** General framework for matrix computation benchmarks. */
 public abstract class Benchmark
 {
+  private boolean debug = false;
   private double tol;
 
   private double time_min, time_avg, time_std, time_max;
@@ -25,12 +26,7 @@ public abstract class Benchmark
     time_avg = 0.0;
     time_std = 0.0;
     time_max = 0.0;
-    delta_max = 0.0;
-  }
-
-  /** Switch between regular and positive definite matrix input. */
-  public boolean isPd() {
-    return false;
+    delta_max = Double.NEGATIVE_INFINITY;
   }
 
   //---------------------------------------------------------------------------
@@ -38,11 +34,23 @@ public abstract class Benchmark
   /** Returns the name of the benchmark. */
   public abstract String name();
 
+  /** Matrix input types. */
+  protected enum BenchmarkType {
+    A_RG, A_PD, Ab_PD, AB_RG
+  }
+
+  /** Chooses input type for the benchmark. */
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
+  }
+
   /** Performs the benchmarked computation. */
-  protected abstract void compute(Matrix A);
+  protected abstract void compute(Matrix A, Matrix bB) throws BenchmarkException;
 
   /** Measures the numerical error. */
-  protected abstract double check(Matrix A) throws BenchmarkException;
+  protected double check(Matrix A, Matrix bB) throws BenchmarkException {
+    return Double.NEGATIVE_INFINITY; // ignored check
+  }
 
   //---------------------------------------------------------------------------
 
@@ -96,102 +104,130 @@ public abstract class Benchmark
   }
 
   /** Runs the benchmark and saves report data to a file. */
-  public void run(String[] args) {
-    try {
-      int narg = 0;
-      final long seed = Long.valueOf(args[narg++]);
-      final int nwarmups = Integer.valueOf(args[narg++]);
-      if (nwarmups < 0) {
-        throw new BenchmarkException("Invalid nwarmups: " + nwarmups + "!");
-      }
-      final int nrepeats = Integer.valueOf(args[narg++]);
-      if (nwarmups <= 0) {
-        throw new BenchmarkException("Invalid nrepeats: " + nrepeats + "!");
-      }
+  public void run(String[] args) throws Exception {
+    int narg = 1; // first arg (classname) is ignored here
 
-      final int minrows = Integer.valueOf(args[narg++]);
-      final int maxrows = Integer.valueOf(args[narg++]);
-      if (minrows < 0 || maxrows < 0 || minrows > maxrows) {
-        throw new BenchmarkException("Invalid row spec: "
-                                     + minrows + ", " + maxrows + "!");
-      }
-      final int mincols = Integer.valueOf(args[narg++]);
-      final int maxcols = Integer.valueOf(args[narg++]);
-      if (mincols < 0 || maxcols < 0 || mincols > maxcols) {
-        throw new BenchmarkException("Invalid col spec: "
-                                     + mincols + ", " + maxcols + "!");
-      }
+    debug = Boolean.valueOf(args[narg++]);
+    if (debug) { System.err.println(args[0] + "\n"); }
 
-      final double nnzratio = Double.valueOf(args[narg++]);
-      if (nnzratio < 0.0 || nnzratio > 1.0) {
-        throw new BenchmarkException("Invalid nnzratio: " + nnzratio + "!");
-      }
-      final double scale = Double.valueOf(args[narg++]);
-      if (scale < 0.0) {
-        throw new BenchmarkException("Invalid scale: " + nnzratio + "!");
-      }
-      final double tol = Double.valueOf(args[narg++]);
-      if (tol < 0.0 || tol > 1.0) {
-        throw new BenchmarkException("Invalid tol: " + nnzratio + "!");
-      }
-      final double mineig = Double.valueOf(args[narg++]);
-      final double maxeig = Double.valueOf(args[narg++]);
-      if (mineig < 0 || maxeig < 0.0 || mineig > maxeig) {
-        throw new BenchmarkException("Invalid eig spec: "
-                                     + mineig + ", " + maxeig + "!");
-      }
+    final long seed = Long.valueOf(args[narg++]);
+    final int nwarmups = Integer.valueOf(args[narg++]);
+    if (nwarmups <= 0) {
+      throw new BenchmarkException("Invalid nwarmups: " + nwarmups + "!");
+    }
+    final int nrepeats = Integer.valueOf(args[narg++]);
+    if (nrepeats <= 0) {
+      throw new BenchmarkException("Invalid nrepeats: " + nrepeats + "!");
+    }
 
+    final int minrows = Integer.valueOf(args[narg++]);
+    final int maxrows = Integer.valueOf(args[narg++]);
+    if (minrows < 0 || maxrows < 0 || minrows > maxrows) {
+      throw new BenchmarkException("Invalid row spec: "
+                                   + minrows + ", " + maxrows + "!");
+    }
+    final int mincols = Integer.valueOf(args[narg++]);
+    final int maxcols = Integer.valueOf(args[narg++]);
+    if (mincols < 0 || maxcols < 0 || mincols > maxcols) {
+      throw new BenchmarkException("Invalid col spec: "
+                                   + mincols + ", " + maxcols + "!");
+    }
+
+    final double nnzratio = Double.valueOf(args[narg++]);
+    if (nnzratio < 0.0 || nnzratio > 1.0) {
+      throw new BenchmarkException("Invalid nnzratio: " + nnzratio + "!");
+    }
+    final double scale = Double.valueOf(args[narg++]);
+    if (scale < 0.0) {
+      throw new BenchmarkException("Invalid scale: " + nnzratio + "!");
+    }
+    final double tol = Double.valueOf(args[narg++]);
+    if (tol < 0.0 || tol > 1.0) {
+      throw new BenchmarkException("Invalid tol: " + nnzratio + "!");
+    }
+    final double mineig = Double.valueOf(args[narg++]);
+    final double maxeig = Double.valueOf(args[narg++]);
+    if (mineig < 0 || maxeig < 0.0 || mineig > maxeig) {
+      throw new BenchmarkException("Invalid eig spec: "
+                                   + mineig + ", " + maxeig + "!");
+    }
+
+    Random rngA, rngbB;
+    {
       Random rng = new Random(seed);
-      reset(tol);
+      rngA = new Random(rng.nextLong());
+      rngbB = new Random(rng.nextLong());
+    }
+    reset(tol);
 
-      int minsize = (int)Math.ceil(Math.sqrt(minrows*mincols));
-      int maxsize = (int)Math.ceil(Math.sqrt(maxrows*maxcols));
+    int minsize = (int)Math.ceil(Math.sqrt(minrows*mincols));
+    int maxsize = (int)Math.ceil(Math.sqrt(maxrows*maxcols));
 
-      Matrix A, Acopy;
-      for (int r = 0; r < nwarmups+nrepeats; ++r) {
-        if (isPd()) {
-          A = randPdMatrix(rng,
-                           minsize, maxsize,
-                           mineig, maxeig, tol);
-        }
-        else {
-          A = randMatrix(rng,
-                         minrows, maxrows, mincols, maxcols,
-                         nnzratio, scale, tol);
-        }
-        Acopy = A.copy();
-
-        try { Thread.sleep(1); } catch (Exception e) {}
-
-        double ts = System.nanoTime();
-        compute(A);
-        ts = (System.nanoTime() - ts) / 1e6; // ms
-
-        double delta = check(Acopy);
-        if (delta > delta_max) { delta_max = delta; }
-
-        if (r >= nwarmups) { // ignore time measurements for warmup rounds
-          if (ts < time_min) { time_min = ts; }
-          if (ts > time_max) { time_max = ts; }
-          time_avg += ts / nrepeats;
-          time_std += ts*ts / nrepeats;
-        }
+    Matrix A = null, Acopy = null;
+    Matrix bB = null, bBcopy = null;
+    for (int r = 0; r < nwarmups+nrepeats; ++r) {
+      switch (type()) {
+      case A_RG :
+        A = randMatrix(rngA,
+                       minrows, maxrows, mincols, maxcols,
+                       nnzratio, scale, tol);
+        break;
+      case A_PD :
+        A = randPdMatrix(rngA,
+                         minsize, maxsize,
+                         mineig, maxeig, tol);
+        break;
+      case Ab_PD :
+        A = randPdMatrix(rngA,
+                         minsize, maxsize,
+                         mineig, maxeig, tol);
+        bB = randMatrix(rngbB,
+                        A.rows(), A.rows(), 1, 1,
+                        0.0, scale, tol);
+        break;
+      case AB_RG :
+        A = randMatrix(rngA,
+                       minrows, maxrows, mincols, maxcols,
+                       nnzratio, scale, tol);
+        bB = randMatrix(rngbB,
+                        A.rows(), A.rows(), A.cols(), A.cols(),
+                        nnzratio, scale, tol);
+        break;
+      default :
+        throw new BenchmarkException("Unhandled input type: " + type() + "!");
       }
-      time_std = Math.sqrt(time_std - time_avg*time_avg);
+      if (A != null) { Acopy = A.copy(); }
+      if (bB != null) { bBcopy = bB.copy(); }
 
-      System.out.println(new BenchmarkData(name(),
-                                           (int)Math.ceil(time_min),
-                                           (int)Math.ceil(time_max),
-                                           (int)Math.ceil(time_avg),
-                                           (int)Math.ceil(time_std),
-                                           delta_max));
-      System.out.flush();
+      try { Thread.sleep(1); } catch (Exception e) {}
+
+      if (debug) { System.err.println("COMPUTE " + r); }
+      double ts = System.nanoTime();
+      compute(A, bB);
+      ts = (System.nanoTime() - ts) / 1e6; // ms
+      if (debug) { System.err.println("DONE"); }
+
+      if (debug) { System.err.println("CHECK"); }
+      double delta = check(Acopy, bBcopy);
+      if (delta > delta_max) { delta_max = delta; }
+      if (debug) { System.err.println("DONE\n"); }
+
+      if (r >= nwarmups) { // ignore time measurements for warmup rounds
+        if (ts < time_min) { time_min = ts; }
+        if (ts > time_max) { time_max = ts; }
+        time_avg += ts / nrepeats;
+        time_std += ts*ts / nrepeats;
+      }
     }
-    catch (Exception e) {
-      System.out.println(new BenchmarkData(name(), 0, 0, 0, 0, Double.NaN));
-      System.out.flush();
-      e.printStackTrace();
-    }
+    time_std = Math.sqrt(time_std - time_avg*time_avg);
+
+    System.out.println(new BenchmarkData(name(),
+                                         (int)Math.ceil(time_min),
+                                         (int)Math.ceil(time_max),
+                                         (int)Math.ceil(time_avg),
+                                         (int)Math.ceil(time_std),
+                                         delta_max));
+    System.out.flush();
   }
 
   //---------------------------------------------------------------------------
@@ -367,5 +403,18 @@ public abstract class Benchmark
       }
     }
     return delta;
+  }
+
+  //---------------------------------------------------------------------------
+
+  public static void main(String[] args) {
+    try {
+      ((Benchmark)Class.forName(args[0]).newInstance()).run(args);
+    }
+    catch (Exception e) {
+      System.out.println(new BenchmarkData(args[0], 0, 0, 0, 0, Double.NaN));
+      System.out.flush();
+      e.printStackTrace();
+    }
   }
 }

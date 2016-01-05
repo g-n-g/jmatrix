@@ -11,25 +11,21 @@ public final class CholeskyLBenchmark extends Benchmark
   }
 
   @Override
-  public boolean isPd() {
-    return true;
+  protected BenchmarkType type() {
+    return BenchmarkType.A_PD;
   }
 
   @Override
-  protected void compute(Matrix A) {
+  protected void compute(Matrix A, Matrix bB) throws BenchmarkException {
     L = A.choleskyL();
   }
 
   @Override
-  protected double check(Matrix A) throws BenchmarkException {
+  protected double check(Matrix A, Matrix bB) throws BenchmarkException {
     checkMatrixSquareSize(A);
     checkMatrixSquareSize(L);
     double delta = checkMatrixEquals(A, L.mul(L.T()));
     delta = Math.max(delta, checkMatrixLT(L));
     return delta;
-  }
-
-  public static void main(String[] args) {
-    new CholeskyLBenchmark().run(args);
   }
 }

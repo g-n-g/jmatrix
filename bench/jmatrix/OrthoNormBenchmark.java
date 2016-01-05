@@ -11,16 +11,12 @@ public final class OrthoNormBenchmark extends Benchmark
   }
 
   @Override
-  protected void compute(Matrix A) {
+  protected void compute(Matrix A, Matrix bB) throws BenchmarkException {
     M = A.orthonormalize();
   }
 
   @Override
-  protected double check(Matrix A) throws BenchmarkException {
+  protected double check(Matrix A, Matrix bB) throws BenchmarkException {
     return checkMatrixOrthoOrZeroCols(M);
-  }
-
-  public static void main(String[] args) {
-    new OrthoNormBenchmark().run(args);
   }
 }

@@ -6,18 +6,14 @@ Allow result = null settings everywhere.
 Functionality:
 
 eigenvalue and eigenvector computations
-zero replacement for Cholesky decomposition
+support zero pivot replacement for Cholesky decomposition
 
 -------------------------------------------------------------------------------
 Performance:
 
 Initial reducedQR to improve reducedSVD performance.
 Check QR decomposition by Givens rotations.
+Try to optimize Q matrix computation for QR decomposition.
 
-Blocked versions:
- - matrix multiplication
-   http://www.netlib.org/utk/papers/autoblock/node2.html
- - LU decomposition
-   http://www.netlib.org/utk/papers/siam-review93/node13.html
- - others (e.g. Cholesky factorization)
-   http://www.netlib.org/utk/papers/siam-review93/node9.html
+Representation inside Matrix class
+with support for zero, identity and diagonal matrices.

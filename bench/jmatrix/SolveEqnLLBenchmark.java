@@ -3,7 +3,7 @@ package jmatrix;
 /** Benchmark of equation solving by Cholesky LL decomposition. */
 public final class SolveEqnLLBenchmark extends Benchmark
 {
-  private Matrix x, b;
+  private Matrix x;
 
   @Override
   public String name() {
@@ -11,24 +11,19 @@ public final class SolveEqnLLBenchmark extends Benchmark
   }
 
   @Override
-  public boolean isPd() {
-    return true;
+  protected BenchmarkType type() {
+    return BenchmarkType.Ab_PD;
   }
 
   @Override
-  protected void compute(Matrix A) {
-    b = Matrix.ones(A.rows(), 1);
+  protected void compute(Matrix A, Matrix b) throws BenchmarkException {
     Matrix L = A.choleskyL();
     Matrix y = L.backsL(b, false);
     x = L.T().backsU(y, false, y);
   }
 
   @Override
-  protected double check(Matrix A) throws BenchmarkException {
+  protected double check(Matrix A, Matrix b) throws BenchmarkException {
     return checkMatrixEquals(b, A.mul(x));
-  }
-
-  public static void main(String[] args) {
-    new SolveEqnLLBenchmark().run(args);
   }
 }

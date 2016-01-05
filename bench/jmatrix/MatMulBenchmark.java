@@ -1,26 +1,25 @@
 package jmatrix;
 
-/** Matrix multiplication benchmark. */
-public final class MatMulBenchmark extends Benchmark
+/** Superclass of matrix multiplication benchmarks. */
+public abstract class MatMulBenchmark extends Benchmark
 {
-  private Matrix AtA;
+  protected abstract Matrix result();
 
   @Override
-  public String name() {
-    return "MatMul";
-  }
-
-  @Override
-  protected void compute(Matrix A) {
-    AtA = A.T().mul(A);
-  }
-
-  @Override
-  protected double check(Matrix A) throws BenchmarkException {
-    return checkMatrixSymmetric(AtA);
-  }
-
-  public static void main(String[] args) {
-    new MatMulBenchmark().run(args);
+  protected double check(Matrix A, Matrix B) throws BenchmarkException {
+    final int rows = A.rows(), cols = A.cols();
+    // compute C = A'*bB
+    Matrix C = Matrix.zeros(cols, cols);
+    for (int i = 0; i < cols; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        double s = 0.0;
+        for (int k = 0; k < rows; ++k) {
+          s += A.get(k,i) * B.get(k,j);
+        }
+        C.set(i, j, s);
+      }
+    }
+    return checkMatrixEquals(C, result());
   }
 }
+
