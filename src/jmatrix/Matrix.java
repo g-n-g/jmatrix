@@ -1745,16 +1745,20 @@ public abstract class Matrix {
           norm += r*r;
         }
         norm = maxAik * Math.sqrt(norm);
-        if (A.get(k,k) < 0) norm = -norm;
 
-        for (int i = k; i < rows; ++i) { A.set(i, k, A.get(i,k) / norm); }
-        A.set(k, k, A.get(k,k) + 1.0); // 1 <= A[k,k] <= 2
+        double Akk = A.get(k,k);
+        if (Akk < 0) norm = -norm;
+
+        for (int i = k+1; i < rows; ++i) { A.set(i, k, A.get(i,k) / norm); }
+        Akk = 1.0 + Akk / norm;
+        A.set(k, k, Akk); // 1 <= A[k,k] <= 2
 
         for (int j = k+1; j < cols; ++j) {
           double s = 0.0;
           for (int i = k; i < rows; ++i) {
             s += A.get(i,k) * A.get(i,j);
-          }          s = -s / A.get(k,k);
+          }
+          s = -s / Akk;
           for (int i = k; i < rows; ++i) {
             A.set(i, j, A.get(i,j) + s*A.get(i,k));
           }
