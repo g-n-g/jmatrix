@@ -12,8 +12,8 @@
   <property name="hamcrest"
             location="/usr/share/hamcrest-core-1.3/lib/hamcrest-core.jar"/>
 
-  <presetdef name="javac">
-    <javac includeantruntime="false" />
+  <presetdef name="java-compile">
+    <javac includeantruntime="false"/>
   </presetdef>
 
   <tstamp>
@@ -31,11 +31,11 @@
   <!-- compilation targets -->
 
   <target name="compile" description="Compile the jmatrix package without debug info.">
-    <javac srcdir="${src}/jmatrix" destdir="${bin}"/>
+    <java-compile srcdir="${src}/jmatrix" destdir="${bin}"/>
   </target>
 
   <target name="compile-debug" description="Compile the jmatrix package with debug info.">
-    <javac srcdir="${src}/jmatrix" destdir="${bin}" debug="true"/>
+    <java-compile srcdir="${src}/jmatrix" destdir="${bin}" debug="true"/>
   </target>
 
   <target name="jar" description="Make a jar file." depends="compile">
@@ -54,13 +54,13 @@
           description="Compile the test cases."
           depends="compile-debug">
     <mkdir dir="${bin}/test"/>
-    <javac srcdir="${test}/jmatrix" destdir="${bin}/test" debug="true">
+    <java-compile srcdir="${test}/jmatrix" destdir="${bin}/test" debug="true">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
         <pathelement location="${junit}"/>
       </classpath>
-    </javac>
+    </java-compile>
   </target>
 
   <target name="test-matrix"
@@ -106,12 +106,12 @@
           description="Compile the benchmarks."
           depends="compile">
     <mkdir dir="${bin}/bench"/>
-    <javac srcdir="${bench}/jmatrix" destdir="${bin}/bench">
+    <java-compile srcdir="${bench}/jmatrix" destdir="${bin}/bench">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
       </classpath>
-    </javac>
+    </java-compile>
   </target>
 
   <target name="bench"

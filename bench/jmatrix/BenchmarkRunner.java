@@ -10,13 +10,11 @@ import java.util.Random;
 /** Running benchmarks. */
 public class BenchmarkRunner
 {
-  private final String JAVA_CMD = "java";
-  private final String CP = "bin:bin" + File.separator + "bench";
-
   private final String[] BENCHMARKS = {
     "MatMulAtABenchmark",
     "MatMulAtBBenchmark",
     "Norm2Benchmark",
+    "DeterminantBenchmark",
     "LUBenchmark",
     "QRBenchmark",
     "ReducedQRBenchmark",
@@ -32,19 +30,25 @@ public class BenchmarkRunner
     "MatInvPsdBenchmark"
   };
 
-  private final long SEED = 0; // 0 means auto generated
+  // Random seed (automatically generated if set to 0).
+  private final long SEED = 0;
+
+  // Number of warmup and time measured runs of a benchmark.
   private final int NWARMUPS = 20;
   private final int NREPEATS = 200;
 
+  // Benchmark input parameters.
   private final int MINROWS = 100, MAXROWS = 300;
   private final int MINCOLS =  50, MAXCOLS = 150;
-
   private final double NNZRATIO = 0.2;
   private final double SCALE = 1000.0;
-  private final double TOL = 1e-6;
 
+  // Eigenvalue range for positive definite (pd) matrices.
   private final double MINEIG = 0.0001;
   private final double MAXEIG = 1000.0;
+
+  // Error tolerance triggering an abort by an exception.
+  private final double TOL = 1e-6;
 
   // Turns matrix statistics report on/off.
   private final boolean MATRIX_STAT = false;
@@ -52,8 +56,12 @@ public class BenchmarkRunner
   // Turns benchmark debugging on/off.
   private final boolean DEBUG = false;
   // Anything printed on standard error within the benchmarks
-  // will be written into the debug files with this prefix.
+  // will be written into the debug files named with this prefix.
   private final String DEBUG_FILE = "JMATRIX_BENCHMARK_ERROR_";
+
+  // Java command and classpath.
+  private final String JAVA_CMD = "java";
+  private final String CP = "bin:bin" + File.separator + "bench";
 
   //---------------------------------------------------------------------------
 
@@ -282,9 +290,9 @@ public class BenchmarkRunner
                         " | %" + avgcmax + "s" +
                         " +- %-" + stdcmax + "s" +
                         " | %" + maxcmax + "s" +
-                        " ,    max error\n",
+                        " ,   max error \n",
                         " ", "min", "avg", "std", "max");
-    int ccount = namecmax + 3 + mincmax + 3 + avgcmax + 4 + stdcmax + 3 + maxcmax + 15;
+    int ccount = namecmax + 3 + mincmax + 3 + avgcmax + 4 + stdcmax + 3 + maxcmax + 16;
     System.out.print("  ");
     for (int i = 0; i < ccount; ++i) {
       System.out.print("-");

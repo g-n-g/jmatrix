@@ -44,6 +44,11 @@ public abstract class Benchmark
     return BenchmarkType.A_RG;
   }
 
+  /** Benchmark specific scaling. */
+  protected double customScaling(Matrix A, Matrix bB) {
+    return 1.0;
+  }
+
   /** Performs the benchmarked computation. */
   protected abstract void compute(Matrix A, Matrix bB) throws BenchmarkException;
 
@@ -196,6 +201,11 @@ public abstract class Benchmark
       default :
         throw new BenchmarkException("Unhandled input type: " + type() + "!");
       }
+      double cs = customScaling(A, bB);
+      if (cs != 1.0) {
+        if (A != null) { A.mul(cs, A); }
+        if (bB != null) { bB.mul(cs, bB); }
+      }
       if (A != null) { Acopy = A.copy(); }
       if (bB != null) { bBcopy = bB.copy(); }
 
@@ -232,7 +242,7 @@ public abstract class Benchmark
 
   //---------------------------------------------------------------------------
 
-  private void checkDelta(double delta)
+  protected void checkDelta(double delta)
     throws BenchmarkException {
     if (delta > tol) {
       throw new BenchmarkException("Too large delta: "

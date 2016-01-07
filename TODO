@@ -6,7 +6,8 @@ Allow result = null settings everywhere.
 Functionality:
 
 eigenvalue and eigenvector computations
-support zero pivot replacement for Cholesky decomposition
+zero pivot replacement for Cholesky decomposition
+column pivoting for QR decomposition
 
 -------------------------------------------------------------------------------
 Performance:
@@ -17,3 +18,6 @@ Try to optimize Q matrix computation for QR decomposition.
 
 Representation inside Matrix class
 with support for zero, identity and diagonal matrices.
+
+Single array matrix representation with iterators.
+Interface refactoring with workspace objects per thread.
