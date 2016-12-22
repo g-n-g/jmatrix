@@ -182,6 +182,15 @@ public class MatrixTests {
     m.add(Matrix.ones(5, 7), m);
     c.copy(m);
     assertTrue(TOL > m.sub(c).norm1());
+
+    m = Matrix.create(1, 2, 3, NR,
+                      4, 5, 6, NR,
+                      7, 8, 9);
+    c = m.copy(c, 1, 2);
+    assertTrue(1 == c.get(1,2));
+    assertTrue(3 == c.get(1,4));
+    assertTrue(5 == c.get(2,3));
+    assertTrue(9 == c.get(3,4));
   }
 
   //---------------------------------------------------------------------------
@@ -442,6 +451,8 @@ public class MatrixTests {
 
     Matrix n1 = Matrix.create(66, 66, 84, 66, 66).T();
     assertMatrixEquals(n1, m.rowNorms1(), TOL);
+    assertMatrixEquals(n1, m.rowNorms1(Matrix.create(5,1)), TOL);
+    assertMatrixEquals(n1, m.rowNorms1(Matrix.create(1,5)), TOL);
     n1 = Matrix.create(65, 65, 83, 65, 65, 5);
     assertMatrixEquals(n1, m.colNorms1(), TOL);
 
@@ -451,6 +462,8 @@ public class MatrixTests {
                               32.4961536185438,
                               34.0).T();
     assertMatrixEquals(n2, m.rowNorms2(), TOL);
+    assertMatrixEquals(n2, m.rowNorms2(Matrix.create(5,1)), TOL);
+    assertMatrixEquals(n2, m.rowNorms2(Matrix.create(1,5)), TOL);
     n2 = Matrix.create(32.48076353782343,
                        33.24154027718932,
                        44.68780594300866,
@@ -461,6 +474,8 @@ public class MatrixTests {
 
     Matrix nI = Matrix.create(24, 23, 31, 21, 25).T();
     assertMatrixEquals(nI, m.rowNormsI(), TOL);
+    assertMatrixEquals(nI, m.rowNormsI(Matrix.create(5,1)), TOL);
+    assertMatrixEquals(nI, m.rowNormsI(Matrix.create(1,5)), TOL);
     nI = Matrix.create(23, 24, 31, 21, 22, 1);
     assertMatrixEquals(nI, m.colNormsI(), TOL);
   }
@@ -474,9 +489,13 @@ public class MatrixTests {
 
     Matrix vRow = Matrix.create(65, 65, 83, 65, 65, 5);
     assertMatrixEquals(vRow, m.sumRows(), TOL);
+    assertMatrixEquals(vRow, m.sumRows(Matrix.create(1,6)), TOL);
+    assertMatrixEquals(vRow, m.sumRows(Matrix.create(6,1)), TOL);
 
     Matrix vCol = Matrix.create(66, 66, 84, 66, 66).T();
     assertMatrixEquals(vCol, m.sumCols(), TOL);
+    assertMatrixEquals(vCol, m.sumCols(Matrix.create(5,1)), TOL);
+    assertMatrixEquals(vCol, m.sumCols(Matrix.create(1,5)), TOL);
   }
 
   //---------------------------------------------------------------------------

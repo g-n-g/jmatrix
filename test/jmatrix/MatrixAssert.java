@@ -1,6 +1,7 @@
 package jmatrix;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Matrix assertions.
@@ -22,6 +23,8 @@ public class MatrixAssert {
    * Asserts that two matrices are equal.
    */
   public static void assertMatrixEquals(Matrix A, Matrix B, double tol) {
+    assertNotNull(A);
+    assertNotNull(B);
     assertMatrixSizeEquals(A, B);
     for (int i = 0; i < A.rows(); ++i) {
       for (int j = 0; j < A.cols(); ++j) {

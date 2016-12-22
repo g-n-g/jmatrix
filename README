@@ -1,8 +1,6 @@
 
-JMatrix is a dense matrix library which allows user caching of the results
-and the intermediate computations to avoid garbage collection.
-
-This is a work in progress, expect API changes...
+JMatrix is a dense matrix library which allows manual placement of results
+and intermediate computations in order to avoid garbage collection.
 
 Supported matrix decompositions:
 
@@ -12,6 +10,21 @@ Supported matrix decompositions:
   Cholesky decomposition (both LL and LDL forms)
 
 -------------------------------------------------------------------------------
+INSTALLATION:
+
+  Make sure you have a java compiler installed, preferrably 1.8 or higher.
+  To test this, issue: javac -version
+
+  To run the tests and the benchmarks, install junit4.
+  The junit4.jar file should be located in the directory specified in
+  the java-libs proeprty of the build.xml file (by default: /usr/share/java).
+  
+  These requirements can be simply met on an Ubuntu system by:
+  
+    sudo apt install default-jdk junit4
+
+-------------------------------------------------------------------------------
+USAGE:
 
 Compilation:
 

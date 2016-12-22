@@ -296,19 +296,19 @@ public abstract class Matrix {
   /**
    * Copies the matrix into <code>result</code>.
    *
-   * @param result appropriately sized storage for the copy (not <code>null</code>)
-   * @param rowOffset row offset in <code>result</code>
-   * @param colOffset column offset in <code>result</code>
+   * @param result storage of the result (not <code>null</code>)
+   * @param resultRowOffset row offset in <code>result</code>
+   * @param resultColOffset column offset in <code>result</code>
    * @return copy of the matrix
    */
-  public Matrix copy(Matrix result, int rowOffset, int colOffset) {
+  public Matrix copy(Matrix result, int resultRowOffset, int resultColOffset) {
     final int rows = rows(), cols = cols();
     assert(result != null
-           && result.rows() >= rowOffset+rows
-           && result.cols() >= colOffset+cols);
+           && result.rows() >= resultRowOffset+rows
+           && result.cols() >= resultColOffset+cols);
     for (int i = 0; i < rows; ++i) {
       for (int j = 0; j < cols; ++j) {
-        result.set(rowOffset+i, colOffset+j, get(i,j));
+        result.set(resultRowOffset+i, resultColOffset+j, get(i,j));
       }
     }
     return result;
@@ -318,12 +318,15 @@ public abstract class Matrix {
    * Returns a copy of the matrix placed into <code>result</code>.
    * The operation is skipped if <code>result</code> is equal to <code>this</code>.
    *
-   * @param result appropriately sized storage for the copy (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return copy of the matrix
    */
   public Matrix copy(Matrix result) {
     if (result != this) {
-      copy(result, 0, 0);
+      if (result == null) {
+        result = create(rows(), cols());
+      }
+      return copy(result, 0, 0);
     }
     return result;
   }
@@ -334,7 +337,7 @@ public abstract class Matrix {
    * @return a copy of the matrix
    */
   public Matrix copy() {
-    return copy(create(rows(), cols()));
+    return copy(null);
   }
 
   //----------------------------------------------------------------------------
@@ -511,12 +514,13 @@ public abstract class Matrix {
    * matrix, and might be set to <code>this</code> for in-place operation.
    *
    * @param op unary operation
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return transformed matrix in <code>result</code>
    */
   public Matrix ewu(UnaryOperation op, Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
+    if (result == null) { result = create(rows(), cols()); }
+    assert (result.rows() == rows && result.cols() == cols);
     for (int i = 0; i < rows; ++i) {
       for (int j = 0; j < cols; ++j) {
         result.set(i, j, op.apply(get(i,j)));
@@ -532,24 +536,26 @@ public abstract class Matrix {
    * @return transformed matrix
    */
   public Matrix ewu(UnaryOperation op) {
-    return ewu(op, create(rows(), cols()));
+    return ewu(op, null);
   }
 
   /**
    * Transforms the matrix elementwise by a binary operation <code>op</code>
    * using value <code>v</code> for the first argument.
    *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>
-   * matrix, and might be set to <code>this</code> for in-place operation.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param op binary operation
    * @param v transforming value
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return transformed matrix in <code>result</code>
    */
   public Matrix ewb1(BinaryOperation op, double v, Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
+    if (result == null) { result = create(rows(), cols()); }
+    assert (result.rows() == rows && result.cols() == cols);
     for (int i = 0; i < rows; ++i) {
       for (int j = 0; j < cols; ++j) {
         result.set(i, j, op.apply(v, get(i,j)));
@@ -567,24 +573,26 @@ public abstract class Matrix {
    * @return transformed matrix
    */
   public Matrix ewb1(BinaryOperation op, double v) {
-    return ewb1(op, v, create(rows(), cols()));
+    return ewb1(op, v, null);
   }
 
   /**
    * Transforms the matrix elementwise by a binary operation <code>op</code>
    * using value <code>v</code> for the second argument.
    *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>
-   * matrix, and might be set to <code>this</code> for in-place operation.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param op binary operation
    * @param v transforming value
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return transformed matrix <code>result</code>
    */
   public Matrix ewb2(BinaryOperation op, double v, Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
+    if (result == null) { result = create(rows(), cols()); }
+    assert (result.rows() == rows && result.cols() == cols);
     for (int i = 0; i < rows; ++i) {
       for (int j = 0; j < cols; ++j) {
         result.set(i, j, op.apply(get(i,j), v));
@@ -602,7 +610,7 @@ public abstract class Matrix {
    * @return transformed matrix
    */
   public Matrix ewb2(BinaryOperation op, double v) {
-    return ewb2(op, v, create(rows(), cols()));
+    return ewb2(op, v, null);
   }
 
   /**
@@ -612,17 +620,19 @@ public abstract class Matrix {
    * Matrix <code>m</code> has to have either the same size as <code>this</code>,
    * or has to be a row/column vector with appropriate size for singleton expansion.
    *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>
-   * matrix, and might be set to <code>this</code> for in-place operation.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param op binary operation
    * @param m transforming matrix
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return transformed matrix <code>result</code>
    */
   public Matrix ewb(BinaryOperation op, Matrix m, Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
+    if (result == null) { result = create(rows(), cols()); }
+    assert (result.rows() == rows && result.cols() == cols);
     if (m.rows() == 1) {
       assert(m.cols() == cols);
       for (int j = 0; j < cols; ++j) {
@@ -664,7 +674,7 @@ public abstract class Matrix {
    * @return transformed matrix
    */
   public Matrix ewb(BinaryOperation op, Matrix m) {
-    return ewb(op, m, create(rows(), cols()));
+    return ewb(op, m, null);
   }
 
   //----------------------------------------------------------------------------
@@ -672,15 +682,13 @@ public abstract class Matrix {
 
   /**
    * Returns the diagonal elements as a vector.
-   * Otherwise, the length of <code>result</code> has to match the number
-   * of diagonal elements (the minimum of the number of rows and columns).
    *
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return vector of the diagonal elements
    */
   public Matrix getDiag(Matrix result) {
     int n = Math.min(rows(), cols());
-    assert (result != null);
+    if (result == null) { result = create(n, 1); }
     Matrix diag = (result.cols() == 1) ? result : result.T();
     assert(diag.rows() == n && diag.cols() == 1);
     for (int i = 0; i < n; ++i) { diag.set(i, 0, get(i,i)); }
@@ -693,7 +701,7 @@ public abstract class Matrix {
    * @return column vector of the diagonal elements
    */
   public Matrix getDiag() {
-    return getDiag(Matrix.create(Math.min(rows(), cols()), 1));
+    return getDiag(null);
   }
 
   /**
@@ -751,17 +759,18 @@ public abstract class Matrix {
    * This includes all elements under and on the diagonal selected by
    * <code>offset</code>. For positive/negative values of <code>offset</code>,
    * the selected diagonal is above/under the main diagonal, respectively.
-   * 
-   * Matrix <code>result</code> has to have the same size as <code>this</code>
-   * matrix.
+   *
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param offset offset of the main diagonal
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> holding the lower triangular part
    */
   public Matrix getTriL(int offset, Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == rows && result.cols() == cols);
+    if (result == null) { result = create(rows(), cols()); }
     int jend = Math.min(offset+1, cols);
     for (int i = 0; i < rows; ++i) {
       for (int j = 0; j < jend; ++j) {
@@ -787,17 +796,18 @@ public abstract class Matrix {
    * @return new matrix holding the lower triangular part
    */
   public Matrix getTriL(int offset) {
-    return getTriL(offset, create(rows(), cols()));
+    return getTriL(offset, null);
   }
 
   /**
    * Returns the lower triangular part of the matrix (in <code>result</code>).
    * This includes all elements under and on the main diagonal.
    * 
-   * Matrix <code>result</code> has to have the same size as <code>this</code>
-   * matrix.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> holding the lower triangular part
    */
   public Matrix getTriL(Matrix result) {
@@ -820,11 +830,12 @@ public abstract class Matrix {
    * <code>offset</code>. For positive/negative values of <code>offset</code>,
    * the selected diagonal is above/under the main diagonal, respectively.
    * 
-   * Matrix <code>result</code> has to have the same size as <code>this</code>
-   * matrix.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param offset offset of the main diagonal
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> holding the upper triangular part
    */
   public Matrix getTriU(int offset, Matrix result) {
@@ -848,10 +859,11 @@ public abstract class Matrix {
    * Returns the upper triangular part of the matrix (in <code>result</code>).
    * This includes all elements under and on the main diagonal.
    * 
-   * Matrix <code>result</code> has to have the same size as <code>this</code>
-   * matrix.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> holding the upper triangular part
    */
   public Matrix getTriU(Matrix result) {
@@ -874,14 +886,14 @@ public abstract class Matrix {
   /**
    * Returns the submatrix having rows from <code>iF</code> to <code>iT</code>
    * and columns from <code>jF</code> to <code>jT</code> (all inclusive).
-   * A new matrix is created if <code>result</code> is <code>null</code>.
-   * Otherwise, the size of <code>result</code> has to match the submatrix.
+   *
+   * If provided, the size of <code>result</code> has to match the submatrix.
    *
    * @param iF index of the first row
    * @param iT index of the last row
    * @param jF index of the first column
    * @param jT index of the last column
-   * @param result storage of the result or <code>null</code>
+   * @param result storage of the result (or <code>null</code>)
    * @return submatrix formed by rows from <code>iF</code> to <code>iT</code>
    *                   and columns from <code>jF</code> to <code>jT</code>
    */
@@ -949,14 +961,13 @@ public abstract class Matrix {
    * Matrix-matrix addition (in <code>result</code>).
    * Adds matrix <code>m</code> to <code>this</code> matrix.
    *
-   * Matrices <code>m</code> and <code>result</code> have to have the same size
-   * as <code>this</code>.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * or <code>m</code> providing in-place operation.
+   * Matrix <code>m</code> has to have the same size as <code>this</code> matrix.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param m matrix to add (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> having the sum of
    *         <code>this</code> and <code>m</code>
    */
@@ -970,23 +981,23 @@ public abstract class Matrix {
    *
    * Matrix <code>m</code> has to have the same size as <code>this</code>.
    *
-   * @param m matrix to add (not <code>null</code>)
+   * @param m matrix to add (or <code>null</code>)
    * @return the sum of <code>this</code> and <code>m</code> in a new matrix
    */
   public Matrix add(Matrix m) {
-    return add(m, create(rows(), cols()));
+    return add(m, null);
   }
 
   /**
    * Matrix-constant addition (in <code>result</code>).
    * Adds constant <code>c</code> to all elements of <code>this</code> matrix.
    *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param c constant to add
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> having the values of
    *         <code>this</code> shifted by <code>c</code>
    */
@@ -1002,7 +1013,7 @@ public abstract class Matrix {
    * @return new matrix with values of <code>this</code> shifted by <code>c</code>
    */
   public Matrix add(double c) {
-    return add(c, create(rows(), cols()));
+    return add(c, null);
   }
 
   //----------------------------------------------------------------------------
@@ -1012,14 +1023,13 @@ public abstract class Matrix {
    * Matrix-matrix subtraction (in <code>result</code>).
    * Subtracts matrix <code>m</code> from <code>this</code> matrix.
    *
-   * Matrices <code>m</code> and <code>result</code> have to have the same size
-   * as <code>this</code>.
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * or <code>m</code> providing in-place operation.
+   * Matrix <code>m</code> has to have the same size as <code>this</code> matrix.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param m matrix to subtract (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> having the difference of
    *         <code>this</code> and <code>m</code>
    */
@@ -1034,12 +1044,12 @@ public abstract class Matrix {
    *
    * Matrix <code>m</code> has to have the same size as <code>this</code>.
    *
-   * @param m matrix to subtract (not <code>null</code>)
+   * @param m matrix to subtract (or <code>null</code>)
    * @return the difference of <code>this</code> and <code>m</code>
    *         in a new matrix
    */
   public Matrix sub(Matrix m) {
-    return sub(m, create(rows(), cols()));
+    return sub(m, null);
   }
 
   /**
@@ -1047,12 +1057,12 @@ public abstract class Matrix {
    * Subtracts constant <code>c</code> from all elements of <code>this</code>
    * matrix.
    *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param c constant to subtract
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> having the values of
    *         <code>this</code> shifted by <code>-c</code>
    */
@@ -1068,7 +1078,7 @@ public abstract class Matrix {
    * @return new matrix with values of <code>this</code> shifted by <code>-c</code>
    */
   public Matrix sub(double c) {
-    return sub(c, create(rows(), cols()));
+    return sub(c, null);
   }
 
   //----------------------------------------------------------------------------
@@ -1078,12 +1088,12 @@ public abstract class Matrix {
    * Matrix-constant multiplication (in <code>result</code>). Multiplies all
    * elements of <code>this</code> matrix by constant <code>c</code>.
    *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param c constant to multiply with
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> having the values of
    *         <code>this</code> multiplied by <code>c</code>
    */
@@ -1099,7 +1109,7 @@ public abstract class Matrix {
    * @return new matrix with values of <code>this</code> multiplied by <code>c</code>
    */
   public Matrix mul(double c) {
-    return mul(c, create(rows(), cols()));
+    return mul(c, null);
   }
 
   /**
@@ -1113,16 +1123,19 @@ public abstract class Matrix {
    * @param m matrix multiplier from the right
    *        (not <code>null</code> and not equal to <code>result</code>)
    * @param result storage of the result
-   *        (not <code>null</code>
-   *         and not equal to <code>this</code> or <code>m</code>)
+   *        (either <code>null</code> or
+   *         not equal to <code>this</code> or <code>m</code>)
    * @return <code>result</code> having <code>this</code> matrix multiplied
    *         by matrix <code>m</code> from the right
    */
   public Matrix mul(Matrix m, Matrix result) {
     final int rows = rows(), cols = cols(), mcols = m.cols();
     assert (m != null && m.rows() == cols);
-    assert (result != null && result != this && result != m);
-    assert (result.rows() == rows && result.cols() == mcols);
+    if (result == null) { result = create(rows, mcols); }
+    else {
+      assert (result != this && result != m);
+      assert (result.rows() == rows && result.cols() == mcols);
+    }
     if (mcols <= rows) {
       double tik;
       for (int i = 0; i < rows; ++i) {
@@ -1155,7 +1168,7 @@ public abstract class Matrix {
    *         by matrix <code>m</code> from the right
    */
   public Matrix mul(Matrix m) {
-    return mul(m, create(rows(), m.cols()));
+    return mul(m, null);
   }
 
   /**
@@ -1169,15 +1182,19 @@ public abstract class Matrix {
    * as <code>this</code> matrix.
    *
    * @param p permutation (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>
-   *                                      and not equal to <code>this</code>)
+   * @param result storage of the result (either <code>null</code> or
+   *                                      not equal to <code>this</code>)
    * @return <code>result</code> having <code>this</code> matrix multiplied from
    *         the right with a permutation matrix represented by <code>p</code>
    * @see Permutation#mul(Matrix, Matrix)
    */
   public Matrix mul(Permutation p, Matrix result) {
-    assert (result != null && result != this &&
-            result.rows() == rows() && result.cols() == cols());
+    if (result == null) { result = create(rows(), cols()); }
+    else {
+      assert (result != this
+              && result.rows() == rows()
+              && result.cols() == cols());
+    }
     Matrix m = this, r = result;
     if (m.rows() > 1 && m.cols() == 1) {
       m = m.T();
@@ -1208,7 +1225,7 @@ public abstract class Matrix {
    * @see Permutation#mul(Matrix)
    */
   public Matrix mul(Permutation p) {
-    return mul(p, create(rows(), cols()));
+    return mul(p, null);
   }
 
   //----------------------------------------------------------------------------
@@ -1218,12 +1235,12 @@ public abstract class Matrix {
    * Matrix-constant division (in <code>result</code>). Divides all elements of
    * <code>this</code> matrix by constant <code>c</code>.
    *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param c constant to divide with
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> having the values of
    *         <code>this</code> divided by <code>c</code>
    */
@@ -1239,20 +1256,20 @@ public abstract class Matrix {
    * @return new matrix with values of <code>this</code> divided by <code>c</code>
    */
   public Matrix div(double c) {
-    return div(c, create(rows(), cols()));
+    return div(c, null);
   }
 
   /**
    * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
    * (in <code>result</code>).
    *
-   * Matrices <code>v</code> and <code>result</code> have to have the same size
-   * as <code>this</code>.
-   * The <code>result</code> parameter can be also set to <code>this</code>
-   * providing in-place operation.
+   * Matrix <code>v</code> has to have the same size as <code>this</code> matrix.
+   * If provided, matrix <code>result</code> has to have the same size as
+   * <code>this</code> matrix, and might be set to <code>this</code>
+   * for in-place operation.
    *
    * @param m matrix to multiply with entrywise (not <code>null</code>)
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> having the elements of <code>this</code>
    *         and <code>m</code> multiplied entrywise
    */
@@ -1264,14 +1281,14 @@ public abstract class Matrix {
    * Entrywise multiplication (Hadamard product) by matrix <code>m</code>
    * (in new matrix).
    *
-   * Matrix <code>result</code> has to have the same size as <code>this</code>.
+   * Matrix <code>m</code> has to have the same size as <code>this</code> matrix.
    *
    * @param m matrix to multiply with entrywise (not <code>null</code>)
    * @return new matrix having the elements of <code>this</code>
    *         and <code>m</code> multiplied entrywise
    */
   public Matrix emul(Matrix m) {
-    return emul(m, create(rows(), cols()));
+    return emul(m, null);
   }
 
   //----------------------------------------------------------------------------
@@ -1366,16 +1383,30 @@ public abstract class Matrix {
   //----------------------------------------------------------------------------
   // vector norms of rows and columns
 
+  private Matrix rowNormsResult(Matrix result, int rows, int cols) {
+    assert (1 <= cols);
+    if (result == null) { result = create(rows, 1); }
+    else {
+      if (result.cols() > 1 && result.rows() == 1) {
+        result = result.T();
+      }
+      assert (result.rows() == rows && result.cols() == 1);
+    }
+    return result;
+  }
+
   /**
    * Computes the 1-norm of each row.
    *
-   * @param result storage of the result (not <code>null</code>)
+   * If provided, <code>result</code> has to be a vector
+   * with as many elements as the number of rows of <code>this</code> matrix.
+   *
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> 1-norm of each row of <code>this</code> matrix
    */
   public Matrix rowNorms1(Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (1 <= cols);
-    assert (result != null && result.rows() == rows && result.cols() == 1);
+    result = rowNormsResult(result, rows, cols);
     for (int i = 0; i < rows; ++i) {
       double n = 0.0;
       for (int j = 0; j < cols; ++j) {
@@ -1392,19 +1423,21 @@ public abstract class Matrix {
    * @return <code>result</code> 1-norm of each row of <code>this</code> matrix
    */
   public Matrix rowNorms1() {
-    return rowNorms1(create(rows(),1));
+    return rowNorms1(null);
   }
 
   /**
    * Computes the 2-norm of each row.
    *
-   * @param result storage of the result (not <code>null</code>)
+   * If provided, <code>result</code> has to be a vector
+   * with as many elements as the number of rows of <code>this</code> matrix.
+   *
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> 2-norm of each row of <code>this</code> matrix
    */
   public Matrix rowNorms2(Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (1 <= cols);
-    assert (result != null && result.rows() == rows && result.cols() == 1);
+    result = rowNormsResult(result, rows, cols);
     for (int i = 0; i < rows; ++i) {
       double n = 0.0;
       for (int j = 0; j < cols; ++j) {
@@ -1422,19 +1455,21 @@ public abstract class Matrix {
    * @return <code>result</code> 2-norm of each row of <code>this</code> matrix
    */
   public Matrix rowNorms2() {
-    return rowNorms2(create(rows(),1));
+    return rowNorms2(null);
   }
 
   /**
    * Computes the max-norm of each row.
    *
-   * @param result storage of the result (not <code>null</code>)
+   * If provided, <code>result</code> has to be a vector
+   * with as many elements as the number of rows of <code>this</code> matrix.
+   *
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> max-norm of each row of <code>this</code> matrix
    */
   public Matrix rowNormsI(Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (1 <= cols);
-    assert (result != null && result.rows() == rows && result.cols() == 1);
+    result = rowNormsResult(result, rows, cols);
     for (int i = 0; i < rows; ++i) {
       double n = 0.0;
       for (int j = 0; j < cols; ++j) {
@@ -1452,13 +1487,16 @@ public abstract class Matrix {
    * @return <code>result</code> max-norm of each row of <code>this</code> matrix
    */
   public Matrix rowNormsI() {
-    return rowNormsI(create(rows(),1));
+    return rowNormsI(null);
   }
 
   /**
    * Computes the 1-norm of each column.
    *
-   * @param result storage of the result (not <code>null</code>)
+   * If provided, <code>result</code> has to be a vector
+   * with as many elements as the number of columns of <code>this</code> matrix.
+   *
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> 1-norm of each column of <code>this</code> matrix
    */
   public Matrix colNorms1(Matrix result) {
@@ -1477,7 +1515,10 @@ public abstract class Matrix {
   /**
    * Computes the 2-norm of each column.
    *
-   * @param result storage of the result (not <code>null</code>)
+   * If provided, <code>result</code> has to be a vector
+   * with as many elements as the number of columns of <code>this</code> matrix.
+   *
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> 2-norm of each column of <code>this</code> matrix
    */
   public Matrix colNorms2(Matrix result) {
@@ -1496,7 +1537,10 @@ public abstract class Matrix {
   /**
    * Computes the max-norm of each column.
    *
-   * @param result storage of the result (not <code>null</code>)
+   * If provided, <code>result</code> has to be a vector
+   * with as many elements as the number of columns of <code>this</code> matrix.
+   *
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> max-norm of each column of <code>this</code> matrix
    */
   public Matrix colNormsI(Matrix result) {
@@ -1516,17 +1560,23 @@ public abstract class Matrix {
   // row and column summations
 
   /**
-   * Returns the sum of the rows (in <code>result</code>).
+   * Returns the sum of each row (in <code>result</code>).
    *
-   * The length of <code>result</code> has to be the column number of
-   * <code>this</code> matrix.
+   * If provided, <code>result</code> has to be a vector
+   * with as many elements as the number of columns of <code>this</code> matrix.
    *
-   * @param result storage of the result (not <code>null</code>)
-   * @return sum of rows
+   * @param result storage of the result (or <code>null</code>)
+   * @return sum of rows in a column vector
    */
   public Matrix sumRows(Matrix result) {
     final int rows = rows(), cols = cols();
-    assert (result != null && result.rows() == 1 && result.cols() == cols);
+    if (result == null) { result = create(1, cols); }
+    else {
+      if (result.rows() > 1 && result.cols() == 1) {
+        result = result.T();
+      }
+      assert (result.rows() == 1 && result.cols() == cols);
+    }
     for (int j = 0; j < cols; ++j) {
       double s = 0.0;
       for (int i = 0; i < rows; ++i) { s += get(i,j); }
@@ -1538,32 +1588,32 @@ public abstract class Matrix {
   /**
    * Returns the sum of the rows (in new vector).
    *
-   * @return sum of rows
+   * @return sum of rows in a column vector
    */
   public Matrix sumRows() {
-    return sumRows(create(1, cols()));
+    return sumRows(null);
   }
 
   /**
    * Returns the sum of the columns (in <code>result</code>).
    *
-   * The length of <code>result</code> has to be the row number of
-   * <code>this</code> matrix.
+   * If provided, <code>result</code> has to be a vector
+   * with as many elements as the number of rows of <code>this</code> matrix.
    *
-   * @param result storage of the result (not <code>null</code>)
-   * @return sum of columns
+   * @param result storage of the result (or <code>null</code>)
+   * @return sum of columns in a row vector
    */
   public Matrix sumCols(Matrix result) {
-    return T().sumRows(result.T()).T();
+    return T().sumRows(result).T();
   }
 
   /**
    * Returns the sum of the columns (in new vector).
    *
-   * @return sum of columns
+   * @return sum of columns in a row vector
    */
   public Matrix sumCols() {
-    return sumCols(create(rows(), 1));
+    return sumCols(null);
   }
 
   //----------------------------------------------------------------------------
@@ -2214,19 +2264,25 @@ public abstract class Matrix {
    * should match the side length of the square matrices.
    *
    * @param result storage of the result
-   *               (not <code>null</code> and not equal to <code>this</code>)
-   * @param tmpM temporary matrix (not <code>null</code> and not equal to
-   *             <code>this</code>, having size of <code>rows() x cols()</code>)
+   *               (either <code>null</code> or not equal to <code>this</code>)
+   * @param tmpM temporary matrix (either <code>null</code> or not equal to
+   *             <code>this</code>, having size at least <code>rows() x cols()</code>)
    * @param tmpP temporary permutation
-   *             (not <code>null</code> with size of <code>rows()</code>)
+   *             (either <code>null</code> or with size at least <code>rows()</code>)
    * @return <code>result</code> holding the matrix inverse
    * @throws UnsupportedOperationException if the matrix is singular
    */
   public Matrix inv(Matrix result, Matrix tmpM, Permutation tmpP) {
-    assert (rows() == cols());
-    assert (result != null && result.rows() == rows() && result.cols() == cols());
+    final int rows = rows(), cols = cols();
+    assert (rows == cols);
+    if (result == null) { result = create(rows, cols); }
+    else { assert (result.rows() == rows && result.cols() == cols); }
+    if (tmpM == null) { tmpM = create(rows, cols); }
+    else { assert (tmpM.rows() >= rows && tmpM.cols() >= cols); }
+    if (tmpP == null) { tmpP = new Permutation(new int[rows]); }
+    else { assert (tmpP.length() >= rows); }
 
-    switch (rows()) {
+    switch (rows) {
     case 0:
       break;
     case 1: {
@@ -2330,9 +2386,7 @@ public abstract class Matrix {
    * @throws UnsupportedOperationException if the matrix is singular
    */
   public Matrix inv() {
-    return inv(create(rows(), cols()),
-               create(rows(), cols()),
-               new Permutation(new int[rows()]));
+    return inv(null, null, null);
   }
 
   /**
@@ -2340,18 +2394,20 @@ public abstract class Matrix {
    * (in <code>result</code>). Symmetry is not verified, violating this condition
    * might silently produce an invalid result.
    *
-   * Matrix <code>result</code> should be a square matrix of the same size as
-   * <code>this</code>. Matrix <code>result</code> can also be set to
-   * <code>this</code> supporting in-place operation.
+   * If provided, matrix <code>result</code> should be a square matrix
+   * of the same size as <code>this</code> matrix.
+   * Matrix <code>result</code> can also be set to <code>this</code>
+   * for in-place operation.
    *
-   * @param result storage of the result (not <code>null</code>)
+   * @param result storage of the result (or <code>null</code>)
    * @return <code>result</code> holding the matrix inverse
    * @throws UnsupportedOperationException if the matrix is singular
    */
   public Matrix invPsd(Matrix result) {
     final int n = rows();
     assert (cols() == n);
-    assert (result != null && result.rows() == n && result.cols() == n);
+    if (result == null) { result = create(n, n); }
+    else { assert (result.rows() == n && result.cols() == n); }
     // Compute the inverse of the Cholesky factor and store its transpose
     // into the upper triangular half of result.
     choleskyL(result);
@@ -2386,7 +2442,7 @@ public abstract class Matrix {
    * @throws UnsupportedOperationException if the matrix is singular
    */
   public Matrix invPsd() {
-    return invPsd(create(rows(), cols()));
+    return invPsd(null);
   }
 
   //----------------------------------------------------------------------------
