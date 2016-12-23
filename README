@@ -35,13 +35,31 @@ Generating documentation:
 
   ant doc
 
-Running all test cases:
+Running tests:
 
-  ant test
+  Running all test cases:
+
+    ant test
+
+  Running a single test case (e.g., basicReducedSVD in MatrixTests):
+
+    ant test-single -Dtestcase=MatrixTests#basicReducedSVD
 
 Running benchmarks:
 
-  ant bench
+  Running all benchmarks with a randomly generated seed:
+
+    ant bench
+
+  Specifying the random seed (e.g., 17192331):
+
+    ant bench -Dseed=17192331
+
+  Specifying the benchmarks (e.g., running the LU, QR, and SVD benchmarks):
+
+    ant bench -Dbenchmarks=LU,QR,SVD
+
+  For all the available benchmarks, see BENCHMARKS in BenchmarkRunner.
 
 Cleaning:
 

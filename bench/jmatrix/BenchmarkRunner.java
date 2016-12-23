@@ -10,58 +10,65 @@ import java.util.Random;
 /** Running benchmarks. */
 public class BenchmarkRunner
 {
-  private final String[] BENCHMARKS = {
-    "MatMulAtABenchmark",
-    "MatMulAtBBenchmark",
-    "Norm2Benchmark",
-    "DeterminantBenchmark",
-    "LUBenchmark",
-    "QRBenchmark",
-    "ReducedQRBenchmark",
-    "QRnoQBenchmark",
-    "OrthoNormBenchmark",
-    "SVDBenchmark",
-    "ReducedSVDBenchmark",
-    "CholeskyLBenchmark",
-    "CholeskyLDBenchmark",
-    "SolveEqnLUBenchmark",
-    "SolveEqnLLBenchmark",
-    "MatInvBenchmark",
-    "MatInvPsdBenchmark"
+  private static final String[] BENCHMARKS = {
+    "MatMulAtA",
+    "MatMulAtB",
+    "Norm2",
+    "Determinant",
+    "LU",
+    "QR",
+    "ReducedQR",
+    "QRnoQ",
+    "OrthoNorm",
+    "SVD",
+    "ReducedSVD",
+    "CholeskyL",
+    "CholeskyLD",
+    "SolveEqnLU",
+    "SolveEqnLL",
+    "MatInv",
+    "MatInvPsd"
   };
 
-  // Random seed (automatically generated if set to 0).
-  private final long SEED = 0;
+  private static boolean existsBenchmark(String benchmark) {
+    for (String b : BENCHMARKS) {
+      if (benchmark.equals(b)) { return true; }
+    }
+    return false;
+  }
+
+  // Default random seed (automatically generated if set to 0).
+  private static final long SEED = 0;
 
   // Number of warmup and time measured runs of a benchmark.
-  private final int NWARMUPS = 20;
-  private final int NREPEATS = 200;
+  private static final int NWARMUPS = 20;
+  private static final int NREPEATS = 200;
 
   // Benchmark input parameters.
-  private final int MINROWS = 100, MAXROWS = 300;
-  private final int MINCOLS =  50, MAXCOLS = 150;
-  private final double NNZRATIO = 0.2;
-  private final double SCALE = 1000.0;
+  private static final int MINROWS = 100, MAXROWS = 500;
+  private static final int MINCOLS =  50, MAXCOLS = 200;
+  private static final double NNZRATIO = 0.25;
+  private static final double SCALE = 1000.0;
 
   // Eigenvalue range for positive definite (pd) matrices.
-  private final double MINEIG = 0.0001;
-  private final double MAXEIG = 1000.0;
+  private static final double MINEIG = 0.0001;
+  private static final double MAXEIG = 1000.0;
 
   // Error tolerance triggering an abort by an exception.
-  private final double TOL = 1e-6;
+  private static final double TOL = 1e-6;
 
   // Turns matrix statistics report on/off.
-  private final boolean MATRIX_STAT = false;
+  private static final boolean MATRIX_STAT = false;
 
   // Turns benchmark debugging on/off.
-  private final boolean DEBUG = false;
+  private static final boolean DEBUG = false;
   // Anything printed on standard error within the benchmarks
   // will be written into the debug files named with this prefix.
-  private final String DEBUG_FILE = "JMATRIX_BENCHMARK_ERROR_";
+  private static final String DEBUG_FILE = "JMATRIX_BENCHMARK_ERROR_";
 
   // Java command and classpath.
-  private final String JAVA_CMD = "java";
-  private final String CP = "bin:bin" + File.separator + "bench";
+  private static final String JAVA_CMD = "java";
+  private static final String CP = "bin:bin" + File.separator + "bench";
 
   //---------------------------------------------------------------------------
 
@@ -77,9 +84,8 @@ public class BenchmarkRunner
     return maxi;
   }
 
-  public void run() throws Exception {
+  public void run(long seed, String[] benchmarks) throws Exception {
     // determine random seed
-    long seed = SEED;
     if (0 == seed) {
       seed = new Random().nextLong();
     }
@@ -93,10 +99,17 @@ public class BenchmarkRunner
     System.out.println("Running benchmarks...");
     System.out.println();
     BenchmarkData[] data = new BenchmarkData[BENCHMARKS.length];
-    for (int b = 0; b < BENCHMARKS.length; ++b) {
-      String classname = BENCHMARKS[b];
-      System.out.println("  " + classname);
-
+    for (int b = 0; b < benchmarks.length; ++b) {
+      data[b] = null;
+      
+      String benchmark = benchmarks[b];
+      if (!existsBenchmark(benchmark)) {
+        System.out.println("  " + benchmark + " does not exist!");
+        continue;
+      }
+      System.out.println("  " + benchmark);
+      
+      String classname = benchmark + "Benchmark";
       ProcessBuilder pb = new ProcessBuilder(JAVA_CMD,
                                              "-d64", "-Xms512m", "-Xmx512m",
                                              "-cp", CP,
@@ -279,6 +292,7 @@ public class BenchmarkRunner
 
     int namecmax = 3, mincmax = 3, avgcmax = 3, stdcmax = 3, maxcmax = 3;
     for (BenchmarkData bd : data) {
+      if (bd == null) { continue; }
       namecmax = Math.max(namecmax, bd.name.length());
       mincmax = Math.max(mincmax, countDec(bd.time_min));
       avgcmax = Math.max(avgcmax, countDec(bd.time_avg));
@@ -286,12 +300,12 @@ public class BenchmarkRunner
       maxcmax = Math.max(maxcmax, countDec(bd.time_max));
     }
     System.out.format("  %" + namecmax + "s" +
-                        " : %" + mincmax + "s" +
-                        " | %" + avgcmax + "s" +
-                        " +- %-" + stdcmax + "s" +
-                        " | %" + maxcmax + "s" +
-                        " ,   max error \n",
-                        " ", "min", "avg", "std", "max");
+                      " : %" + mincmax + "s" +
+                      " | %" + avgcmax + "s" +
+                      " +- %-" + stdcmax + "s" +
+                      " | %" + maxcmax + "s" +
+                      " ,   max error \n",
+                      " ", "min", "avg", "std", "max");
     int ccount = namecmax + 3 + mincmax + 3 + avgcmax + 4 + stdcmax + 3 + maxcmax + 16;
     System.out.print("  ");
     for (int i = 0; i < ccount; ++i) {
@@ -300,6 +314,7 @@ public class BenchmarkRunner
     System.out.println();
 
     for (BenchmarkData bd : data) {
+      if (bd == null) { continue; }
       System.out.format("  %-" + namecmax + "s" +
                         " : %" + mincmax + "d" +
                         " | %" + avgcmax + "d" +
@@ -326,7 +341,17 @@ public class BenchmarkRunner
   public static void main(String[] args) {
     BenchmarkRunner runner = new BenchmarkRunner();
     try {
-      runner.run();
+      long seed = SEED;
+      if (args.length >= 1) {
+        seed = Long.valueOf(args[0]);
+      }
+
+      String[] benchmarks = BENCHMARKS;
+      if (args.length >= 2 && !args[1].isEmpty()) {
+        benchmarks = args[1].split(",");
+      }
+
+      runner.run(seed, benchmarks);
     }
     catch (Exception e) {
       e.printStackTrace();

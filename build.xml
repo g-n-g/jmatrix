@@ -97,6 +97,23 @@
           depends="test-matrix,test-permutation">
   </target>
 
+  <target name="test-single"
+          description="Run a given, single test."
+          depends="test-compile">
+    <property name="testcase" value=""/>
+    <java classname="jmatrix.SingleTestRunner" fork="true">
+      <arg value="jmatrix.${testcase}"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${bin}"/>
+        <pathelement location="${bin}/test"/>
+        <pathelement location="${junit}"/>
+        <pathelement location="${hamcrest}"/>
+      </classpath>
+    </java>
+  </target>
+
   <!-- benchmark targets -->
 
   <target name="bench-compile"
@@ -114,7 +131,11 @@
   <target name="bench"
           description="Run benchmarks."
           depends="bench-compile">
+    <property name="seed" value=""/>
+    <property name="benchmarks" value=""/>
     <java classname="jmatrix.BenchmarkRunner">
+      <arg value="${seed}"/>
+      <arg value="${benchmarks}"/>
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
