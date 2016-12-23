@@ -1,5 +1,5 @@
 <project name="jmatrix" default="compile" basedir=".">
-  <property name="java-libs" location="/usr/share/java"/>
+  <property name="java-home" location="/usr/share/java"/>
   <property name="src" location="src"/>
   <property name="bin" location="bin"/>
   <property name="doc" location="doc"/>
@@ -8,8 +8,8 @@
 
   <!-- properties -->
 
-  <property name="junit" location="${java-libs}/junit4.jar"/>
-  <property name="hamcrest" location="${java-libs}/hamcrest-core.jar"/>
+  <property name="junit" location="${java-home}/junit4.jar"/>
+  <property name="hamcrest" location="${java-home}/hamcrest-core.jar"/>
 
   <presetdef name="java-compile">
     <javac includeantruntime="false"/>
@@ -19,12 +19,10 @@
     <format property='build.time' pattern='yyyy-MM-dd HH:mm:ss'/>
   </tstamp>
   <echo>
-    Build File : ${ant.file} 
-    Run Date   : ${build.time}
-    Run by     : ${user.name}
-    Source Dir : ${src}
-    Base Dir   : ${basedir}
-    Java Home  : ${java.home}
+    Build file   : ${ant.file} 
+    Source dir   : ${src}
+    Run by/at    : ${user.name} @ ${build.time}
+    Java version : ${java.version}
   </echo>
 
   <!-- compilation targets -->

@@ -2712,7 +2712,7 @@ public abstract class Matrix {
       k = rank;
       while (j < cols) {
         V.set(k, j, 1.0);
-        if(0 == V.orthonormalize(j, j+1, V)) { ++j; } else { V.set(k, j, 0.0); }
+        if (0 == V.orthonormalize(j, j+1, V)) { ++j; } else { V.set(k, j, 0.0); }
         k = (k+1) % cols;
       }
     }
