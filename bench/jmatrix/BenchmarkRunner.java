@@ -342,7 +342,7 @@ public class BenchmarkRunner
     BenchmarkRunner runner = new BenchmarkRunner();
     try {
       long seed = SEED;
-      if (args.length >= 1) {
+      if (args.length >= 1 && !args[0].isEmpty()) {
         seed = Long.valueOf(args[0]);
       }
 

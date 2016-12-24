@@ -1,7 +1,5 @@
 Refactoring:
 
-Check tmpW size comment for QR.
-
 -------------------------------------------------------------------------------
 Functionality:
 
@@ -12,7 +10,6 @@ column pivoting for QR decomposition
 -------------------------------------------------------------------------------
 Performance:
 
-Initial reducedQR to improve reducedSVD performance.
 Check QR decomposition by Givens rotations.
 Try to optimize Q matrix computation for QR decomposition.
 

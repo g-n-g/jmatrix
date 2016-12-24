@@ -1773,11 +1773,16 @@ public abstract class Matrix {
     assert ((Q == null && !isReduced) || (Q.rows() == rows && Q.cols() == midrc));
     assert (R != null && R != Q && R.rows() == midrc && R.cols() == cols);
     if (midrc == 0) { return; }
-    assert (tmpW != null && tmpW != Q && tmpW != R);
 
     final int t = Math.min(rows-1, cols);
-    if (tmpW.cols() > tmpW.rows()) { tmpW = tmpW.T(); }
-    assert (isReduced ? tmpW.rows() >= rows : tmpW.rows() >= t);
+    if (tmpW == null) {
+      tmpW = create(isReduced ? rows : t, 1);
+    }
+    else {
+      assert (tmpW != Q && tmpW != R);
+      if (tmpW.cols() > tmpW.rows()) { tmpW = tmpW.T(); }
+      assert (isReduced ? tmpW.rows() >= rows : tmpW.rows() >= t);
+    }
 
     final Matrix A = (isReduced && rows > cols) ? Q : R;
     copy(A);
@@ -1832,8 +1837,8 @@ public abstract class Matrix {
       int j = midrc-1, jj = 0;
       if (A == Q) {
         T = tmpW;
-        tmpW.setToZeros();
-        tmpW.set(j, 0, 1.0);
+        T.setToZeros();
+        T.set(j, 0, 1.0);
       }
       else {
         Q.setToEye();
@@ -1859,12 +1864,12 @@ public abstract class Matrix {
 
         if (T == tmpW) {
           for (int i = 0; i < rows; ++i) {
-            Q.set(i, j, tmpW.get(i,0));
+            Q.set(i, j, T.get(i,0));
           }
           if (j == 0) { break; }
           --j;
-          tmpW.setToZeros();
-          tmpW.set(j, 0, 1.0);
+          T.setToZeros();
+          T.set(j, 0, 1.0);
         }
         else {
           if (j == 0) { break; }
@@ -1915,7 +1920,7 @@ public abstract class Matrix {
     int minrc = Math.min(rows, cols);
     Matrix Q = create(rows, minrc);
     Matrix R = create(minrc, cols);
-    reducedQR(Q, R, Matrix.create(rows, 1));
+    reducedQR(Q, R, null);
     return new Matrix[]{Q, R};
   }
 
@@ -1949,7 +1954,7 @@ public abstract class Matrix {
     final int rows = rows(), cols = cols();
     Matrix Q = create(rows, rows);
     Matrix R = zeros(rows, cols);
-    QR(Q, R, Matrix.create(Math.min(rows-1, cols), 1));
+    QR(Q, R, null);
     return new Matrix[]{Q, R};
   }
 
@@ -2597,7 +2602,7 @@ public abstract class Matrix {
           double sn = cs * t;
 
           // update terminal condition
-          if (!isUpdated && c > Math.sqrt((TOL*a)*(TOL*b))) {
+          if (!isUpdated && c*c > (TOL*a)*(TOL*b)) {
             isUpdated = true;
           }
 
@@ -2630,10 +2635,9 @@ public abstract class Matrix {
           double t = U.get(k,i);
           sigma += t*t;
         }
-        sigma = Math.sqrt(sigma);
         if (sigma > maxsigma) { maxsigma = sigma; }
       }
-      U.set(0, 0, maxsigma * scale);
+      U.set(0, 0, Math.sqrt(maxsigma) * scale);
       return 0; // largest singular value is returned in U(0,0) 
     }
 
