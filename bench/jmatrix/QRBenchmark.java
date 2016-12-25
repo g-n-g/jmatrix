@@ -6,8 +6,8 @@ public final class QRBenchmark extends Benchmark
   private Matrix Q, R;
 
   @Override
-  public String name() {
-    return "QR";
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
   }
 
   @Override

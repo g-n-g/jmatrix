@@ -6,11 +6,6 @@ public final class MatInvPsdBenchmark extends Benchmark
   private Matrix Ainv;
 
   @Override
-  public String name() {
-    return "MatInvPsd";
-  }
-
-  @Override
   protected BenchmarkType type() {
     return BenchmarkType.A_PD;
   }

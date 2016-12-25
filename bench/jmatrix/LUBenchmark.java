@@ -6,8 +6,8 @@ public final class LUBenchmark extends Benchmark
   private Matrix L, U, P;
 
   @Override
-  public String name() {
-    return "LU";
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
   }
 
   @Override

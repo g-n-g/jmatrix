@@ -6,8 +6,8 @@ public final class ReducedQRBenchmark extends Benchmark
   private Matrix Q, R;
 
   @Override
-  public String name() {
-    return "QR (reduced)";
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
   }
 
   @Override

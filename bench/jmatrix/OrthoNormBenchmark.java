@@ -6,8 +6,8 @@ public final class OrthoNormBenchmark extends Benchmark
   private Matrix M;
 
   @Override
-  public String name() {
-    return "OrthoNorm";
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
   }
 
   @Override

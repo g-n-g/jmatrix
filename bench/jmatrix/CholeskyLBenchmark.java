@@ -6,11 +6,6 @@ public final class CholeskyLBenchmark extends Benchmark
   private Matrix L;
 
   @Override
-  public String name() {
-    return "Cholesky LL";
-  }
-
-  @Override
   protected BenchmarkType type() {
     return BenchmarkType.A_PD;
   }

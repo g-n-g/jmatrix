@@ -6,11 +6,6 @@ public final class SolveEqnLLBenchmark extends Benchmark
   private Matrix x;
 
   @Override
-  public String name() {
-    return "SolveEqn (LL)";
-  }
-
-  @Override
   protected BenchmarkType type() {
     return BenchmarkType.Ab_PD;
   }

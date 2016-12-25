@@ -92,9 +92,25 @@
     </java>
   </target>
 
+  <target name="test-examples"
+          description="Test the examples."
+          depends="test-compile">
+    <java classname="org.junit.runner.JUnitCore" fork="true">
+      <arg value="jmatrix.Examples"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${bin}"/>
+        <pathelement location="${bin}/test"/>
+        <pathelement location="${junit}"/>
+        <pathelement location="${hamcrest}"/>
+      </classpath>
+    </java>
+  </target>
+
   <target name="test"
           description="Run all tests."
-          depends="test-matrix,test-permutation">
+          depends="test-matrix,test-permutation,test-examples">
   </target>
 
   <target name="test-single"

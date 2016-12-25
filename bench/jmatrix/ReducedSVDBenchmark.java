@@ -8,8 +8,8 @@ public final class ReducedSVDBenchmark extends Benchmark
   private Matrix U, S, V;
 
   @Override
-  public String name() {
-    return "SVD (reduced)";
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
   }
 
   @Override

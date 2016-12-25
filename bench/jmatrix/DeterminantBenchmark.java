@@ -6,11 +6,6 @@ public final class DeterminantBenchmark extends Benchmark
   private double det;
 
   @Override
-  public String name() {
-    return "Determinant";
-  }
-
-  @Override
   protected BenchmarkType type() {
     return BenchmarkType.A_PD;
   }

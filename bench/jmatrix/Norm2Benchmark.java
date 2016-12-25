@@ -6,8 +6,8 @@ public final class Norm2Benchmark extends Benchmark
   private double norm2;
 
   @Override
-  public String name() {
-    return "Norm2";
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
   }
 
   @Override

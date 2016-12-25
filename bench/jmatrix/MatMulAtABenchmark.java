@@ -6,8 +6,8 @@ public final class MatMulAtABenchmark extends MatMulBenchmark
   private Matrix AtA;
 
   @Override
-  public String name() {
-    return "MatMul (AtA)";
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
   }
 
   @Override

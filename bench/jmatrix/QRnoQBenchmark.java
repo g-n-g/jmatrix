@@ -6,8 +6,8 @@ public final class QRnoQBenchmark extends Benchmark
   private Matrix Q, R;
 
   @Override
-  public String name() {
-    return "QR (noQ)";
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
   }
 
   @Override

@@ -32,21 +32,27 @@ public abstract class Benchmark
   //---------------------------------------------------------------------------
 
   /** Returns the name of the benchmark. */
-  public abstract String name();
+  final public String name() {
+    String name = getClass().getSimpleName();
+    if (name.endsWith("Benchmark")) {
+      name = name.substring(0, name.length()-9);
+    }
+    return name;
+  }
 
-  /** Matrix input types. */
+  /** Matrix input types (RG: regular, PD: positive-definite). */
   protected enum BenchmarkType {
-    A_RG, A_PD, Ab_PD, AB_RG
+    A_RG, A_PD, Ab_RG, Ab_PD, AB_RG
   }
 
   /** Chooses input type for the benchmark. */
   protected BenchmarkType type() {
-    return BenchmarkType.A_RG;
+    return null; // undefined
   }
 
   /** Benchmark specific scaling. */
   protected double customScaling(Matrix A, Matrix bB) {
-    return 1.0;
+    return 1.0; // no scaling
   }
 
   /** Performs the benchmarked computation. */
@@ -172,17 +178,25 @@ public abstract class Benchmark
     Matrix bB = null, bBcopy = null;
     for (int r = 0; r < nwarmups+nrepeats; ++r) {
       switch (type()) {
-      case A_RG :
+      case A_RG:
         A = randMatrix(rngA,
                        minrows, maxrows, mincols, maxcols,
                        nnzratio, scale, tol);
         break;
-      case A_PD :
+      case A_PD:
         A = randPdMatrix(rngA,
                          minsize, maxsize,
                          mineig, maxeig, tol);
         break;
-      case Ab_PD :
+      case Ab_RG:
+        A = randMatrix(rngA,
+                       minrows, maxrows, mincols, maxcols,
+                       nnzratio, scale, tol);
+        bB = randMatrix(rngbB,
+                        A.rows(), A.rows(), 1, 1,
+                        0.0, scale, tol);
+        break;
+      case Ab_PD:
         A = randPdMatrix(rngA,
                          minsize, maxsize,
                          mineig, maxeig, tol);
@@ -190,7 +204,7 @@ public abstract class Benchmark
                         A.rows(), A.rows(), 1, 1,
                         0.0, scale, tol);
         break;
-      case AB_RG :
+      case AB_RG:
         A = randMatrix(rngA,
                        minrows, maxrows, mincols, maxcols,
                        nnzratio, scale, tol);
@@ -198,7 +212,7 @@ public abstract class Benchmark
                         A.rows(), A.rows(), A.cols(), A.cols(),
                         nnzratio, scale, tol);
         break;
-      default :
+      default:
         throw new BenchmarkException("Unhandled input type: " + type() + "!");
       }
       double cs = customScaling(A, bB);

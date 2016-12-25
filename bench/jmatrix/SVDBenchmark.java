@@ -6,8 +6,8 @@ public final class SVDBenchmark extends Benchmark
   private Matrix U, S, V;
 
   @Override
-  public String name() {
-    return "SVD";
+  protected BenchmarkType type() {
+    return BenchmarkType.A_RG;
   }
 
   @Override
