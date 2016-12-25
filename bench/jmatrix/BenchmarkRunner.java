@@ -96,8 +96,10 @@ public class BenchmarkRunner
     if (MATRIX_STAT) { reportMatrixStatistics(seed); }
 
     // run the benchmarks
+    double ts = System.nanoTime();
     System.out.println("Running benchmarks...");
-    System.out.println();
+    System.out.format("  %20s : %9s\n", "", "start (s)");
+    System.out.flush();
     BenchmarkData[] data = new BenchmarkData[BENCHMARKS.length];
     for (int b = 0; b < benchmarks.length; ++b) {
       data[b] = null;
@@ -107,7 +109,8 @@ public class BenchmarkRunner
         System.out.println("  " + benchmark + " does not exist!");
         continue;
       }
-      System.out.println("  " + benchmark);
+      System.out.format("  %20s : %9.1f\n", benchmark, (System.nanoTime()-ts) / 1e9);
+      System.out.flush();
       
       String classname = benchmark + "Benchmark";
       ProcessBuilder pb = new ProcessBuilder(JAVA_CMD,
