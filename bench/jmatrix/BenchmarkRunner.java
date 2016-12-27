@@ -24,13 +24,13 @@ public class BenchmarkRunner
     "ReducedSVD",
     "CholeskyL",
     "CholeskyLD",
+    "MatInv",
+    "MatInvPsd",
     "SolvePDEqnLL",
     "SolvePDEqnLU",
     "SolveLSFCREqnLL",
     "SolveLSFCREqnQRnoQ",
-    "SolveLSFCREqnReducedQR",
-    "MatInv",
-    "MatInvPsd"
+    "SolveLSFCREqnReducedQR"
   };
 
   private static boolean existsBenchmark(String benchmark) {
