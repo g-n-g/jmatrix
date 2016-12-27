@@ -101,7 +101,7 @@ public class BenchmarkRunner
     // run the benchmarks
     double ts = System.nanoTime();
     System.out.println("Running benchmarks...");
-    System.out.format("  %25s : %9s\n", "", "start (s)");
+    System.out.format("  %25s : %10s\n", "", "elapsed(s)");
     System.out.flush();
     BenchmarkData[] data = new BenchmarkData[BENCHMARKS.length];
     for (int b = 0; b < benchmarks.length; ++b) {
@@ -112,7 +112,7 @@ public class BenchmarkRunner
         System.out.println("  " + benchmark + " does not exist!");
         continue;
       }
-      System.out.format("  %25s : %9.1f\n", benchmark, (System.nanoTime()-ts) / 1e9);
+      System.out.format("  %25s : %10.0f\n", benchmark, (System.nanoTime()-ts) / 1e9);
       System.out.flush();
       
       String classname = benchmark + "Benchmark";
