@@ -75,6 +75,9 @@ Cleaning:
 -------------------------------------------------------------------------------
 USAGE EXAMPLES:
 
+import jmatrix.Matrix;
+import static jmatrix.Matrix.NR;
+
 Solution of A*x = b for x, where A is full rank:
 
   Matrix A = Matrix.create(2., -3., -1., 2., NR,

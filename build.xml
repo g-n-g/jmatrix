@@ -18,29 +18,58 @@
   <tstamp>
     <format property='build.time' pattern='yyyy-MM-dd HH:mm:ss'/>
   </tstamp>
-  <echo>
-    Build file   : ${ant.file} 
-    Source dir   : ${src}
-    Run by/at    : ${user.name} @ ${build.time}
-    Java version : ${java.version}
-  </echo>
+
+  <available file=".git" type="dir" property="git.present"/>
 
   <!-- compilation targets -->
 
-  <target name="compile" description="Compile the jmatrix package without debug info.">
+  <target name="git.commit" description="Store git revision in ${git.revision}" if="git.present">
+    <exec executable="git" outputproperty="git.commit"
+          failifexecutionfails="false" errorproperty="">
+      <arg value="describe"/>
+      <arg value="--tags"/>
+      <arg value="--always"/>
+      <arg value="HEAD"/>
+    </exec>
+    <condition property="git.revision" value="${git.commit}" else="unknown">
+      <and>
+        <isset property="git.commit"/>
+        <length string="${git.commit}" trim="yes" length="0" when="greater"/>
+      </and>
+    </condition>
+  </target>
+
+  <target name="print.info" depends="git.commit">
+    <echo>
+      Build file   : ${ant.file} 
+      Source dir   : ${src}
+      Run by/at    : ${user.name} @ ${build.time}
+      Java version : ${java.version}
+      Git commit   : ${git.commit}
+    </echo>
+  </target>
+  
+  <target name="compile"
+          description="Compile the jmatrix package without debug info."
+          depends="print.info">
     <java-compile srcdir="${src}/jmatrix" destdir="${bin}"/>
   </target>
 
-  <target name="compile-debug" description="Compile the jmatrix package with debug info.">
+  <target name="compile-debug"
+          description="Compile the jmatrix package with debug info."
+          depends="print.info">
     <java-compile srcdir="${src}/jmatrix" destdir="${bin}" debug="true"/>
   </target>
 
-  <target name="jar" description="Make a jar file." depends="compile">
+  <target name="jar"
+          description="Building thje jmatrix library jar file."
+          depends="compile">
     <jar destfile="jmatrix.jar" basedir="${bin}">
       <exclude name=".keep"/>
       <exclude name="**/test/**"/>
+      <exclude name="**/bench/**"/>
       <manifest>
-        <attribute name="Version" value="1.0-dev"/>
+        <attribute name="Version" value="git:${git.revision}"/>
       </manifest>
     </jar>
   </target>
@@ -96,7 +125,7 @@
           description="Test the examples."
           depends="test-compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="jmatrix.Examples"/>
+      <arg value="jmatrix.example.Examples"/>
       <jvmarg value="-ea"/>
       <classpath>
         <pathelement path="${classpath}"/>
