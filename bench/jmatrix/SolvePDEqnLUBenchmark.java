@@ -1,7 +1,7 @@
 package jmatrix;
 
-/** Benchmark of equation solving by LU decomposition. */
-public final class SolveEqnLUBenchmark extends Benchmark
+/** Benchmark of positive-definite equation solving by LU decomposition. */
+public final class SolvePDEqnLUBenchmark extends Benchmark
 {
   private Matrix x;
 

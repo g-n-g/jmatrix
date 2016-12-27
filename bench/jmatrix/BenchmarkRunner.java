@@ -24,8 +24,11 @@ public class BenchmarkRunner
     "ReducedSVD",
     "CholeskyL",
     "CholeskyLD",
-    "SolveEqnLU",
-    "SolveEqnLL",
+    "SolvePDEqnLL",
+    "SolvePDEqnLU",
+    "SolveLSFCREqnLL",
+    "SolveLSFCREqnQRnoQ",
+    "SolveLSFCREqnReducedQR",
     "MatInv",
     "MatInvPsd"
   };
@@ -55,13 +58,13 @@ public class BenchmarkRunner
   private static final double MAXEIG = 1000.0;
 
   // Error tolerance triggering an abort by an exception.
-  private static final double TOL = 1e-6;
+  private static final double TOL = 5e-6;
 
   // Turns matrix statistics report on/off.
   private static final boolean MATRIX_STAT = false;
 
   // Turns benchmark debugging on/off.
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
   // Anything printed on standard error within the benchmarks
   // will be written into the debug files named with this prefix.
   private static final String DEBUG_FILE = "JMATRIX_BENCHMARK_ERROR_";
@@ -98,7 +101,7 @@ public class BenchmarkRunner
     // run the benchmarks
     double ts = System.nanoTime();
     System.out.println("Running benchmarks...");
-    System.out.format("  %20s : %9s\n", "", "start (s)");
+    System.out.format("  %25s : %9s\n", "", "start (s)");
     System.out.flush();
     BenchmarkData[] data = new BenchmarkData[BENCHMARKS.length];
     for (int b = 0; b < benchmarks.length; ++b) {
@@ -109,7 +112,7 @@ public class BenchmarkRunner
         System.out.println("  " + benchmark + " does not exist!");
         continue;
       }
-      System.out.format("  %20s : %9.1f\n", benchmark, (System.nanoTime()-ts) / 1e9);
+      System.out.format("  %25s : %9.1f\n", benchmark, (System.nanoTime()-ts) / 1e9);
       System.out.flush();
       
       String classname = benchmark + "Benchmark";

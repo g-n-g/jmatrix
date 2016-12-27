@@ -1,7 +1,7 @@
 package jmatrix;
 
-/** Benchmark of equation solving by Cholesky LL decomposition. */
-public final class SolveEqnLLBenchmark extends Benchmark
+/** Benchmark of positive-definite equation solving by Cholesky LL decomposition. */
+public final class SolvePDEqnLLBenchmark extends Benchmark
 {
   private Matrix x;
 

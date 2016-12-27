@@ -42,7 +42,7 @@ public abstract class Benchmark
 
   /** Matrix input types (RG: regular, PD: positive-definite). */
   protected enum BenchmarkType {
-    A_RG, A_PD, Ab_RG, Ab_PD, AB_RG
+    A_RG, A_PD, Ab_RG, Ab_PD, AB_RG, Ab_FCR
   }
 
   /** Chooses input type for the benchmark. */
@@ -65,17 +65,19 @@ public abstract class Benchmark
 
   //---------------------------------------------------------------------------
 
+  public static int randInt(Random rng, int min, int max) {
+    assert (max >= min);
+    if (max == min) { return min; }
+    return min + rng.nextInt(max-min);
+  }
+
   /** Generates a random matrix. */
   public static Matrix randMatrix(Random rng,
                                   int minrows, int maxrows,
                                   int mincols, int maxcols,
                                   double nnzratio, double scale, double tol) {
-    int Arows = (minrows == maxrows) ?
-      minrows : minrows + rng.nextInt(maxrows-minrows);
-
-    int Acols = (mincols == maxcols) ?
-      mincols : mincols + rng.nextInt(maxcols-mincols);
-
+    int Arows = randInt(rng, minrows, maxrows);
+    int Acols = randInt(rng, mincols, maxcols);
     Matrix A = Matrix.randN(Arows, Acols, rng).mul(rng.nextDouble()*scale);
 
     if (nnzratio > 0) {
@@ -112,6 +114,35 @@ public abstract class Benchmark
 
     Matrix S = Matrix.rand(size, 1, rng).mul(maxeig-mineig).add(mineig);
     return Q.ewb(MUL, S.T()).mul(Q.T());
+  }
+
+  public static Matrix randOrthoMatrix(Random rng, int size, double tol) {
+    Matrix Q = null;
+    for (;;) {
+      Matrix QR[] = Matrix.randN(size, size, rng).QR();
+      Q = QR[0];
+      boolean isFound = false;
+      for (int i = 0; i < size; ++i) {
+        if (Math.abs(Q.get(i,i)) < tol) {
+          isFound = true;
+          break;
+        }
+      }
+      if (!isFound) { break; }
+    }
+    return Q;
+  }
+
+  public static Matrix randDiagMatrix(Random rng, int nrows, int ncols,
+                                      double scale, double offset) {
+    Matrix D = Matrix.zeros(nrows, ncols);
+    for (int i = 0; i < Math.min(nrows, ncols); ++i) {
+      double v = rng.nextDouble()*scale;
+      double s = Math.signum(v);
+      if (s == 0.0) { s = 1.0; }
+      D.set(i, i, v + s*offset);
+    }
+    return D;
   }
 
   /** Runs the benchmark and saves report data to a file. */
@@ -212,6 +243,17 @@ public abstract class Benchmark
                         A.rows(), A.rows(), A.cols(), A.cols(),
                         nnzratio, scale, tol);
         break;
+      case Ab_FCR: {
+        int nrows = randInt(rngA, minrows, maxrows);
+        int ncols = randInt(rngA, 1, nrows);
+        A = randOrthoMatrix(rngA, nrows, tol)
+          .mul(randDiagMatrix(rngA, nrows, ncols, scale, 2*tol))
+          .mul(randOrthoMatrix(rngA, ncols, tol));
+        bB = randMatrix(rngbB,
+                        A.rows(), A.rows(), 1, 1,
+                        0.0, scale, tol);
+        break;
+      }
       default:
         throw new BenchmarkException("Unhandled input type: " + type() + "!");
       }

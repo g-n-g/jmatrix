@@ -1761,7 +1761,8 @@ public abstract class Matrix {
     final int rows = rows(), cols = cols();
     final int midrc = isReduced ? Math.min(rows, cols) : rows;
 
-    assert ((Q == null && !isReduced) || (Q.rows() == rows && Q.cols() == midrc));
+    assert ((Q == null && !isReduced) ||
+            (Q != null && Q.rows() == rows && Q.cols() == midrc));
     assert (R != null && R != Q && R.rows() == midrc && R.cols() == cols);
     if (midrc == 0) { return; }
 
@@ -1911,7 +1912,7 @@ public abstract class Matrix {
     int minrc = Math.min(rows, cols);
     Matrix Q = create(rows, minrc);
     Matrix R = create(minrc, cols);
-    reducedQR(Q, R, null);
+    QR(Q, R, null, true);
     return new Matrix[]{Q, R};
   }
 
@@ -1949,7 +1950,7 @@ public abstract class Matrix {
     final int rows = rows(), cols = cols();
     Matrix Q = withComputingQ ? create(rows, rows) : null;
     Matrix R = zeros(rows, cols);
-    QR(Q, R, null);
+    QR(Q, R, null, false);
     return new Matrix[]{Q, R};
   }
 
@@ -2110,20 +2111,20 @@ public abstract class Matrix {
    * @return x as the solution for L*x = b
    */
   public Matrix backsL(Matrix b, boolean isUnitDiag, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (rows == cols);
-    assert (b != null && b.rows() == rows && b.cols() == 1);
-    if (result == null) { result = create(rows, 1); }
+    final int n = Math.min(rows(), cols());
+    assert (b != null && b.rows() == n && b.cols() == 1);
+    if (result == null) { result = create(n, 1); }
     else {
-      if (result.cols() > 1) { result = result.T(); }
-      assert (result.rows() == rows && result.cols() == 1);
+      assert (result.rows() == n && result.cols() == 1);
     }
-    for (int i = 0; i < rows; ++i) {
+    for (int i = 0; i < n; ++i) {
       double v = b.get(i,0);
       for (int j = 0; j < i; ++j) {
         v -= get(i,j) * result.get(j,0);
       }
-      result.set(i, 0, isUnitDiag ? v : v / get(i,i));
+      double vii = get(i,i);
+      assert (Math.abs(vii) >= TOL);
+      result.set(i, 0, isUnitDiag ? v : v / vii);
     }
     return result;
   }
@@ -2176,20 +2177,20 @@ public abstract class Matrix {
    * @return x as the solution for U*x = b
    */
   public Matrix backsU(Matrix b, boolean isUnitDiag, Matrix result) {
-    final int rows = rows(), cols = cols();
-    assert (rows == cols);
-    assert (b != null && b.rows() == rows && b.cols() == 1);
-    if (result == null) { result = create(rows, 1); }
+    final int n = Math.min(rows(), cols());
+    assert (b != null && b.rows() == n && b.cols() == 1);
+    if (result == null) { result = create(n, 1); }
     else {
-      if (result.cols() > 1) { result = result.T(); }
-      assert (result.rows() == rows && result.cols() == 1);
+      assert (result.rows() == n && result.cols() == 1);
     }
-    for (int i = rows-1; i >= 0; --i) {
+    for (int i = n-1; i >= 0; --i) {
       double v = b.get(i,0);
-      for (int j = i+1; j < cols; ++j) {
+      for (int j = i+1; j < n; ++j) {
         v -= get(i,j) * result.get(j,0);
       }
-      result.set(i, 0, isUnitDiag ? v : v / get(i,i));
+      double vii = get(i,i);
+      assert (Math.abs(vii) >= TOL);
+      result.set(i, 0, isUnitDiag ? v : v / vii);
     }
     return result;
   }
@@ -2226,6 +2227,31 @@ public abstract class Matrix {
    */
   public Matrix backsU(Matrix b) {
     return backsU(b, false, null);
+  }
+
+  //----------------------------------------------------------------------------
+  // least squares solution
+
+  // TODO: ongoing work...
+
+  /** Computing the least squares solution x of A*x = b. */
+  Matrix solve(Matrix b) {
+    final int rows = rows(), cols = cols();
+    Matrix x = null;
+    if (x == null) { x = create(cols, 1); }
+    else { assert (rows == cols && cols == 1); }
+
+    if (rows >= cols) {
+      Matrix[] QR = QR(false);
+      Matrix y = QR[1].T().backsL(T().mul(b));
+      x = QR[1].backsU(y);
+    }
+    else { // rows < cols
+      Matrix[] QR = T().reducedQR();
+      Matrix y = QR[1].T().backsL(b);
+      x = QR[0].mul(y);
+    }
+    return x;
   }
 
   //----------------------------------------------------------------------------

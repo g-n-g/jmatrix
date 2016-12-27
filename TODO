@@ -1,9 +1,8 @@
 Refactoring:
 
-Comment refactor: result storage of the returned value (or <code>null</code>)
-Extending back substitution to non-square triangular matrices.
 Least squares examples and benchmarks.
-Show total runtime for running benchmarks.
+Report matrix statistics only for selected benchmarks, include FCR too.
+Make MATRIX_STAT and DEBUG available from ant.
 
 -------------------------------------------------------------------------------
 Functionality:
@@ -11,6 +10,7 @@ Functionality:
 eigenvalue and eigenvector computations
 zero pivot replacement for Cholesky decomposition
 column pivoting for QR decomposition
+LU, LL, QR, SVD decomposition updating
 
 -------------------------------------------------------------------------------
 Performance:

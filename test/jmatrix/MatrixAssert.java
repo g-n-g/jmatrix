@@ -1,5 +1,6 @@
 package jmatrix;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -17,6 +18,15 @@ public class MatrixAssert {
   /** Asserts that matrix is square. */
   public static void assertMatrixSquareSize(Matrix A) {
     assertEquals(A.rows(), A.cols());
+  }
+
+  /** Asserts that matrix has no NaN values. */
+  public static void assertMatrixHasNoNaNs(Matrix A) {
+    for (int i = 0; i < A.rows(); ++i) {
+      for (int j = 0; j < A.cols(); ++j) {
+        assertFalse(Double.isNaN(A.get(i,j)));
+      }
+    }
   }
 
   /**
