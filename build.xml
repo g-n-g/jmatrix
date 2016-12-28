@@ -1,10 +1,10 @@
 <project name="jmatrix" default="compile" basedir=".">
   <property name="java-home" location="/usr/share/java"/>
-  <property name="src" location="src"/>
   <property name="bin" location="bin"/>
   <property name="doc" location="doc"/>
-  <property name="test" location="test"/>
-  <property name="bench" location="bench"/>
+  <property name="src" location="src"/>
+  <property name="src.test" location="src-test"/>
+  <property name="src.bench" location="src-bench"/>
 
   <!-- properties -->
 
@@ -86,7 +86,7 @@
           description="Compile the test cases."
           depends="compile.debug">
     <mkdir dir="${bin}/test"/>
-    <java-compile srcdir="${test}/jmatrix" destdir="${bin}/test" debug="true">
+    <java-compile srcdir="${src.test}/jmatrix" destdir="${bin}/test" debug="true">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
@@ -171,7 +171,7 @@
           description="Compile the benchmarks."
           depends="compile">
     <mkdir dir="${bin}/bench"/>
-    <java-compile srcdir="${bench}/jmatrix/bench" destdir="${bin}/bench">
+    <java-compile srcdir="${src.bench}/jmatrix/bench" destdir="${bin}/bench">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
