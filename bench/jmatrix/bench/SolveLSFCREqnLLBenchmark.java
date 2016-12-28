@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** Benchmark of computing the least squares solution
  *  for the full column rank case by Cholesky decomposition.

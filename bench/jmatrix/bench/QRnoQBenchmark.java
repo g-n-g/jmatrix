@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** Benchmark of QR decomposition when only R is computed. */
 public final class QRnoQBenchmark extends Benchmark

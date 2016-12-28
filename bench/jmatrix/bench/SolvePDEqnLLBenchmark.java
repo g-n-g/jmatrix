@@ -1,7 +1,9 @@
-package jmatrix;
+package jmatrix.bench;
 
-/** Benchmark of positive-definite equation solving by LU decomposition. */
-public final class SolvePDEqnLUBenchmark extends Benchmark
+import jmatrix.Matrix;
+
+/** Benchmark of positive-definite equation solving by Cholesky LL decomposition. */
+public final class SolvePDEqnLLBenchmark extends Benchmark
 {
   private Matrix x;
 
@@ -12,9 +14,9 @@ public final class SolvePDEqnLUBenchmark extends Benchmark
 
   @Override
   protected void compute(Matrix A, Matrix b) throws BenchmarkException {
-    Matrix[] LU = A.LU();
-    Matrix y = LU[0].backsL(LU[2].mul(b), true);
-    x = LU[1].backsU(y, false);
+    Matrix L = A.choleskyL();
+    Matrix y = L.backsL(b, false);
+    x = L.T().backsU(y, false, y);
   }
 
   @Override

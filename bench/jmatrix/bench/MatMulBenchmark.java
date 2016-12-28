@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** Superclass of matrix multiplication benchmarks. */
 public abstract class MatMulBenchmark extends Benchmark

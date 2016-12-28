@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** Spectral norm benchmark. */
 public final class Norm2Benchmark extends Benchmark

@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** Singular value decomposition benchmark. */
 public final class SVDBenchmark extends Benchmark

@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** LL Cholesky decomposition benchmark. */
 public final class CholeskyLBenchmark extends Benchmark

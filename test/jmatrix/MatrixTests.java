@@ -32,21 +32,25 @@ public class MatrixTests {
     assertTrue(e.isEmpty());
     assertEquals(0, e.rows());
     assertEquals(0, e.cols());
+    assertEquals(0, e.nnz());
 
     e = Matrix.create(0,1);
     assertTrue(e.isEmpty());
     assertEquals(0, e.rows());
     assertEquals(1, e.cols());
+    assertEquals(0, e.nnz());
 
     e = Matrix.create(1,0);
     assertTrue(e.isEmpty());
     assertEquals(1, e.rows());
     assertEquals(0, e.cols());
+    assertEquals(0, e.nnz());
 
-    e = Matrix.create(1,1);
+    e = Matrix.ones(1,1);
     assertFalse(e.isEmpty());
     assertEquals(1, e.rows());
     assertEquals(1, e.cols());
+    assertEquals(1, e.nnz());
   }
 
   @Test public void norms() {
@@ -55,6 +59,7 @@ public class MatrixTests {
     assertEquals(0.0, z.norm2(), TOL);
     assertEquals(0.0, z.normI(), TOL);
     assertEquals(0.0, z.normF(), TOL);
+    assertEquals(0, z.nnz());
 
     Matrix m = Matrix.create(1.0, 1.5, -0.5, 1.5, NR,
                              2.0, 4.0, -4.0, 0.0, NR,
@@ -63,6 +68,7 @@ public class MatrixTests {
     assertEquals(7.65588128316469, m.norm2(), TOL);
     assertEquals(10.0, m.normI(), TOL);
     assertEquals(8.0, m.normF(), TOL);
+    assertEquals(11, m.nnz());
 
     m = Matrix.create(new double[][]{ // test this form of create
         new double[]{1.0, 1.5, -0.5, 1.5},

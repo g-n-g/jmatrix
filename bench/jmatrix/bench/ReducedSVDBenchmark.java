@@ -1,5 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
 
+import jmatrix.Matrix;
 import static jmatrix.BasicBinaryOperation.MUL;
 
 /** Reduced singular value decomposition benchmark. */

@@ -239,6 +239,25 @@ public abstract class Matrix {
   public abstract void set(int i, int j, double value);
 
   //----------------------------------------------------------------------------
+  // basic matrix properties
+
+  /**
+   * Returns the number of non-zero entries.
+   *
+   * @return number of non-zero entries
+   */
+  public int nnz() {
+    final int rows = rows(), cols = cols();
+    int nnz = 0;
+    for (int i = 0; i < rows; ++i) {
+      for (int j = 0; j < cols; ++j) {
+        if (Math.abs(get(i,j)) >= TOL) { ++nnz; }
+      }
+    }
+    return nnz;
+  }
+
+  //----------------------------------------------------------------------------
   // NaN and Inf handling
 
   /**

@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** Matrix multiplication benchmark for computing A'*A. */
 public final class MatMulAtABenchmark extends MatMulBenchmark

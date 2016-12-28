@@ -1,8 +1,7 @@
 Refactoring:
 
 Least squares examples and benchmarks.
-Report matrix statistics only for selected benchmarks, include FCR too.
-Make MATRIX_STAT and DEBUG available from ant.
+Separate matrix statistics for each benchmark type (not just A matrix stat).
 
 -------------------------------------------------------------------------------
 Functionality:

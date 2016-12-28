@@ -21,7 +21,7 @@
 
   <available file=".git" type="dir" property="git.present"/>
 
-  <!-- compilation targets -->
+  <!-- information targets -->
 
   <target name="git.commit" description="Store git revision in ${git.revision}" if="git.present">
     <exec executable="git" outputproperty="git.commit"
@@ -48,14 +48,20 @@
       Git commit   : ${git.commit}
     </echo>
   </target>
-  
+
+  <target name="doc" description="Generate API documentation.">
+    <javadoc sourcepath="${src}" destdir="${doc}"/>
+  </target>
+
+  <!-- compilation targets -->
+
   <target name="compile"
           description="Compile the jmatrix package without debug info."
           depends="print.info">
     <java-compile srcdir="${src}/jmatrix" destdir="${bin}"/>
   </target>
 
-  <target name="compile-debug"
+  <target name="compile.debug"
           description="Compile the jmatrix package with debug info."
           depends="print.info">
     <java-compile srcdir="${src}/jmatrix" destdir="${bin}" debug="true"/>
@@ -76,9 +82,9 @@
 
   <!-- test targets -->
 
-  <target name="test-compile"
+  <target name="test.compile"
           description="Compile the test cases."
-          depends="compile-debug">
+          depends="compile.debug">
     <mkdir dir="${bin}/test"/>
     <java-compile srcdir="${test}/jmatrix" destdir="${bin}/test" debug="true">
       <classpath>
@@ -89,9 +95,9 @@
     </java-compile>
   </target>
 
-  <target name="test-matrix"
+  <target name="test.matrix"
           description="Run matrix tests."
-          depends="test-compile">
+          depends="test.compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="jmatrix.MatrixTests"/>
       <jvmarg value="-ea"/>
@@ -105,9 +111,9 @@
     </java>
   </target>
 
-  <target name="test-permutation"
+  <target name="test.permutation"
           description="Run permutation tests."
-          depends="test-compile">
+          depends="test.compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="jmatrix.PermutationTests"/>
       <jvmarg value="-ea"/>
@@ -121,9 +127,9 @@
     </java>
   </target>
 
-  <target name="test-examples"
+  <target name="test.examples"
           description="Test the examples."
-          depends="test-compile">
+          depends="test.compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
       <arg value="jmatrix.example.Examples"/>
       <jvmarg value="-ea"/>
@@ -139,12 +145,12 @@
 
   <target name="test"
           description="Run all tests."
-          depends="test-matrix,test-permutation,test-examples">
+          depends="test.matrix,test.permutation,test.examples">
   </target>
 
-  <target name="test-single"
+  <target name="test.single"
           description="Run a given, single test."
-          depends="test-compile">
+          depends="test.compile">
     <property name="testcase" value=""/>
     <java classname="jmatrix.SingleTestRunner" fork="true">
       <arg value="jmatrix.${testcase}"/>
@@ -161,11 +167,11 @@
 
   <!-- benchmark targets -->
 
-  <target name="bench-compile"
+  <target name="bench.compile"
           description="Compile the benchmarks."
           depends="compile">
     <mkdir dir="${bin}/bench"/>
-    <java-compile srcdir="${bench}/jmatrix" destdir="${bin}/bench">
+    <java-compile srcdir="${bench}/jmatrix/bench" destdir="${bin}/bench">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
@@ -175,12 +181,14 @@
 
   <target name="bench"
           description="Run benchmarks."
-          depends="bench-compile">
+          depends="bench.compile">
     <property name="seed" value=""/>
     <property name="benchmarks" value=""/>
-    <java classname="jmatrix.BenchmarkRunner">
+    <property name="debug" value=""/>
+    <java classname="jmatrix.bench.BenchmarkRunner">
       <arg value="${seed}"/>
       <arg value="${benchmarks}"/>
+      <arg value="${debug}"/>
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
@@ -191,14 +199,11 @@
     </java>
   </target>
 
-  <!-- other targets -->
-
-  <target name="doc" description="Generate API documentation.">
-    <javadoc sourcepath="${src}" destdir="${doc}"/>
-  </target>
+  <!-- cleaning targets -->
 
   <target name="clean" description="Delete class files.">
     <delete dir="${bin}/jmatrix"/>
+    <delete dir="${bin}/bench"/>
     <delete dir="${bin}/test"/>
     <delete includeemptydirs="true">
       <fileset dir="${doc}" includes="*.html"/>

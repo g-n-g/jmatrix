@@ -1,5 +1,5 @@
 
-JMatrix is a dense matrix library.
+JMatrix is a dense matrix library implemented in Java.
 
 Supported matrix decompositions:
 
@@ -24,59 +24,24 @@ INSTALLATION:
 
   To run the tests and the benchmarks, install junit4.
   The junit4.jar file should be located in the directory specified in
-  the java-libs property of the build.xml file (by default: /usr/share/java).
+  the java-home property of the build.xml file (by default: /usr/share/java).
   
   These requirements can be simply met on an Ubuntu system by:
   
     sudo apt install default-jdk junit4
 
 -------------------------------------------------------------------------------
-COMPILATION, TESTS, AND BENCHMARKS:
-
-Compilation:
+COMPILATION AND DOCUMENTATION:
 
   ant compile
   ant jar
-
-Generating documentation:
-
   ant doc
-
-Running tests:
-
-  Running all test cases:
-
-    ant test
-
-  Running a single test case (e.g., basicReducedSVD in MatrixTests):
-
-    ant test-single -Dtestcase=MatrixTests#basicReducedSVD
-
-Running benchmarks:
-
-  Running all benchmarks with a randomly generated seed:
-
-    ant bench
-
-  Specifying the random seed (e.g., 17192331):
-
-    ant bench -Dseed=17192331
-
-  Specifying the benchmarks (e.g., running the LU, QR, and SVD benchmarks):
-
-    ant bench -Dbenchmarks=LU,QR,SVD
-
-  For all the available benchmarks, see BENCHMARKS in BenchmarkRunner.
-
-Cleaning:
-
-  ant clean
 
 -------------------------------------------------------------------------------
 USAGE EXAMPLES:
 
-import jmatrix.Matrix;
-import static jmatrix.Matrix.NR;
+  import jmatrix.Matrix;
+  import static jmatrix.Matrix.NR;
 
 Solution of A*x = b for x, where A is full rank:
 
@@ -92,11 +57,47 @@ Least squares solution of A*x = b for x, where A is full column rank:
 
   Matrix A = Matrix.create(1., 1., NR, 1., 2., NR, 1., 3., NR, 1., 4.);
   Matrix b = Matrix.create(6., 5., 7., 10.).T();
+  Matrix x = null; // to be computed below...
 
   // by QR decomposition
   Matrix[] QR = A.QR(false); // without computing Q
-  Matrix xQR = QR[1].backsU(QR[1].T().backsL(A.T().mul(b)));
+  x = QR[1].backsU(QR[1].T().backsL(A.T().mul(b)));
 
   // by Cholesky decomposition
   Matrix L = A.T().mul(A).choleskyL();
-  Matrix xLL = L.T().backsU(L.backsL(A.T().mul(b)));
+  x = L.T().backsU(L.backsL(A.T().mul(b)));
+
+-------------------------------------------------------------------------------
+TESTS AND BENCHMARKS:
+
+Running tests:
+~~~~~~~~~~~~~~
+  Running all test cases:
+
+    ant test
+
+  Running a single test case (e.g., basicReducedSVD in MatrixTests):
+
+    ant test.single -Dtestcase=MatrixTests#basicReducedSVD
+
+Running benchmarks:
+~~~~~~~~~~~~~~~~~~~
+  Running all benchmarks with a randomly generated seed:
+
+    ant bench
+
+  Specifying the random seed (e.g., 17192331):
+
+    ant bench -Dseed=17192331
+
+  Specifying the benchmarks (e.g., running the LU, QR, and SVD benchmarks):
+
+    ant bench -Dbenchmarks=LU,QR,SVD
+
+  For all the available benchmarks, see BENCHMARKS in jmatrix.BenchmarkRunner.
+
+  Benchmarking with debugging:
+
+    ant bench -Ddebug=true
+
+  This redirects the error output for each benchmark into a separate file.

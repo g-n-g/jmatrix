@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** Determinant benchmark. */
 public final class DeterminantBenchmark extends Benchmark

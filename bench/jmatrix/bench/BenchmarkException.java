@@ -1,4 +1,4 @@
-package jmatrix;
+package jmatrix.bench;
 
 public class BenchmarkException extends Exception
 {

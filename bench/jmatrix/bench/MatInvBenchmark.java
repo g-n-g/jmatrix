@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** Benchmark of inverting a positive definite matrix by the general method. */
 public final class MatInvBenchmark extends Benchmark

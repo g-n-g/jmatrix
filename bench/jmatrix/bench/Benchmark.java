@@ -1,9 +1,11 @@
-package jmatrix;
+package jmatrix.bench;
 
 import java.util.Random;
 
+import jmatrix.Matrix;
 import static jmatrix.BasicUnaryOperation.SIGN;
 import static jmatrix.BasicBinaryOperation.MUL;
+import jmatrix.bench.BenchmarkData.MatrixStat;
 
 /** General framework for matrix computation benchmarks. */
 public abstract class Benchmark
@@ -41,12 +43,12 @@ public abstract class Benchmark
   }
 
   /** Matrix input types (RG: regular, PD: positive-definite). */
-  protected enum BenchmarkType {
+  public enum BenchmarkType {
     A_RG, A_PD, Ab_RG, Ab_PD, AB_RG, Ab_FCR
   }
 
   /** Chooses input type for the benchmark. */
-  protected BenchmarkType type() {
+  BenchmarkType type() {
     return null; // undefined
   }
 
@@ -145,7 +147,6 @@ public abstract class Benchmark
     return D;
   }
 
-  /** Runs the benchmark and saves report data to a file. */
   public void run(String[] args) throws Exception {
     int narg = 1; // first arg (classname) is ignored here
 
@@ -207,6 +208,7 @@ public abstract class Benchmark
 
     Matrix A = null, Acopy = null;
     Matrix bB = null, bBcopy = null;
+    MatrixStat statA = new MatrixStat();
     for (int r = 0; r < nwarmups+nrepeats; ++r) {
       switch (type()) {
       case A_RG:
@@ -257,6 +259,7 @@ public abstract class Benchmark
       default:
         throw new BenchmarkException("Unhandled input type: " + type() + "!");
       }
+
       double cs = customScaling(A, bB);
       if (cs != 1.0) {
         if (A != null) { A.mul(cs, A); }
@@ -278,21 +281,24 @@ public abstract class Benchmark
       if (delta > delta_max) { delta_max = delta; }
       if (debug) { System.err.println("DONE\n"); }
 
-      if (r >= nwarmups) { // ignore time measurements for warmup rounds
+      if (r >= nwarmups) { // ignore statistics for warmup rounds
         if (ts < time_min) { time_min = ts; }
         if (ts > time_max) { time_max = ts; }
         time_avg += ts / nrepeats;
         time_std += ts*ts / nrepeats;
+        statA.add(A); // collecting matrix statistics
       }
     }
     time_std = Math.sqrt(time_std - time_avg*time_avg);
 
     System.out.println(new BenchmarkData(name(),
+                                         type(),
                                          (int)Math.ceil(time_min),
                                          (int)Math.ceil(time_max),
                                          (int)Math.ceil(time_avg),
                                          (int)Math.ceil(time_std),
-                                         delta_max));
+                                         delta_max,
+                                         statA));
     System.out.flush();
   }
 
@@ -478,7 +484,7 @@ public abstract class Benchmark
       ((Benchmark)Class.forName(args[0]).newInstance()).run(args);
     }
     catch (Exception e) {
-      System.out.println(new BenchmarkData(args[0], 0, 0, 0, 0, Double.NaN));
+      System.out.println(new BenchmarkData(args[0]));
       System.out.flush();
       e.printStackTrace();
     }

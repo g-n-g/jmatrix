@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** Orthonormalization benchmark. */
 public final class OrthoNormBenchmark extends Benchmark

@@ -1,4 +1,6 @@
-package jmatrix;
+package jmatrix.bench;
+
+import jmatrix.Matrix;
 
 /** LU decomposition benchmark. */
 public final class LUBenchmark extends Benchmark
