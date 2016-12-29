@@ -1,11 +1,11 @@
 Refactoring:
 
-Least squares examples and benchmarks.
 Separate matrix statistics for each benchmark type (not just A matrix stat).
 
 -------------------------------------------------------------------------------
 Functionality:
 
+general least squares solution (solve)
 eigenvalue and eigenvector computations
 zero pivot replacement for Cholesky decomposition
 column pivoting for QR decomposition
@@ -14,6 +14,7 @@ LU, LL, QR, SVD decomposition updating
 -------------------------------------------------------------------------------
 Performance:
 
+Check using reducedQR for the first step of SVD.
 Check QR decomposition by Givens rotations.
 Try to optimize Q matrix computation for QR decomposition.
 
