@@ -86,7 +86,7 @@
           description="Compile the test cases."
           depends="compile.debug">
     <mkdir dir="${bin}/test"/>
-    <java-compile srcdir="${src.test}/jmatrix" destdir="${bin}/test" debug="true">
+    <java-compile srcdir="${src.test}/jmatrix/test" destdir="${bin}/test" debug="true">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${bin}"/>
@@ -99,7 +99,7 @@
           description="Run matrix tests."
           depends="test.compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="jmatrix.MatrixTests"/>
+      <arg value="jmatrix.test.MatrixTests"/>
       <jvmarg value="-ea"/>
       <classpath>
         <pathelement path="${classpath}"/>
@@ -115,7 +115,7 @@
           description="Run permutation tests."
           depends="test.compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="jmatrix.PermutationTests"/>
+      <arg value="jmatrix.test.PermutationTests"/>
       <jvmarg value="-ea"/>
       <classpath>
         <pathelement path="${classpath}"/>
@@ -131,7 +131,7 @@
           description="Test the examples."
           depends="test.compile">
     <java classname="org.junit.runner.JUnitCore" fork="true">
-      <arg value="jmatrix.example.Examples"/>
+      <arg value="jmatrix.test.Examples"/>
       <jvmarg value="-ea"/>
       <classpath>
         <pathelement path="${classpath}"/>

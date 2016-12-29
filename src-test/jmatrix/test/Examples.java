@@ -1,11 +1,11 @@
-package jmatrix.example;
-
-import org.junit.Test;
-import static jmatrix.MatrixAssert.assertMatrixEquals;
+package jmatrix.test;
 
 import jmatrix.Matrix;
 import static jmatrix.Matrix.NR;
 import static jmatrix.Matrix.TOL;
+
+import org.junit.Test;
+import static jmatrix.test.MatrixAssert.assertMatrixEquals;
 
 public class Examples {
 

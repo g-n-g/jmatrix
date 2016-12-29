@@ -1,26 +1,28 @@
-package jmatrix;
+package jmatrix.test;
 
 import java.util.Random;
+
+import jmatrix.Matrix;
+import jmatrix.Permutation;
+import static jmatrix.Matrix.NR;
+import static jmatrix.Matrix.TOL;
+import static jmatrix.BasicUnaryOperation.*;
+import static jmatrix.BasicBinaryOperation.*;
 
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 
-import static jmatrix.MatrixAssert.assertMatrixEquals;
-import static jmatrix.MatrixAssert.assertMatrixLT;
-import static jmatrix.MatrixAssert.assertMatrixUnitLT;
-import static jmatrix.MatrixAssert.assertMatrixUT;
-import static jmatrix.MatrixAssert.assertMatrixEye;
-import static jmatrix.MatrixAssert.assertMatrixZero;
-import static jmatrix.MatrixAssert.assertMatrixOrtho;
-import static jmatrix.MatrixAssert.assertMatrixOrthoCols;
-import static jmatrix.MatrixAssert.assertMatrixOrthoOrZeroCols;
-
-import static jmatrix.Matrix.NR;
-import static jmatrix.Matrix.TOL;
-import static jmatrix.BasicUnaryOperation.*;
-import static jmatrix.BasicBinaryOperation.*;
+import static jmatrix.test.MatrixAssert.assertMatrixEquals;
+import static jmatrix.test.MatrixAssert.assertMatrixLT;
+import static jmatrix.test.MatrixAssert.assertMatrixUnitLT;
+import static jmatrix.test.MatrixAssert.assertMatrixUT;
+import static jmatrix.test.MatrixAssert.assertMatrixEye;
+import static jmatrix.test.MatrixAssert.assertMatrixZero;
+import static jmatrix.test.MatrixAssert.assertMatrixOrtho;
+import static jmatrix.test.MatrixAssert.assertMatrixOrthoCols;
+import static jmatrix.test.MatrixAssert.assertMatrixOrthoOrZeroCols;
 
 /**
  * Tests for the Matrix class.

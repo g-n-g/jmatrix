@@ -1,4 +1,4 @@
-package jmatrix;
+package jmatrix.test;
 
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;

@@ -300,7 +300,7 @@ public class Permutation {
    *
    * @return array representation of the permutation
    */
-  final int[] array() {
+  public final int[] array() {
     return data;
   }
 

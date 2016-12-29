@@ -1,10 +1,13 @@
-package jmatrix;
+package jmatrix.test;
+
+import java.util.Random;
+
+import jmatrix.Matrix;
+import jmatrix.Permutation;
+import static jmatrix.Matrix.NR;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-
-import java.util.Random;
-import static jmatrix.Matrix.NR;
 
 /**
  * Tests for permuting vectors and matrices.
