@@ -1,5 +1,8 @@
 
-JMatrix is a dense matrix library implemented in Java.
+JMatrix is a matrix library implemented in Java
+providing garbage collection free operations.
+
+Only dense matrices are supported at the moment.
 
 Supported matrix decompositions:
 
@@ -17,31 +20,20 @@ Further supported features:
   Manual placement of results in order to avoid garbage collection.
 
 -------------------------------------------------------------------------------
-INSTALLATION:
+COMPILATION using Maven:
 
-  Make sure you have a java compiler installed, preferrably 1.8 or higher.
-  To test this, issue: javac -version
+  mvn package
 
-  To run the tests and the benchmarks, install junit4.
-  The junit4.jar file should be located in the directory specified in
-  the java-home property of the build.xml file (by default: /usr/share/java).
-  
-  These requirements can be simply met on an Ubuntu system by:
-  
-    sudo apt install default-jdk junit4
+  This will create the following jar files:
 
--------------------------------------------------------------------------------
-COMPILATION AND DOCUMENTATION:
-
-  ant compile
-  ant jar
-  ant doc
+    jmatrix-<version>.jar : core classes
+    jmatrix_bench-<version>.jar : benchmarking classes
 
 -------------------------------------------------------------------------------
 USAGE EXAMPLES:
 
-  import jmatrix.Matrix;
-  import static jmatrix.Matrix.NR;
+  import ai.gandg.jmatrix.Matrix;
+  import static ai.gandg.jmatrix.Matrix.NR;
 
 Solution of A*x = b for x, where A is full rank:
 
@@ -52,6 +44,10 @@ Solution of A*x = b for x, where A is full rank:
   Matrix b = Matrix.create(4., 4., 9., -5.).T();
   Matrix[] PLU = A.LU(); // A == P'*L*U
   Matrix x = PLU[1].backsU(PLU[0].backsL(PLU[2].mul(b)));
+
+  // The P, L, U matrices of appropriate sizes can be provided to the LU operation
+  // in order to avoid allocating new objects:
+  // A.LU(L, U, P);
 
 Least squares solution of A*x = b for x, where A is full column rank:
 
@@ -74,30 +70,31 @@ Running tests:
 ~~~~~~~~~~~~~~
   Running all test cases:
 
-    ant test
+    mvn test
 
   Running a single test case (e.g., basicReducedSVD in MatrixTests):
 
-    ant test.single -Dtestcase=MatrixTests#basicReducedSVD
+    mvn -Dtest=MatrixTests#basicReducedSVD test
 
 Running benchmarks:
 ~~~~~~~~~~~~~~~~~~~
   Running all benchmarks with a randomly generated seed:
 
-    ant bench
+    java -jar target/jmatrix-<version>-bench.jar
 
   Specifying the random seed (e.g., 17192331):
 
-    ant bench -Dseed=17192331
+    java -jar target/jmatrix-<version>-bench.jar 17192331
 
   Specifying the benchmarks (e.g., running the LU, QR, and SVD benchmarks):
 
-    ant bench -Dbenchmarks=LU,QR,SVD
+    java -jar target/jmatrix-<version>-bench.jar '' LU,QR,SVD
 
   For all the available benchmarks, see BENCHMARKS in jmatrix.BenchmarkRunner.
 
   Benchmarking with debugging:
 
-    ant bench -Ddebug=true
+    java -jar target/jmatrix-<version>-bench.jar '' '' true
 
-  This redirects the error output for each benchmark into a separate file.
+  This redirects the error output for each benchmark into a separate file
+  named JMATRIX_BENCHMARK_ERROR_<seqnum>.
