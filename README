@@ -64,6 +64,13 @@ Least squares solution of A*x = b for x, where A is full column rank:
   x = L.T().backsU(L.backsL(A.T().mul(b)));
 
 -------------------------------------------------------------------------------
+DOCUMENTATION:
+
+  mvn javadoc:javadoc
+
+  This will generate the API documentation into target/site/apidocs.
+
+-------------------------------------------------------------------------------
 TESTS AND BENCHMARKS:
 
 Running tests:

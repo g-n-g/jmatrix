@@ -4,7 +4,7 @@ import java.util.Random;
 
 
 /**
- * Abstract matrix representation.
+ * The general matrix class which hides the actual representation.
  */
 public abstract class Matrix {
 
@@ -2255,7 +2255,6 @@ public abstract class Matrix {
    *
    * @param b right hand side vector
    *        (not <code>null</code>, can be equal to <code>x</code>)
-   * @param isUnitDiag unit diagonal indicator
    * @return x as the solution for U*x = b
    */
   public Matrix backsU(Matrix b) {
