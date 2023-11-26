@@ -3,8 +3,8 @@
 
 # JMatrix
 
-JMatrix is a matrix library implemented in Java
-providing garbage collection free operations.
+JMatrix is a matrix library implemented in Java providing garbage collection free operations.
+Its aim to rely on minimal dependencies and stay compilable on embedded Java implementations.
 
 Only dense matrices are supported at the moment.
 
@@ -15,10 +15,10 @@ Supported matrix decompositions:
   - SVD: singular value decomposition (full and reduced forms).
   - Cholesky decomposition (for positive-definite matrices, LL and LDL forms).
 
-Further supported features:
+Other supported features:
 
   - Constant-time matrix transpose.
-  - Unary and binary elementwise operations.
+  - Extendable unary and binary elementwise operations.
   - Orthogonalization by the Gram-Schmidt process.
   - Solving equations by back substitution for triangular matrices.
   - Manual placement of results in order to avoid garbage collection.
