@@ -19,8 +19,7 @@ Further supported features:
   Solving equations by back substitution for triangular matrices.
   Manual placement of results in order to avoid garbage collection.
 
---------------------
-INSTALLING by Maven:
+# INSTALLING by Maven
 
   Use it for your projects by putting the following into you pom.xml file:
 
@@ -30,8 +29,7 @@ INSTALLING by Maven:
     <version>0.1</version>
   </dependency>
 
-------------------------
-COMPILATION using Maven:
+# COMPILATION using Maven
 
   After manually downloading the source code, it can be compiled by: 
 
@@ -42,8 +40,7 @@ COMPILATION using Maven:
     jmatrix-<version>.jar : core classes
     jmatrix_bench-<version>.jar : benchmarking classes
 
----------------
-USAGE EXAMPLES:
+# USAGE EXAMPLES
 
   import ai.gandg.jmatrix.Matrix;
   import static ai.gandg.jmatrix.Matrix.NR;
@@ -76,18 +73,16 @@ Least squares solution of A*x = b for x, where A is full column rank:
   Matrix L = A.T().mul(A).choleskyL();
   x = L.T().backsU(L.backsL(A.T().mul(b)));
 
---------------
-DOCUMENTATION:
+# DOCUMENTATION
 
   mvn javadoc:javadoc
 
   This will generate the API documentation into target/site/apidocs.
 
----------------------
-TESTS AND BENCHMARKS:
+# TESTS AND BENCHMARKS
 
-Running tests:
-~~~~~~~~~~~~~~
+## Running tests
+
   Running all test cases:
 
     mvn test
@@ -96,8 +91,8 @@ Running tests:
 
     mvn -Dtest=MatrixTests#basicReducedSVD test
 
-Running benchmarks:
-~~~~~~~~~~~~~~~~~~~
+## Running benchmarks
+
   Running all benchmarks with a randomly generated seed:
 
     java -jar target/jmatrix-<version>-bench.jar
@@ -112,7 +107,7 @@ Running benchmarks:
 
   For all the available benchmarks, see BENCHMARKS in jmatrix.BenchmarkRunner.
 
-  Benchmarking with debugging:
+## Benchmarking with debugging
 
     java -jar target/jmatrix-<version>-bench.jar '' '' true
 
