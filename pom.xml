@@ -3,12 +3,20 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
  
-  <groupId>ai.gandg.jmatrix</groupId>
+  <groupId>ai.gandg</groupId>
   <artifactId>jmatrix</artifactId>
   <version>0.1</version>
 
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub gabalz Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/gabalz/jmatrix</url>
+    </repository>
+  </distributionManagement>
+
   <name>jmatrix</name>
-  <url>https://github.com/g-n-g/jmatrix</url>
+  <url>https://github.com/gabalz/jmatrix</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
