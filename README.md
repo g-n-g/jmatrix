@@ -93,7 +93,7 @@ Further supported features:
   mvn javadoc:javadoc
   ```
 
-  This will generate the API documentation into target/site/apidocs.
+  This will generate the API documentation into `target/site/apidocs`.
 
 ## TESTS AND BENCHMARKS
 
@@ -105,7 +105,7 @@ Further supported features:
   mvn test
   ```
 
-  Running a single test case (e.g., basicReducedSVD in MatrixTests):
+  Running a single test case (e.g., `basicReducedSVD` in `MatrixTests`):
 
   ```
   mvn -Dtest=MatrixTests#basicReducedSVD test
@@ -119,19 +119,19 @@ Further supported features:
   java -jar target/jmatrix-<version>-bench.jar
   ```
 
-  Specifying the random seed (e.g., 17192331):
+  Specifying the random seed (e.g., `17192331`):
 
   ```
   java -jar target/jmatrix-<version>-bench.jar 17192331
   ```
 
-  Specifying the benchmarks (e.g., running the LU, QR, and SVD benchmarks):
+  Specifying the benchmarks (e.g., running the `LU`, `QR`, and `SVD` benchmarks):
 
   ```
   java -jar target/jmatrix-<version>-bench.jar '' LU,QR,SVD
   ```
 
-  For all the available benchmarks, see BENCHMARKS in jmatrix.BenchmarkRunner.
+  For all the available benchmarks, see variable `BENCHMARKS` in `ai.gandg.jmatrix.BenchmarkRunner`.
 
 ### Benchmarking with debugging
 
@@ -140,4 +140,4 @@ Further supported features:
   ```
 
   This redirects the error output for each benchmark into a separate file
-  named JMATRIX_BENCHMARK_ERROR_<seqnum>.
+  named `JMATRIX_BENCHMARK_ERROR_*`.
