@@ -1,4 +1,5 @@
 ![ci](https://github.com/gabalz/jmatrix/actions/workflows/maven.yml/badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # JMatrix
 
@@ -44,8 +45,8 @@ Further supported features:
 
   This will create the following `jar` files:
 
-    - `jmatrix-<version>.jar` : core classes
-    - `jmatrix_bench-<version>.jar` : benchmarking classes
+  - `jmatrix-<version>.jar` : core classes
+  - `jmatrix_bench-<version>.jar` : benchmarking classes
 
 ## USAGE EXAMPLES
 
