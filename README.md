@@ -25,7 +25,7 @@ Other supported features:
 
 ## INSTALLING by Maven
 
-  Use it for your projects by putting the following into you `pom.xml` file:
+  Use it for your projects by putting the following into the `pom.xml` file:
 
   ```
   <dependency>
@@ -34,19 +34,6 @@ Other supported features:
     <version>0.1</version>
   </dependency>
   ```
-
-## COMPILATION using Maven
-
-  After manually downloading the source code, it can be compiled by: 
-
-  ```
-  mvn package
-  ```
-
-  This will create the following `jar` files:
-
-  - `jmatrix-<version>.jar` : core classes
-  - `jmatrix_bench-<version>.jar` : benchmarking classes
 
 ## USAGE EXAMPLES
 
@@ -94,6 +81,19 @@ Other supported features:
   ```
 
   This will generate the API documentation into `target/site/apidocs`.
+
+## COMPILATION using Maven
+
+  After manually downloading the source code, it can be compiled by: 
+
+  ```
+  mvn package
+  ```
+
+  This will create the following `jar` files under the `target` directory:
+
+  - `jmatrix-<version>.jar` : core classes
+  - `jmatrix_bench-<version>.jar` : benchmarking classes
 
 ## TESTS AND BENCHMARKS
 
