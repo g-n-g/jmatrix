@@ -6,7 +6,7 @@
 JMatrix is a matrix library implemented in Java providing garbage collection free operations.
 Its aim to rely on minimal dependencies and stay compilable on embedded Java implementations.
 
-Only dense matrices are supported at the moment.
+Currently, only dense matrices are supported.
 
 Supported matrix decompositions:
 
