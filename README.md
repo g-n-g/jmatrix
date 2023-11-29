@@ -23,18 +23,6 @@ Other supported features:
   - Solving equations by back substitution for triangular matrices.
   - Manual placement of results in order to avoid garbage collection.
 
-## INSTALLING by Maven
-
-  Use it for your projects by putting the following into the `pom.xml` file:
-
-  ```
-  <dependency>
-    <groupId>ai.gandg</groupId>
-    <artifactId>jmatrix</artifactId>
-    <version>0.1</version>
-  </dependency>
-  ```
-
 ## USAGE EXAMPLES
 
   ```
@@ -74,14 +62,6 @@ Other supported features:
   x = L.T().backsU(L.backsL(A.T().mul(b)));
   ```
 
-## DOCUMENTATION
-
-  ```
-  mvn javadoc:javadoc
-  ```
-
-  This will generate the API documentation into `target/site/apidocs`.
-
 ## COMPILATION using Maven
 
   After manually downloading the source code, it can be compiled by: 
@@ -94,6 +74,14 @@ Other supported features:
 
   - `jmatrix-<version>.jar` : core classes
   - `jmatrix_bench-<version>.jar` : benchmarking classes
+
+## DOCUMENTATION
+
+  ```
+  mvn javadoc:javadoc
+  ```
+
+  This will generate the API documentation into `target/site/apidocs`.
 
 ## TESTS AND BENCHMARKS
 
