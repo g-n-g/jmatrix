@@ -7,7 +7,7 @@
  *   <li>and stay compilable on embedded Java implementations.</li>
  * </ul>
  *
- * Currently, only dense matrices are supported.
+ * Currently, only dense matrices are supported.<br/><br/>
  *
  * Supported matrix decompositions:
  * <ul>

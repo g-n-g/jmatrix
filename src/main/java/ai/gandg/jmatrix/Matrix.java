@@ -4,9 +4,11 @@ import java.util.Random;
 
 
 /**
- * The general matrix class which hides the actual representation.
+ * The general matrix class providing constructors and matrix operations
+ * while hiding the actual representation.
  */
 public abstract class Matrix {
+  protected Matrix() {}
 
   /**
    * New row constant for the {@link Matrix#create(double...)} constructor.
@@ -18,6 +20,9 @@ public abstract class Matrix {
    * Numbers with absolute value less then this tolerance are considered zero.
    */
   public final static double TOL = 2e-8;
+
+  //----------------------------------------------------------------------------
+  // constructors
 
   /**
    * Creates a dense matrix by the provided values.
@@ -321,6 +326,69 @@ public abstract class Matrix {
         else if (Double.NEGATIVE_INFINITY == e) { set(i, j, negInf); }
       }
     }
+  }
+
+  //----------------------------------------------------------------------------
+  // toArray
+
+  /**
+   * Returns the matrix data in a two-dimensional array
+   * in row-major order.
+   *
+   * @param output placeholder for the data (allocated if <code>null</code>)
+   * @return the matrix data in a two-dimensional array
+   */
+  public double[][] toArray(double[][] output) {
+    if (output == null) { output = new double[rows()][cols()]; }
+    final int nrows = output.length;
+    final int ncols = output[0].length;
+    for (int i = 0; i < nrows; ++i) {
+      for (int j = 0; j < ncols; ++j) {
+        output[i][j] = get(i, j);
+      }
+    }
+    return output;
+  }
+
+  /**
+   * Returns the matrix data in a two-dimensional array
+   * in row-major order.
+   *
+   * @return the matrix data in a two-dimensional array
+   */
+  public double[][] toArray() {
+    return toArray(null);
+  }
+
+  /**
+   * Returns the matrix data in a one-dimensional array
+   * in row-major order.
+   *
+   * @param output placeholder for the data (allocated if <code>null</code>)
+   * @return the matrix data in a one-dimensional array
+   */
+  public double[] toFlatArray(double[] output) {
+    final int nrows = rows();
+    final int ncols = cols();
+    if (output == null) { output = new double[nrows*ncols]; }
+    assert nrows*ncols == output.length;
+    int p = 0;
+    for (int i = 0; i < nrows; ++i) { 
+      for (int j = 0; j < ncols; ++j) {
+        output[p++] = get(i, j);
+      }
+    }
+    return output;
+  }
+
+  /**
+   * Returns the matrix data in a one-dimensional array
+   * in row-major order.
+   *
+   * @return the matrix data in a one-dimensional array
+   */
+  public double[] toFlatArray() {
+    return toFlatArray(null);
   }
 
   //----------------------------------------------------------------------------

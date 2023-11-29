@@ -13,6 +13,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 import static ai.gandg.jmatrix.test.MatrixAssert.assertMatrixEquals;
 import static ai.gandg.jmatrix.test.MatrixAssert.assertMatrixLT;
@@ -54,6 +55,38 @@ public class MatrixTests {
     assertEquals(1, e.rows());
     assertEquals(1, e.cols());
     assertEquals(1, e.nnz());
+  }
+
+  @Test public void toArray() {
+    double[] array1 = null;
+    double[][] array2 = null;
+
+    array2 = Matrix.create(3.0, 0.0, 4.0).toArray();
+    assertEquals(1, array2.length);
+    assertArrayEquals(new double[]{3.0, 0.0, 4.0}, array2[0], TOL);
+
+    array2 = Matrix.create(3.0, 0.0, 4.0).T().toArray();
+    assertEquals(1, array2[0].length);
+    assertEquals(3.0, array2[0][0], TOL);
+    assertEquals(0.0, array2[1][0], TOL);
+    assertEquals(4.0, array2[2][0], TOL);
+
+    Matrix m = Matrix.create(1.0, 2.0, 3.0, NR,
+                             0.0, 4.0, 5.0);
+    assertArrayEquals(new double[]{1.0, 2.0, 3.0}, m.toArray()[0], TOL);
+    assertArrayEquals(new double[]{0.0, 4.0, 5.0}, m.toArray()[1], TOL);
+    assertArrayEquals(new double[]{1.0, 0.0}, m.T().toArray()[0], TOL);
+    assertArrayEquals(new double[]{2.0, 4.0}, m.T().toArray()[1], TOL);
+    assertArrayEquals(new double[]{3.0, 5.0}, m.T().toArray()[2], TOL);
+
+    array1 = Matrix.create(3.0, 0.0, 4.0).toFlatArray();
+    assertArrayEquals(new double[]{3.0, 0.0, 4.0}, array1, TOL);
+
+    array1 = Matrix.create(3.0, 0.0, 4.0).T().toFlatArray();
+    assertArrayEquals(new double[]{3.0, 0.0, 4.0}, array1, TOL);
+
+    array1 = Matrix.create(3.0, 0.0, NR, 1.0, 4.0).toFlatArray();
+    assertArrayEquals(new double[]{3.0, 0.0, 1.0, 4.0}, array1, TOL);
   }
 
   @Test public void norms() {
