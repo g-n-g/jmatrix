@@ -62,7 +62,7 @@ Other supported features:
   x = L.T().backsU(L.backsL(A.T().mul(b)));
   ```
 
-## COMPILATION using Maven
+## COMPILATION
 
   After manually downloading the source code, it can be compiled by: 
 
