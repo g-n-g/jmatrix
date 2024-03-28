@@ -1,10 +1,9 @@
-![ci](https://github.com/gabalz/jmatrix/actions/workflows/maven.yml/badge.svg)
+![[Build](https://github.com/gabalz/jmatrix/actions/workflows/maven.yml/badge.svg)](https://github.com/gabalz/jmatrix/actions/workflows/maven.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # JMatrix
 
-JMatrix is a matrix library implemented in Java providing garbage collection free operations.
-Its aim to rely on minimal dependencies and stay compilable on embedded Java implementations.
+JMatrix is a matrix library implemented in Java providing garbage collection free operations. Its aim to rely on minimal dependencies and stay compilable on embedded Java implementations.
 
 Currently, only dense matrices are supported.
 
